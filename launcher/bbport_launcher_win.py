@@ -893,11 +893,11 @@ class Launcher:
         self.row(f, _('Server address'), ttk.Entry(f, textvariable=server, width=40),
                  _('srv.shadps4.net:31313 is the public shadPS4 server. For a private server, enter '
                    'host:port from the person who runs it.'))
-        self.row(f, _('WebAPI address'), ttk.Entry(f, textvariable=self.var('online_webapi', 'app'), width=40),
+        self.row(f, _('Web API Address'), ttk.Entry(f, textvariable=self.var('online_webapi', 'app'), width=40),
                  _('Of the shadNet server, not the game server. Leave empty: the server address with '
                    'port 31315 is used.'))
         self.section(f, _('Account'))
-        self.row(f, _('Online ID (NPID)'), ttk.Entry(f, textvariable=self.var('online_npid', 'app'), width=40),
+        self.row(f, _('Online ID'), ttk.Entry(f, textvariable=self.var('online_npid', 'app'), width=40),
                  _('Your shadNet account name, not your email. Register one at shadnet.shadps4.net, or ask the '
                    'owner of a private server.'))
         self.row(f, _('Password'), ttk.Entry(f, textvariable=self.var('online_password', 'app'), width=40, show='•'),
@@ -940,7 +940,7 @@ class Launcher:
                     _('Empty: {}', 'Пусто: {}').format(DATA_DIR / 'mods'), on_change=self.refresh_lists)
         self.mods_frame = self.ttk.Frame(f)
         self.mods_frame.grid(row=self.next_row(f), column=0, columnspan=2, sticky='we', pady=(8, 0))
-        self.section(f, _('Third-party patches', 'Сторонние патчи'))
+        self.section(f, _('Third Party Patches', 'Сторонние патчи'))
         self.folder(f, 'patches_dir', _('Patches folder', 'Папка патчей'), _('Choose the patches folder', 'Выберите папку патчей'),
                     _('shadPS4/GoldHEN XML patch files for version 1.09. Empty: {}',
                       'XML-патчи shadPS4/GoldHEN для версии 1.09. Пусто: {}').format(DATA_DIR / 'patches'),
@@ -963,21 +963,21 @@ class Launcher:
                                                 'Проверять обновления при открытии лаунчера'))
         holder = ttk.Frame(f)
         holder.grid(row=self.next_row(f), column=0, columnspan=2, sticky='w', pady=(10, 0))
-        ttk.Button(holder, text=_('Desktop shortcut', 'Ярлык на рабочем столе'), command=self.shortcut).pack(side='left')
-        ttk.Button(holder, text=_('Add to Steam'), command=self.add_to_steam).pack(side='left', padx=(6, 0))
-        ttk.Button(holder, text=_('Port folder', 'Папка порта'), command=lambda: self.open_path(DATA_DIR)).pack(side='left', padx=6)
-        ttk.Button(holder, text='bbport.ini', command=lambda: self.open_path(ini_path())).pack(side='left')
+        ttk.Button(holder, text=_('Desktop Shortcut', 'Ярлык на рабочем столе'), command=self.shortcut).pack(side='left')
+        ttk.Button(holder, text=_('Add To Steam'), command=self.add_to_steam).pack(side='left', padx=(6, 0))
+        ttk.Button(holder, text=_('Port Folder', 'Папка порта'), command=lambda: self.open_path(DATA_DIR)).pack(side='left', padx=6)
+        ttk.Button(holder, text='BB Port', command=lambda: self.open_path(ini_path())).pack(side='left')
         holder = ttk.Frame(f)
         holder.grid(row=self.next_row(f), column=0, columnspan=2, sticky='w', pady=(10, 0))
-        ttk.Button(holder, text=_('Check for updates', 'Проверить обновления'),
+        ttk.Button(holder, text=_('Check For Updates', 'Проверить обновления'),
                    command=lambda: threading.Thread(target=self.check_update, args=(True,), daemon=True).start()
                    ).pack(side='left')
         ttk.Label(holder, text=f'v{VERSION}', style='Muted.TLabel').pack(side='left', padx=10)
         holder = ttk.Frame(f)
         holder.grid(row=self.next_row(f), column=0, columnspan=2, sticky='w', pady=(10, 0))
-        ttk.Button(holder, text=_('Clear shader cache', 'Очистить кэш шейдеров'), command=self.clear_cache).pack(side='left')
+        ttk.Button(holder, text=_('Clear Shader Cache', 'Очистить кэш шейдеров'), command=self.clear_cache).pack(side='left')
         self.section(f, _('Performance', 'Производительность'))
-        self.row(f, _('Two-stage GPU pipeline', 'Двухстадийный конвейер GPU'), self.choice(f, 'draw_pipe', 'app', DRAW_PIPE),
+        self.row(f, _('Two Stage GPU Pipeline', 'Двухстадийный конвейер GPU'), self.choice(f, 'draw_pipe', 'app', DRAW_PIPE),
                  _('20–30% faster; switch it off if the game is unstable.', 'Быстрее на 20–30%; при нестабильности выключите.'))
         self.row(f, _('GPU readbacks', 'Чтение данных GPU'), self.choice(f, 'readbacks', 'app', READBACKS),
                  _('How exactly data the GPU writes is copied back for the game.',
@@ -985,8 +985,8 @@ class Launcher:
         self.section(f, _('Diagnostics', 'Для разработчика'))
         self.check(f, 'frame_stats', 'app', _('Frame statistics in the log (every 5 s)', 'Статистика кадров в журнале (раз в 5 с)'))
         self.check(f, 'gpu_profile', 'app', _('GPU time per pass in the log', 'Профиль GPU в журнале'))
-        self.check(f, 'vk_validation', 'app', _('Vulkan validation layers (needs the Vulkan SDK; much slower)',
-                                                'Слои валидации Vulkan (нужен Vulkan SDK; сильно замедляет)'))
+        self.check(f, 'vk_validation', 'app', _('Vulkan validation layers (needs the Vulkan SDK, Much Slower)',
+                                                'Слои валидации Vulkan (нужен Vulkan SDK, сильно замедляет)'))
         self.row(f, _('Extra variables', 'Доп. переменные'), ttk.Entry(f, textvariable=self.var('extra_env', 'app'), width=58),
                  _('NAME=value pairs separated by spaces (README lists them).', 'Пары ИМЯ=значение через пробел (список в README).'))
 
@@ -1141,9 +1141,6 @@ class Launcher:
             self.mod_order = known + [n for n in available if n not in known]
         old = {n: v.get() for n, v in self.mod_vars.items()}
         self.mod_vars = {}
-        if not available:
-            ttk.Label(self.mods_frame, text=_('No mods in {} yet.', 'В {} пока нет модов.').format(root),
-                      style='Muted.TLabel').pack(anchor='w')
         for index, name in enumerate(self.mod_order):
             line = ttk.Frame(self.mods_frame)
             line.pack(fill='x', pady=1)
@@ -1160,9 +1157,6 @@ class Launcher:
         found = external_patches(Path(self.var('patches_dir', 'app').get() or DATA_DIR / 'patches'), PATCH_VERSION)
         old = {n: v.get() for n, v in self.patch_vars.items()}
         self.patch_vars = {}
-        if not found:
-            ttk.Label(self.patches_frame, text=_('No patch files for version 1.09 yet.', 'Пока нет патчей для версии 1.09.'),
-                      style='Muted.TLabel').pack(anchor='w')
         for key, _path, meta in found:
             on = key in chosen.get('enabled', []) or (key not in chosen.get('disabled', []) and
                                                       meta.get('isEnabled', 'false').lower() == 'true')
