@@ -192,7 +192,7 @@ UPSCALERS = [('dlss', ('DLSS (NVIDIA GeForce RTX)',)),
              ('fsr3', ('FSR 3.1 (every GPU)', 'FSR 3.1 (любая видеокарта)')),
              ('taa', ('TAA (native resolution anti-aliasing)', 'TAA (нативное сглаживание)')),
              ('off', ('Off', 'Выключен'))]
-PRESETS = [('0', ('Native AA',)), ('1', ('Quality',)), ('2', ('Balanced',)),
+PRESETS = [('0', ('Native',)), ('1', ('Quality',)), ('2', ('Balanced',)),
            ('3', ('Performance',)), ('4', ('Ultra Performance',))]
 OUTPUTS = [('1280x720', ('1280 × 720',)), ('1920x1080', ('1920 × 1080',)),
            ('2560x1440', ('2560 × 1440',)), ('3840x2160', ('3840 × 2160 (4K)',))]
@@ -888,7 +888,7 @@ class Launcher:
         community = self.var('online_community', 'app')
         self.row(f, _('Game server'), ttk.Entry(f, textvariable=community, width=40),
                  _('The Hunter\'s Dream by default. Only the name is needed; the game picks the ports.'))
-        self.section(f, _('Co-op server (bells and summons)'))
+        self.section(f, _('Co Op server (bells and summons)'))
         server = self.var('online_server', 'app')
         self.row(f, _('Server address'), ttk.Entry(f, textvariable=server, width=40),
                  _('srv.shadps4.net:31313 is the public shadPS4 server. For a private server, enter '
@@ -976,9 +976,6 @@ class Launcher:
         holder = ttk.Frame(f)
         holder.grid(row=self.next_row(f), column=0, columnspan=2, sticky='w', pady=(10, 0))
         ttk.Button(holder, text=_('Clear shader cache', 'Очистить кэш шейдеров'), command=self.clear_cache).pack(side='left')
-        ttk.Label(holder, text=_('If the game only shows a black screen, this usually helps.',
-                                 'Если игра показывает только чёрный экран, обычно это помогает.'),
-                  style='Muted.TLabel').pack(side='left', padx=10)
         self.section(f, _('Performance', 'Производительность'))
         self.row(f, _('Two-stage GPU pipeline', 'Двухстадийный конвейер GPU'), self.choice(f, 'draw_pipe', 'app', DRAW_PIPE),
                  _('20–30% faster; switch it off if the game is unstable.', 'Быстрее на 20–30%; при нестабильности выключите.'))
