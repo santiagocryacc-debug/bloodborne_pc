@@ -400,7 +400,7 @@ class Launcher:
         self.banner_source = self.banner_image = None
         self.ui_calls = queue.Queue()  # work for the Tk thread from helper threads
         self.mod_order, self.mod_vars, self.patch_vars = [], {}, {}
-        root.title('Bloodborne — bbport')
+        root.title('Bloodborne')
         root.configure(bg=BG)
         self.dpi = root.winfo_fpixels('1i') / 96.0
         root.geometry(f'{self.px(1120)}x{self.px(740)}')
@@ -544,7 +544,7 @@ class Launcher:
         r = self.next_row(parent)
         ttk.Label(parent, text=title).grid(row=r, column=0, sticky='nw', padx=(0, 18), pady=(8, 0))
         widget.grid(row=r, column=1, sticky='w', pady=(5, 0))
-        if hint:
+        if False and hint:
             ttk.Label(parent, text=hint, style='Muted.TLabel', wraplength=self.px(560), justify='left').grid(
                 row=r + 1, column=1, sticky='w', pady=(2, 2))
         return widget
@@ -554,7 +554,7 @@ class Launcher:
         r = self.next_row(parent)
         ttk.Checkbutton(parent, text=title, variable=self.var(key, store)).grid(
             row=r, column=0, columnspan=2, sticky='w', pady=(4, 0))
-        if hint:
+        if False and hint:
             ttk.Label(parent, text=hint, style='Muted.TLabel', wraplength=self.px(640), justify='left').grid(
                 row=r + 1, column=0, columnspan=2, sticky='w', padx=(26, 0))
 
@@ -590,7 +590,7 @@ class Launcher:
         head = ttk.Frame(outer, padding=(28, 22, 28, 6))
         head.pack(fill='x')
         ttk.Label(head, text=title, background=PANEL, foreground=TEXT, font=('Georgia', 20)).pack(anchor='w')
-        ttk.Label(head, text=subtitle, style='Muted.TLabel').pack(anchor='w')
+        # Subtitle hidden
         canvas = tk.Canvas(outer, bg=PANEL, highlightthickness=0, bd=0)
         bar = ttk.Scrollbar(outer, orient='vertical', command=canvas.yview)
         inner = ttk.Frame(canvas, padding=(28, 0, 28, 24))
@@ -615,7 +615,7 @@ class Launcher:
         self.side = side
         self.nav, self.current_page = {}, None
         for name, title in (('play', _('Play', 'Играть')), ('graphics', _('Graphics', 'Графика')),
-                            ('display', _('Display & FPS', 'Экран и FPS')), ('game', _('Game & effects', 'Игра и эффекты')),
+                            ('display', _('Display & FPS', 'Экран и FPS')), ('game', _('Game & Effects', 'Игра и эффекты')),
                             ('cheats', _('Cheats', 'Читы')), ('online', _('Online co-op', 'Онлайн-кооператив')),
                             ('mods', _('Mods & patches', 'Моды и патчи')),
                             ('advanced', _('Advanced', 'Дополнительно')),
@@ -757,18 +757,18 @@ class Launcher:
                    'a GPU with INT8 dot products; otherwise the game falls back to FSR 3.1 by itself.',
                    'Временной апскейлинг с векторами движения игры. FSR 4 нужны ассеты (ниже) и GPU с INT8; '
                    'иначе игра сама переключится на FSR 3.1.'))
-        self.row(f, _('Quality preset', 'Пресет'), self.choice(f, 'preset', 'ini', PRESETS),
+        self.row(f, _('Quality Preset', 'Пресет'), self.choice(f, 'preset', 'ini', PRESETS),
                  _('Render scale per axis: Quality renders at 1/1.5 of the output size.',
                    'Масштаб рендера по каждой оси: Quality рисует в 1/1.5 размера вывода.'))
-        self.row(f, _('Output resolution', 'Разрешение вывода'), self.choice(f, 'output_res', 'ini', OUTPUTS),
+        self.row(f, _('Output Resolution', 'Разрешение вывода'), self.choice(f, 'output_res', 'ini', OUTPUTS),
                  _('What the upscaler produces; the HUD is drawn at this size too.',
                    'Что выдаёт апскейлер; интерфейс рисуется в этом же размере.'))
-        self.row(f, _('Live resolution changes', 'Смена разрешения на лету'), self.choice(f, 'live_resolution', 'ini', LIVE),
+        self.row(f, _('Live Resolution Changes', 'Смена разрешения на лету'), self.choice(f, 'live_resolution', 'ini', LIVE),
                  _('Off: outputs other than 1080p are set by a patch at start (fastest; changing them in the '
                    'game restarts it). On: change output and preset in the game without a restart, at a cost.',
                    'Выкл.: разрешения кроме 1080p задаются патчем при запуске (быстрее). Вкл.: менять в игре '
                    'без перезапуска, но медленнее.'))
-        self.check(f, 'sharpen', 'ini', _('Sharpening (RCAS)', 'Резкость (RCAS)'))
+        self.check(f, 'sharpen', 'ini', _('Sharpening', 'Резкость (RCAS)'))
         holder = ttk.Frame(f)
         ttk.Scale(holder, from_=0.0, to=2.0, variable=self.var('sharpness', 'ini'), length=300).pack(side='left')
         value = ttk.Label(holder, width=5)
@@ -777,46 +777,32 @@ class Launcher:
         self.vars['sharpness'].trace_add('write', show)
         show()
         self.row(f, _('Sharpness', 'Сила резкости'), holder)
-        self.check(f, 'object_motion', 'ini', _('Object motion vectors', 'Векторы движения объектов'),
+        self.check(f, 'object_motion', 'ini', _('Object Motion Vectors', 'Векторы движения объектов'),
                    _('Less ghosting on characters, cloth and weapons; costs about 10% FPS.',
                      'Меньше гостинга на персонажах и одежде; стоит около 10% FPS.'))
-        self.section(f, _('FSR 4 assets', 'Ассеты FSR 4'))
-        self.fsr4_label = ttk.Label(f, text='', wraplength=self.px(640), justify='left')
-        self.fsr4_label.grid(row=self.next_row(f), column=0, columnspan=2, sticky='w')
-        holder = ttk.Frame(f)
-        holder.grid(row=self.next_row(f), column=0, columnspan=2, sticky='w', pady=(8, 0))
-        self.fsr4_button = ttk.Button(holder, text=_('Download FSR 4 assets', 'Скачать ассеты FSR 4'),
-                                      command=self.download_fsr4)
-        self.fsr4_button.pack(side='left')
-        self.fsr4_progress = ttk.Progressbar(holder, length=280, maximum=len(fsr4_files()))
-        self.fsr4_progress.pack(side='left', padx=12)
-        self.note(f, _("From FireBurn/Q2RTX on GitHub (built from AMD's MIT-licensed FidelityFX source), "
-                       'about 30 MB, into the fsr4_shaders folder of the port.',
-                       'С GitHub FireBurn/Q2RTX (собраны из MIT-исходников AMD FidelityFX), около 30 МБ, '
-                       'в папку fsr4_shaders порта.'), top=6)
+        # FSR 4 assets section hidden
         self.section(f, _('Detail', 'Детализация'))
-        self.row(f, _('Model detail (LOD)', 'Детализация моделей'), self.choice(f, 'model_lod', 'ini', LODS),
+        self.row(f, _('Model Detail', 'Детализация моделей'), self.choice(f, 'model_lod', 'ini', LODS),
                  _('A game patch (game version 1.09).', 'Патч игры (версия 1.09).'))
-        self.check(f, 'show_fps', 'ini', _('Show the FPS counter', 'Показывать FPS'))
 
     def build_display(self):
         ttk = self.ttk
         f = self.scrolled_page('display', _('Display & FPS', 'Экран и FPS'),
                                _('Applied when the game starts.', 'Применяется при запуске игры.'))
         self.version_warning(f)
-        self.section(f, _('Frame rate', 'Частота кадров'), top=4)
+        self.section(f, _('Frame Rate', 'Частота кадров'), top=4)
         self.row(f, _('Frame rate', 'Режим'), self.choice(f, 'fps_mode', 'app', FPS_MODES),
                  _("Community patches for game version 1.09. Unlocked makes the game use the real frame time. "
                    'Other game versions always run at 30 FPS (the patches would corrupt them).',
                    'Патчи сообщества для версии 1.09. «Без ограничения» — игра использует реальное время кадра. '
                    'Другие версии всегда работают в 30 FPS.'))
-        self.row(f, _('Frame cap (unlocked mode)', 'Ограничение FPS (режим без ограничения)'),
+        self.row(f, _('Frame Cap', 'Ограничение FPS (режим без ограничения)'),
                  self.choice(f, 'frame_cap', 'app', FRAME_CAPS),
                  _("Above about 120 FPS the game's movement timing breaks (running and rolling get slower, "
                    'physics and animations can glitch): higher caps are at your own risk.',
                    'Выше ~120 FPS ломается тайминг движения игры (бег и перекаты замедляются, возможны '
                    'сбои физики и анимаций): более высокие значения — на ваш риск.'))
-        self.row(f, _('Frames ahead of the GPU', 'Кадров впереди GPU'), self.choice(f, 'frames_ahead', 'app', FRAMES_AHEAD),
+        self.row(f, _('Frames Ahead of the GPU', 'Кадров впереди GPU'), self.choice(f, 'frames_ahead', 'app', FRAMES_AHEAD),
                  _('1 keeps frame pacing even; more can raise FPS when the graphics card is the limit.',
                    '1 — ровная подача кадров; больше может поднять FPS, если упирается в видеокарту.'))
         self.section(f, _('Window', 'Окно'))
@@ -827,7 +813,7 @@ class Launcher:
                      'Если HDR включён в Windows и монитор его поддерживает.'))
 
     def build_game(self):
-        f = self.scrolled_page('game', _('Game & effects', 'Игра и эффекты'),
+        f = self.scrolled_page('game', _('Game & Effects', 'Игра и эффекты'),
                                _('Your game dump, saves and the game patches.', 'Дамп игры, сохранения и патчи игры.'))
         self.section(f, _('Game', 'Игра'), top=4)
         self.folder(f, 'game_dir', _('Game folder', 'Папка игры'),
@@ -849,8 +835,6 @@ class Launcher:
         self.section(f, _('Extras', 'Дополнительно'))
         for key, title, _on in EXTRAS:
             self.check(f, key, 'ini', _(*title))
-        self.note(f, _('Effects and extras are game patches for version 1.09, applied at start.',
-                       'Эффекты и дополнения — патчи игры для версии 1.09, применяются при запуске.'))
 
     def build_cheats(self):
         f = self.scrolled_page('cheats', _('Cheats', 'Читы'),
