@@ -19,6 +19,13 @@ import sys
 PORT = Path(__file__).resolve().parent
 
 
+def safe_print(message):
+    try:
+        print(message)
+    except (OSError, UnicodeError):
+        pass
+
+
 # Co-op: the community service that answers Bloodborne's own game-server requests
 # (messages, bloodstains, sign-in); summon requests go to the shadNet server instead.
 COMMUNITY_SERVER = 'https://thehuntersdream.com'
@@ -61,9 +68,9 @@ def online_overrides(env, user_dir):
         if summon_service(webapi):
             overrides.update({f'{scheme}://{host}:{COMMUNITY_API_PORT}/summon_messenger': webapi
                               for scheme in ('https', 'http')})
-            print(f'Co-op: summon signs through {webapi}')
+            safe_print(f'Co-op: summon signs through {webapi}')
         else:
-            print(f'Co-op: {webapi} has no summon service; summon signs through {community}')
+            safe_print(f'Co-op: {webapi} has no summon service; summon signs through {community}')
         path.write_text(json.dumps(overrides, indent=2) + '\n', encoding='utf-8')
     env['SHADPS4_HTTP_HOST_OVERRIDES_JSON'] = str(path)
 
