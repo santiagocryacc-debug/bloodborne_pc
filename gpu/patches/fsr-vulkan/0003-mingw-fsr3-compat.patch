@@ -1,0 +1,22 @@
+diff --git a/upstream/ffx-1.1.4/sdk/include/FidelityFX/host/ffx_types.h b/upstream/ffx-1.1.4/sdk/include/FidelityFX/host/ffx_types.h
+index f7625c2..5601c6d 100644
+--- a/upstream/ffx-1.1.4/sdk/include/FidelityFX/host/ffx_types.h
++++ b/upstream/ffx-1.1.4/sdk/include/FidelityFX/host/ffx_types.h
+@@ -24,6 +24,17 @@
+ 
+ #include <stdint.h>
+ 
++#ifndef _countof
++#define _countof(array) (sizeof(array) / sizeof((array)[0]))
++#endif
++
++#if defined(_WIN32) && defined(__MINGW32__)
++#include <wchar.h>
++#ifndef swprintf_s
++#define swprintf_s swprintf
++#endif
++#endif
++
+ ///
+ /// @defgroup ffxSDK SDK
+ /// The SDK module provides detailed descriptions of the various class, structs, and function which comprise the FidelityFX SDK. It is divided into several sub-modules.
