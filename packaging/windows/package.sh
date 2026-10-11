@@ -70,7 +70,13 @@ cp gpu/third_party/httplib/LICENSE "$dest/licenses/cpp-httplib-LICENSE.txt"
 cp packaging/windows/licenses/*.txt "$dest/licenses/"
 for package in protobuf abseil-cpp openssl miniupnpc zlib; do
     license=/clang64/share/licenses/$package/LICENSE
-    if [[ -f $license ]]; then cp "$license" "$dest/licenses/$package-LICENSE.txt"; fi
+    if [[ -f "$license" ]]; then
+        if ! cp "$license" "$dest/licenses/$package-LICENSE.txt"; then
+            echo "Warning: skipping unavailable license: $license" >&2
+        fi
+    else
+        echo "Warning: license not found, skipping: $license" >&2
+    fi
 done
 find "$dest" -name __pycache__ -prune -exec rm -r {} +
 mkdir -p dist
