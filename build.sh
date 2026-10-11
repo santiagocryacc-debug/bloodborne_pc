@@ -20,6 +20,23 @@ MINGW*|MSYS*)
             git -C gpu/third_party/fsr-vulkan apply "$PWD/$patch"
         fi
     done
+    # MSYS2/MinGW: ensure std::abort is declared in Sirit.
+    python3 - <<'PY_SIRIT'
+from pathlib import Path
+p = Path("gpu/third_party/sirit/src/stream.h")
+text = p.read_text()
+if "#include <cstdlib>" not in text:
+    lines = text.splitlines(keepends=True)
+    index = next(
+        (i for i, line in enumerate(lines)
+         if line.lstrip().startswith("#include ")),
+        None
+    )
+    if index is None:
+        raise SystemExit("No encontré includes en sirit/src/stream.h")
+    lines.insert(index, "#include <cstdlib>\n")
+    p.write_text("".join(lines))
+PY_SIRIT
     cmake -S gpu -B out/gpu -G Ninja -DCMAKE_BUILD_TYPE=RelWithDebInfo -DBB_PGO=off \
         -DBB_LTO="${BB_LTO:-OFF}" -DCMAKE_C_COMPILER=clang -DCMAKE_CXX_COMPILER=clang++ >/dev/null
     echo "GPU library and loader: LTO ${BB_LTO:-OFF}"
