@@ -155,6 +155,7 @@ EFFECTS = [
 EXTRAS = [('skip_intro', ('Skip The Intro Logos And Movie', 'Пропуск заставок при запуске'), False)]
 # Cheats and gameplay tweaks: game patches for 1.09 (patches.py EFFECTS), off by default.
 CHEATS = [
+    ('debug_camera', ('Free Camera (Cross + L3 / Space + Z)', 'Свободная камера (Cross + L3 / Space + Z)'), False),
     ('cheat_no_death', ('Never die (health stops at 1 HP)', 'Бессмертие (здоровье не ниже 1 HP)'), False),
     ('cheat_stealth', ('Enemies do not see you (unless attacked)', 'Враги не видят вас (пока не атакованы)'), False),
     ('cheat_silent', ('Enemies do not hear you', 'Враги не слышат вас'), False),
