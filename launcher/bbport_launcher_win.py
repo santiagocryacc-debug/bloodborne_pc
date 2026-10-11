@@ -125,24 +125,34 @@ def windows_language():
 
 
 # ---------------------------------------------------------------------------------------------
+def _ui_title(text):
+    text = text.title().replace("Game'S", "Game's")
+    for a, b in [
+        ("Dlss", "DLSS"), ("Fsr", "FSR"), ("Taa", "TAA"),
+        ("Gpu", "GPU"), ("Hdr", "HDR"), ("Vsync", "VSync"),
+        ("Fifo", "FIFO"), ("Rcas", "RCAS"), ("Dof", "DoF"),
+        ("Ssr", "SSR"), ("Ssao", "SSAO"), ("Npid", "NPID"),
+        ("Api", "API"), ("Webapi", "WebAPI"),
+    ]:
+        text = text.replace(a, b)
+    return text
+
+
 # Settings. bbport.ini keys (the game reads them, the in-game menu edits them) and the
 # launcher's own settings.json (passed to run.py as environment variables).
 
 EFFECTS = [
-    ('effect_chromatic_aberration', ('Chromatic aberration', 'Хроматическая аберрация'), True),
-    ('effect_dof', ('Depth of field', 'Глубина резкости (DoF)'), True),
-    ('effect_motion_blur', ('Motion blur', 'Размытие в движении'), True),
-    ('effect_ssao', ('Ambient occlusion (SSAO)', 'Затенение SSAO'), True),
-    ('effect_game_aa', ("The game's own anti-aliasing", 'Собственное сглаживание игры'), True),
-    ('effect_dynamic_shadows', ('Shadows of dynamic lights', 'Тени от динамических источников'), True),
-    ('effect_ssr', ('Screen-space reflections (not in the original)', 'Отражения SSR (не было в игре)'), False),
+    ('effect_game_aa', ("Default Antialiasing", 'Собственное сглаживание игры'), True),
+
+    ('effect_chromatic_aberration', ('Chromatic Aberration', 'Хроматическая аберрация'), True),
+    ('effect_dof', ('Depth Of Field', 'Глубина резкости'), True),
+    ('effect_motion_blur', ('Motion Blur', 'Размытие в движении'), True),
+    ('effect_ssao', ('Ambient Occlusion', 'Затенение'), True),
+    ('effect_dynamic_shadows', ('Shadows Of Dynamic Lights', 'Тени от динамических источников'), True),
+    ('effect_ssr', ('Reflections', 'Отражения'), False),
+
 ]
-EXTRAS = [
-    ('skip_intro', ('Skip the intro logos and movie', 'Пропуск заставок при запуске'), False),
-    ('debug_camera', ('Free camera (hold Cross + L3; keyboard Space + Z)', 'Свободная камера (Cross + L3 / Space + Z)'), False),
-    ('debug_menu', ('Game debug menu (left touchpad / Tab; needs the debug fonts)',
-                    'Debug menu (левый touchpad / Tab; нужны шрифты)'), False),
-]
+EXTRAS = [('skip_intro', ('Skip The Intro Logos And Movie', 'Пропуск заставок при запуске'), False)]
 # Cheats and gameplay tweaks: game patches for 1.09 (patches.py EFFECTS), off by default.
 CHEATS = [
     ('cheat_no_death', ('Never die (health stops at 1 HP)', 'Бессмертие (здоровье не ниже 1 HP)'), False),
@@ -185,9 +195,8 @@ PRESETS = [('0', ('Native AA',)), ('1', ('Quality',)), ('2', ('Balanced',)),
            ('3', ('Performance',)), ('4', ('Ultra Performance',))]
 OUTPUTS = [('1280x720', ('1280 × 720',)), ('1920x1080', ('1920 × 1080',)),
            ('2560x1440', ('2560 × 1440',)), ('3840x2160', ('3840 × 2160 (4K)',))]
-LIVE = [('auto', ('Auto (by graphics card)', 'Авто (по видеокарте)')), ('0', ('Off (faster)', 'Выключена (быстрее)')),
-        ('1', ('On (change without restarting)', 'Включена (без перезапуска)'))]
-LODS = [('0', ('As in the game', 'Как в игре')), ('-2', ('Highest (−2)', 'Максимальная (−2)')),
+LIVE = [('auto', ('Auto', 'Авто')), ('0', ('Off', 'Выключена')), ('1', ('On', 'Включена'))]
+LODS = [('0', ('As In The Game', 'Как в игре')), ('-2', ('Highest (−2)', 'Максимальная (−2)')),
         ('1', ('Lower (1)', 'Ниже (1)')), ('2', ('Lowest (2)', 'Минимальная (2)'))]
 FPS_MODES = [('uncap', ('Unlocked', 'Без ограничения (патч)')), ('60', ('60 FPS',)),
              ('90', ('90 FPS',)), ('30', ('30 FPS', '30 FPS'))]
@@ -203,10 +212,11 @@ READBACKS = [('', ('Relaxed (default)', 'Relaxed (по умолчанию)')), (
              ('2', ('Precise',))]
 # Frame cap of the unlocked mode (BB_FPS_LIMIT). '' leaves the port's own: the display refresh,
 # at most 120, because the game's movement timing breaks above about 120 FPS.
-FRAME_CAPS = [('', ('Auto: display refresh, max 120 (recommended)', 'Авто: частота монитора, макс. 120 (рекомендуется)')),
-              ('60', ('60',)), ('90', ('90',)), ('120', ('120',)), ('144', ('144  ⚠',)), ('165', ('165  ⚠',)),
-              ('240', ('240  ⚠',)), ('0', ('No limit  ⚠', 'Без ограничения  ⚠'))]
-FRAMES_AHEAD = [('', ('1 (default)', '1 (по умолчанию)')), ('2', ('2',)), ('0', ('Unbounded', 'Без ограничения'))]
+FRAME_CAPS = [('', ('Auto', 'Auto')),
+              ('60', ('60',)), ('90', ('90',)), ('120', ('120',)),
+              ('165', ('165',)), ('240', ('240',)),
+              ('0', ('No Limit', 'Sin límite'))]
+FRAMES_AHEAD = [('', ('1', '1')), ('2', ('2',)), ('0', ('Unbounded', 'Без ограничения'))]
 UI_LANGUAGES = bbport_lang.LANGUAGE_NAMES
 
 FSR4_COMMIT = 'ae8d628fae208813172446d1e49ed94150b04658'
@@ -524,7 +534,19 @@ class Launcher:
         """A combobox over (value, (english, russian)) pairs, kept in sync with its variable."""
         var = self.var(key, store)
         values = [v for v, _t in options]
-        box = self.ttk.Combobox(parent, values=[_(*text) for _v, text in options], state='readonly', width=width)
+        def clean_label(text):
+            def simplify(match):
+                value = match.group(1).strip()
+                return ' ' + value if re.fullmatch(r'[−+\-]?\d+', value) else ''
+            text = re.sub(r'\s*\(([^)]*)\)', simplify, text)
+            text = _ui_title(text)
+            for a, b in [('Dlss', 'DLSS'), ('Fsr', 'FSR'), ('Taa', 'TAA'),
+                         ('Gpu', 'GPU'), ('Hdr', 'HDR'), ('Vsync', 'VSync'),
+                         ('Fifo', 'FIFO'), ('Rcas', 'RCAS'), ('Dof', 'DoF'),
+                         ('Ssr', 'SSR'), ('Ssao', 'SSAO'), ('Np id', 'NPID')]:
+                text = text.replace(a, b)
+            return text
+        box = self.ttk.Combobox(parent, values=[clean_label(_(*text)) for _v, text in options], state='readonly', width=width)
         if var.get() not in values:
             var.set(values[0])
 
@@ -540,9 +562,10 @@ class Launcher:
         return parent.grid_size()[1]
 
     def row(self, parent, title, widget, hint=None):
+        hint = None
         ttk = self.ttk
         r = self.next_row(parent)
-        ttk.Label(parent, text=title).grid(row=r, column=0, sticky='nw', padx=(0, 18), pady=(8, 0))
+        ttk.Label(parent, text=_ui_title(title)).grid(row=r, column=0, sticky='nw', padx=(0, 18), pady=(8, 0))
         widget.grid(row=r, column=1, sticky='w', pady=(5, 0))
         if False and hint:
             ttk.Label(parent, text=hint, style='Muted.TLabel', wraplength=self.px(560), justify='left').grid(
@@ -552,18 +575,17 @@ class Launcher:
     def check(self, parent, key, store, title, hint=None):
         ttk = self.ttk
         r = self.next_row(parent)
-        ttk.Checkbutton(parent, text=title, variable=self.var(key, store)).grid(
+        ttk.Checkbutton(parent, text=_ui_title(title), variable=self.var(key, store)).grid(
             row=r, column=0, columnspan=2, sticky='w', pady=(4, 0))
         if False and hint:
             ttk.Label(parent, text=hint, style='Muted.TLabel', wraplength=self.px(640), justify='left').grid(
                 row=r + 1, column=0, columnspan=2, sticky='w', padx=(26, 0))
 
     def note(self, parent, text, top=12):
-        self.ttk.Label(parent, text=text, style='Muted.TLabel', wraplength=self.px(680), justify='left').grid(
-            row=self.next_row(parent), column=0, columnspan=2, sticky='w', pady=(top, 0))
+        return None
 
     def section(self, parent, title, top=18):
-        self.ttk.Label(parent, text=title, style='Section.TLabel').grid(
+        self.ttk.Label(parent, text=_ui_title(title), style='Section.TLabel').grid(
             row=self.next_row(parent), column=0, columnspan=2, sticky='w', pady=(top, 2))
 
     def folder(self, parent, key, title, prompt, hint=None, on_change=None):
@@ -589,7 +611,7 @@ class Launcher:
         outer = ttk.Frame(self.content)
         head = ttk.Frame(outer, padding=(28, 22, 28, 6))
         head.pack(fill='x')
-        ttk.Label(head, text=title, background=PANEL, foreground=TEXT, font=('Georgia', 20)).pack(anchor='w')
+        ttk.Label(head, text=_ui_title(title), background=PANEL, foreground=TEXT, font=('Georgia', 20)).pack(anchor='w')
         # Subtitle hidden
         canvas = tk.Canvas(outer, bg=PANEL, highlightthickness=0, bd=0)
         bar = ttk.Scrollbar(outer, orient='vertical', command=canvas.yview)
@@ -616,11 +638,11 @@ class Launcher:
         self.nav, self.current_page = {}, None
         for name, title in (('play', _('Play', 'Играть')), ('graphics', _('Graphics', 'Графика')),
                             ('display', _('Display & FPS', 'Экран и FPS')), ('game', _('Game & Effects', 'Игра и эффекты')),
-                            ('cheats', _('Cheats', 'Читы')), ('online', _('Online co-op', 'Онлайн-кооператив')),
+                            ('cheats', _('Cheats', 'Читы')), ('online', _('Online', 'Онлайн-кооператив')),
                             ('mods', _('Mods & patches', 'Моды и патчи')),
                             ('advanced', _('Advanced', 'Дополнительно')),
                             ('log', _('Log', 'Журнал'))):
-            item = tk.Label(side, text='    ' + title, bg=BG, fg=TEXT, anchor='w', font=('Segoe UI', 11),
+            item = tk.Label(side, text='    ' + title.title(), bg=BG, fg=TEXT, anchor='w', font=('Segoe UI', 11),
                             pady=10, cursor='hand2')
             item.pack(fill='x')
             item.bind('<Button-1>', lambda _e, n=name: self.show(n))
@@ -768,7 +790,7 @@ class Launcher:
                    'game restarts it). On: change output and preset in the game without a restart, at a cost.',
                    'Выкл.: разрешения кроме 1080p задаются патчем при запуске (быстрее). Вкл.: менять в игре '
                    'без перезапуска, но медленнее.'))
-        self.check(f, 'sharpen', 'ini', _('Sharpening', 'Резкость (RCAS)'))
+        self.check(f, 'sharpen', 'ini', _('Sharpening', 'Резкость'))
         holder = ttk.Frame(f)
         ttk.Scale(holder, from_=0.0, to=2.0, variable=self.var('sharpness', 'ini'), length=300).pack(side='left')
         value = ttk.Label(holder, width=5)
@@ -791,18 +813,18 @@ class Launcher:
                                _('Applied when the game starts.', 'Применяется при запуске игры.'))
         self.version_warning(f)
         self.section(f, _('Frame Rate', 'Частота кадров'), top=4)
-        self.row(f, _('Frame rate', 'Режим'), self.choice(f, 'fps_mode', 'app', FPS_MODES),
+        self.row(f, _('Frame Rate', 'Режим'), self.choice(f, 'fps_mode', 'app', FPS_MODES),
                  _("Community patches for game version 1.09. Unlocked makes the game use the real frame time. "
                    'Other game versions always run at 30 FPS (the patches would corrupt them).',
                    'Патчи сообщества для версии 1.09. «Без ограничения» — игра использует реальное время кадра. '
                    'Другие версии всегда работают в 30 FPS.'))
-        self.row(f, _('Frame Cap', 'Ограничение FPS (режим без ограничения)'),
+        self.row(f, _('Frame Cap', 'Ограничение FPS'),
                  self.choice(f, 'frame_cap', 'app', FRAME_CAPS),
                  _("Above about 120 FPS the game's movement timing breaks (running and rolling get slower, "
                    'physics and animations can glitch): higher caps are at your own risk.',
                    'Выше ~120 FPS ломается тайминг движения игры (бег и перекаты замедляются, возможны '
                    'сбои физики и анимаций): более высокие значения — на ваш риск.'))
-        self.row(f, _('Frames Ahead of the GPU', 'Кадров впереди GPU'), self.choice(f, 'frames_ahead', 'app', FRAMES_AHEAD),
+        self.row(f, _('Frames Ahead Of The GPU', 'Кадров впереди GPU'), self.choice(f, 'frames_ahead', 'app', FRAMES_AHEAD),
                  _('1 keeps frame pacing even; more can raise FPS when the graphics card is the limit.',
                    '1 — ровная подача кадров; больше может поднять FPS, если упирается в видеокарту.'))
         self.section(f, _('Window', 'Окно'))
@@ -816,17 +838,17 @@ class Launcher:
         f = self.scrolled_page('game', _('Game & Effects', 'Игра и эффекты'),
                                _('Your game dump, saves and the game patches.', 'Дамп игры, сохранения и патчи игры.'))
         self.section(f, _('Game', 'Игра'), top=4)
-        self.folder(f, 'game_dir', _('Game folder', 'Папка игры'),
+        self.folder(f, 'game_dir', _('Game Folder', 'Папка игры'),
                     _('Choose the folder with eboot.bin', 'Выберите папку с eboot.bin'),
                     _('Your own dump of CUSA03173 (eboot.bin, sce_module, sce_sys, dvdroot_ps4); version 1.09 '
                       'for the community patches.', 'Ваш дамп CUSA03173 (eboot.bin, sce_module, sce_sys, '
                       'dvdroot_ps4); версия 1.09 для патчей сообщества.'), on_change=self.game_changed)
-        self.folder(f, 'user_dir', _('Saves folder', 'Папка сохранений'),
+        self.folder(f, 'user_dir', _('Saves Folder', 'Папка сохранений'),
                     _('Choose the saves folder', 'Выберите папку сохранений'),
                     _('Empty: {} (shader caches are kept there too).',
                       'Пусто: {} (там же кэш шейдеров).').format(DATA_DIR / 'user'), on_change=self.refresh_status)
-        self.row(f, _('Game language', 'Язык игры'), self.choice(f, 'language', 'app', LANGUAGES))
-        self.row(f, _('Player name', 'Имя игрока'), self.ttk.Entry(f, textvariable=self.var('player_name', 'app'), width=30),
+        self.row(f, _('Game Language', 'Язык игры'), self.choice(f, 'language', 'app', LANGUAGES))
+        self.row(f, _('Player Name', 'Имя игрока'), self.ttk.Entry(f, textvariable=self.var('player_name', 'app'), width=30),
                  _('Where the game shows the PSN name; empty: the default.', 'Где игра показывает имя PSN; пусто — по умолчанию.'))
         self.section(f, _('Effects', 'Эффекты'))
         self.version_warning(f)
@@ -855,7 +877,7 @@ class Launcher:
 
     def build_online(self):
         ttk = self.ttk
-        f = self.scrolled_page('online', _('Online co-op'),
+        f = self.scrolled_page('online', _('Online'),
                                _("Messages, bloodstains and ghosts come from The Hunter's Dream; bells and summons "
                                  'go through a shadNet server.'))
         self.check(f, 'online', 'app', _('Play online'),
@@ -1007,7 +1029,7 @@ class Launcher:
     def refresh_status(self):
         info = game_info(self.var('game_dir', 'app').get())
         if not info:
-            game = _('✗ No eboot.bin in the game folder (Game & effects)', '✗ В папке игры нет eboot.bin («Игра и эффекты»)')
+            game = _('✗ No eboot.bin in the game folder (Game & Effects)', '✗ В папке игры нет eboot.bin («Игра и эффекты»)')
         elif info[1] == PATCH_VERSION:
             game = _('✓ Game version {}: every patch available', '✓ Версия игры {}: доступны все патчи').format(info[1])
         else:
