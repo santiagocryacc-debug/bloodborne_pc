@@ -1,13 +1,11 @@
-diff --git a/upstream/ffx-1.1.4/sdk/src/backends/vk/ffx_vk.cpp b/upstream/ffx-1.1.4/sdk/src/backends/vk/ffx_vk.cpp
-index b2439b6..78eede0 100644
 --- a/upstream/ffx-1.1.4/sdk/src/backends/vk/ffx_vk.cpp
 +++ b/upstream/ffx-1.1.4/sdk/src/backends/vk/ffx_vk.cpp
-@@ -21,6 +21,8 @@
- // THE SOFTWARE.
+@@ -34,6 +34,8 @@
+ #endif  // _WIN32
  
- #include <FidelityFX/host/ffx_interface.h>
+ #include <vulkan/vulkan.h>
 +#include <new>
 +#include <cmath>
- #include <FidelityFX/host/ffx_util.h>
- #include <FidelityFX/host/ffx_assert.h>
- #include <FidelityFX/host/backends/vk/ffx_vk.h>
+ 
+ // prototypes for functions in the interface
+ FfxVersionNumber       GetSDKVersionVK(FfxInterface* backendInterface);
