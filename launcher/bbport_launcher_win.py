@@ -784,11 +784,9 @@ class Launcher:
                  font=('Segoe UI', 9)).pack(anchor='w', padx=22, pady=(0, 20))
         self.nav, self.current_page = {}, None
         for name, title in (('play', _('Play', 'Играть')), ('graphics', _('Graphics', 'Графика')),
-                            ('display', _('Display & FPS', 'Экран и FPS')), ('game', _('Game & effects', 'Игра и эффекты')),
+                            ('display', _('Display & FPS', 'Экран и FPS')), ('game', _('Game & Effects', 'Игра и эффекты')),
                             ('cheats', _('Cheats', 'Читы')), ('online', _('Online co-op', 'Онлайн-кооператив')),
                             ('mods', _('Mods & patches', 'Моды и патчи')),
-                            ('trophies', _('Achievements', 'Достижения')),
-                            ('controls', _('Controls', 'Управление')),
                             ('advanced', _('Advanced', 'Дополнительно')),
                             ('log', _('Log', 'Журнал'))):
             item = tk.Label(side, text='    ' + title, bg=BG, fg=TEXT, anchor='w', font=('Segoe UI', 11),
@@ -868,26 +866,22 @@ class Launcher:
         body.columnconfigure(0, weight=3)
         body.columnconfigure(1, weight=2)
         info = ttk.Frame(body)
-        info.grid(row=0, column=0, sticky='nw', padx=(0, 24))
-        ttk.Label(info, text=_('Ready check', 'Проверка'), style='Section.TLabel').pack(anchor='w', pady=(0, 6))
         self.checks = {}
         for key in ('game', 'saves', 'gpu', 'fsr4'):
             self.checks[key] = ttk.Label(info, text='', justify='left', wraplength=self.px(440))
             self.checks[key].pack(anchor='w', pady=3)
         quick = ttk.Frame(body)
-        quick.grid(row=0, column=1, sticky='nw')
-        ttk.Label(quick, text=_('Quick settings', 'Основное'), style='Section.TLabel').grid(
+        quick.grid(row=0, column=0, sticky='nw')
+        ttk.Label(quick, text=_('Quick Settings', 'Основное'), style='Section.TLabel').grid(
             row=0, column=0, columnspan=2, sticky='w', pady=(0, 2))
-        self.row(quick, _('Frame rate', 'Частота кадров'), self.choice(quick, 'fps_mode', 'app', FPS_MODES, 26))
+        self.row(quick, _('Frame Rate', 'Частота кадров'), self.choice(quick, 'fps_mode', 'app', FPS_MODES, 26))
         self.row(quick, _('Upscaler', 'Апскейлер'), self.choice(quick, 'upscaler', 'ini', UPSCALERS, 26))
         self.row(quick, _('Preset', 'Пресет'), self.choice(quick, 'preset', 'ini', PRESETS, 26))
         self.row(quick, _('Output', 'Разрешение'), self.choice(quick, 'output_res', 'ini', OUTPUTS, 26))
         ttk.Checkbutton(quick, text=_('Fullscreen', 'Полный экран'), variable=self.var('fullscreen', 'app')).grid(
             row=self.next_row(quick), column=1, sticky='w', pady=(8, 0))
-        ttk.Checkbutton(quick, text=_('Play online'), variable=self.var('online', 'app')).grid(
+        ttk.Checkbutton(quick, text=_('Play Online'), variable=self.var('online', 'app')).grid(
             row=self.next_row(quick), column=1, sticky='w', pady=(4, 0))
-        ttk.Button(quick, text=_('Add to Steam'), command=self.add_to_steam).grid(
-            row=self.next_row(quick), column=1, sticky='w', pady=(10, 0))
         for key in ('fps_mode', 'upscaler', 'output_res'):
             self.vars[key].trace_add('write', lambda *_a: self.refresh_status())
 
@@ -944,10 +938,10 @@ class Launcher:
                    'a GPU with INT8 dot products; otherwise the game falls back to FSR 3.1 by itself.',
                    'Временной апскейлинг с векторами движения игры. FSR 4 нужны ассеты (ниже) и GPU с INT8; '
                    'иначе игра сама переключится на FSR 3.1.'))
-        self.row(f, _('Quality preset', 'Пресет'), self.choice(f, 'preset', 'ini', PRESETS),
+        self.row(f, _('Quality Preset', 'Пресет'), self.choice(f, 'preset', 'ini', PRESETS),
                  _('Render scale per axis: Quality renders at 1/1.5 of the output size.',
                    'Масштаб рендера по каждой оси: Quality рисует в 1/1.5 размера вывода.'))
-        self.row(f, _('Output resolution', 'Разрешение вывода'), self.choice(f, 'output_res', 'ini', OUTPUTS),
+        self.row(f, _('Output Resolution', 'Разрешение вывода'), self.choice(f, 'output_res', 'ini', OUTPUTS),
                  _('What the upscaler produces; the HUD is drawn at this size too.',
                    'Что выдаёт апскейлер; интерфейс рисуется в этом же размере.'))
         self.row(f, _('HUD position (ultrawide)', 'Положение интерфейса (21:9)'),
@@ -1017,8 +1011,8 @@ class Launcher:
         f = self.scrolled_page('display', _('Display & FPS', 'Экран и FPS'),
                                _('Applied when the game starts.', 'Применяется при запуске игры.'))
         self.version_warning(f)
-        self.section(f, _('Frame rate', 'Частота кадров'), top=4)
-        self.row(f, _('Frame rate', 'Режим'), self.choice(f, 'fps_mode', 'app', FPS_MODES),
+        self.section(f, _('Frame Rate', 'Частота кадров'), top=4)
+        self.row(f, _('Frame Rate', 'Режим'), self.choice(f, 'fps_mode', 'app', FPS_MODES),
                  _("Community patches for game version 1.09. Unlocked makes the game use the real frame time. "
                    'Other game versions always run at 30 FPS (the patches would corrupt them).',
                    'Патчи сообщества для версии 1.09. «Без ограничения» — игра использует реальное время кадра. '
@@ -1040,7 +1034,7 @@ class Launcher:
                      'Если HDR включён в Windows и монитор его поддерживает.'))
 
     def build_game(self):
-        f = self.scrolled_page('game', _('Game & effects', 'Игра и эффекты'),
+        f = self.scrolled_page('game', _('Game & Effects', 'Игра и эффекты'),
                                _('Your game dump, saves and the game patches.', 'Дамп игры, сохранения и патчи игры.'))
         self.section(f, _('Game', 'Игра'), top=4)
         self.folder(f, 'game_dir', _('Game folder', 'Папка игры'),
@@ -1199,11 +1193,11 @@ class Launcher:
         self.row(f, _('Server address'), ttk.Entry(f, textvariable=server, width=40),
                  _('srv.shadps4.net:31313 is the public shadPS4 server. For a private server, enter '
                    'host:port from the person who runs it.'))
-        self.row(f, _('WebAPI address'), ttk.Entry(f, textvariable=self.var('online_webapi', 'app'), width=40),
+        self.row(f, _('Web API Address'), ttk.Entry(f, textvariable=self.var('online_webapi', 'app'), width=40),
                  _('Of the shadNet server, not the game server. Leave empty: the server address with '
                    'port 31315 is used.'))
         self.section(f, _('Account'))
-        self.row(f, _('Online ID (NPID)'), ttk.Entry(f, textvariable=self.var('online_npid', 'app'), width=40),
+        self.row(f, _('Online ID'), ttk.Entry(f, textvariable=self.var('online_npid', 'app'), width=40),
                  _('Your shadNet account name, not your email. Register one at shadnet.shadps4.net, or ask the '
                    'owner of a private server.'))
         self.row(f, _('Password'), ttk.Entry(f, textvariable=self.var('online_password', 'app'), width=40, show='•'),
@@ -1455,8 +1449,6 @@ class Launcher:
         caption.pack(anchor='w')
         title = tk.Label(words, text=f'{name}', bg=CARD, fg=TEXT, font=('Segoe UI', 11, 'bold'))
         title.pack(anchor='w')
-        for widget in (box, icon, words, caption, title):
-            widget.bind('<Button-1>', lambda _e: self.show('trophies'))
         box.place(relx=1.0, x=-self.px(20), y=self.px(18), anchor='ne')
         box.lift()
 
@@ -1695,12 +1687,12 @@ class Launcher:
         ttk.Label(holder, text=f'v{VERSION}', style='Muted.TLabel').pack(side='left', padx=10)
         holder = ttk.Frame(f)
         holder.grid(row=self.next_row(f), column=0, columnspan=2, sticky='w', pady=(10, 0))
-        ttk.Button(holder, text=_('Clear shader cache', 'Очистить кэш шейдеров'), command=self.clear_cache).pack(side='left')
+        ttk.Button(holder, text=_('Clear Shader Cache', 'Очистить кэш шейдеров'), command=self.clear_cache).pack(side='left')
         ttk.Label(holder, text=_('If the game only shows a black screen, this usually helps.',
                                  'Если игра показывает только чёрный экран, обычно это помогает.'),
                   style='Muted.TLabel').pack(side='left', padx=10)
         self.section(f, _('Performance', 'Производительность'))
-        self.row(f, _('Two-stage GPU pipeline', 'Двухстадийный конвейер GPU'), self.choice(f, 'draw_pipe', 'app', DRAW_PIPE),
+        self.row(f, _('Two Stage GPU Pipeline', 'Двухстадийный конвейер GPU'), self.choice(f, 'draw_pipe', 'app', DRAW_PIPE),
                  _('20–30% faster; switch it off if the game is unstable.', 'Быстрее на 20–30%; при нестабильности выключите.'))
         self.row(f, _('GPU readbacks', 'Чтение данных GPU'), self.choice(f, 'readbacks', 'app', READBACKS),
                  _('How exactly data the GPU writes is copied back for the game.',
