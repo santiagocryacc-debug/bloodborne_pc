@@ -70,6 +70,18 @@ def attach_stdio():
         setattr(sys, name, stream or open(os.devnull, 'w'))
 
 
+def _ui_title(text):
+    text = text.title().replace("Game'S", "Game's")
+    for a, b in [
+        ("Dlss", "DLSS"), ("Fsr", "FSR"), ("Taa", "TAA"),
+        ("Gpu", "GPU"), ("Hdr", "HDR"), ("Vsync", "VSync"),
+        ("Fifo", "FIFO"), ("Rcas", "RCAS"), ("Dof", "DoF"),
+        ("Ssr", "SSR"), ("Ssao", "SSAO"), ("Npid", "NPID"),
+        ("Api", "API"), ("Webapi", "WebAPI"),
+    ]:
+        text = text.replace(a, b)
+    return text
+
 class LossyStream:
     """Output whose reader may be gone (a launcher that was closed): on Windows a write to such a
     pipe fails with OSError [Errno 22], which stopped the game while it was being prepared."""
@@ -708,7 +720,7 @@ class Launcher:
     def row(self, parent, title, widget, hint=None):
         ttk = self.ttk
         r = self.next_row(parent)
-        ttk.Label(parent, text=title).grid(row=r, column=0, sticky='nw', padx=(0, 18), pady=(8, 0))
+        ttk.Label(parent, text=_ui_title(title)).grid(row=r, column=0, sticky='nw', padx=(0, 18), pady=(8, 0))
         widget.grid(row=r, column=1, sticky='w', pady=(5, 0))
         if hint:
             ttk.Label(parent, text=hint, style='Muted.TLabel', wraplength=self.px(560), justify='left').grid(
@@ -718,7 +730,7 @@ class Launcher:
     def check(self, parent, key, store, title, hint=None):
         ttk = self.ttk
         r = self.next_row(parent)
-        ttk.Checkbutton(parent, text=title, variable=self.var(key, store)).grid(
+        ttk.Checkbutton(parent, text=_ui_title(title), variable=self.var(key, store)).grid(
             row=r, column=0, columnspan=2, sticky='w', pady=(4, 0))
         if hint:
             ttk.Label(parent, text=hint, style='Muted.TLabel', wraplength=self.px(640), justify='left').grid(
@@ -729,7 +741,7 @@ class Launcher:
             row=self.next_row(parent), column=0, columnspan=2, sticky='w', pady=(top, 0))
 
     def section(self, parent, title, top=18):
-        self.ttk.Label(parent, text=title, style='Section.TLabel').grid(
+        self.ttk.Label(parent, text=_ui_title(title), style='Section.TLabel').grid(
             row=self.next_row(parent), column=0, columnspan=2, sticky='w', pady=(top, 2))
 
     def folder(self, parent, key, title, prompt, hint=None, on_change=None):
@@ -755,7 +767,7 @@ class Launcher:
         outer = ttk.Frame(self.content)
         head = ttk.Frame(outer, padding=(28, 22, 28, 6))
         head.pack(fill='x')
-        ttk.Label(head, text=title, background=PANEL, foreground=TEXT, font=('Georgia', 20)).pack(anchor='w')
+        ttk.Label(head, text=_ui_title(title), background=PANEL, foreground=TEXT, font=('Georgia', 20)).pack(anchor='w')
         ttk.Label(head, text=subtitle, style='Muted.TLabel').pack(anchor='w')
         canvas = tk.Canvas(outer, bg=PANEL, highlightthickness=0, bd=0)
         bar = ttk.Scrollbar(outer, orient='vertical', command=canvas.yview)
@@ -779,17 +791,14 @@ class Launcher:
         side.pack_propagate(False)
         tk.Label(side, text='BLOODBORNE', bg=BG, fg=GOLD, font=('Georgia', 16)).pack(anchor='w', padx=22, pady=(24, 0))
         self.side = side
-        tk.Label(side, text=_('by Super Medo'), bg=BG, fg=TEXT, font=('Segoe UI', 10)).pack(anchor='w', padx=22)
-        tk.Label(side, text=_('native port · Windows', 'нативный порт · Windows') + f'  ·  v{VERSION}' + ('\n' + _('co-op test build') if COOP_TEST else ''), bg=BG, fg=MUTED, justify='left',
-                 font=('Segoe UI', 9)).pack(anchor='w', padx=22, pady=(0, 20))
         self.nav, self.current_page = {}, None
         for name, title in (('play', _('Play', 'Играть')), ('graphics', _('Graphics', 'Графика')),
                             ('display', _('Display & FPS', 'Экран и FPS')), ('game', _('Game & Effects', 'Игра и эффекты')),
-                            ('cheats', _('Cheats', 'Читы')), ('online', _('Online co-op', 'Онлайн-кооператив')),
+                            ('cheats', _('Cheats', 'Читы')), ('online', _('Online', 'Онлайн-кооператив')),
                             ('mods', _('Mods & patches', 'Моды и патчи')),
                             ('advanced', _('Advanced', 'Дополнительно')),
                             ('log', _('Log', 'Журнал'))):
-            item = tk.Label(side, text='    ' + title, bg=BG, fg=TEXT, anchor='w', font=('Segoe UI', 11),
+            item = tk.Label(side, text='    ' + title.title(), bg=BG, fg=TEXT, anchor='w', font=('Segoe UI', 11),
                             pady=10, cursor='hand2')
             item.pack(fill='x')
             item.bind('<Button-1>', lambda _e, n=name: self.show(n))
@@ -798,10 +807,8 @@ class Launcher:
             self.nav[name] = item
         tk.Frame(side, bg=BG).pack(fill='both', expand=True)
         self.update_box = None
-        self.side_note = tk.Label(side, text=_('In the game: Insert or L3+R3\nopens the port\'s menu.',
-                                               'В игре: Insert или L3+R3\nоткрывает меню порта.'),
-                                  bg=BG, fg=MUTED, font=('Segoe UI', 9), justify='left', wraplength=self.px(210))
-        self.side_note.pack(anchor='w', padx=22, pady=(0, 18))
+        self.side_note = tk.Label(side, text='', bg=BG)
+        self.side_note.pack(anchor='w', padx=22, pady=0)
 
         right = tk.Frame(self.root, bg=PANEL)
         right.pack(side='left', fill='both', expand=True)
@@ -825,8 +832,6 @@ class Launcher:
         self.build_cheats()
         self.build_online()
         self.build_mods()
-        self.build_trophies()
-        self.build_controls()
         self.build_advanced()
         self.build_log()
         self.root.bind_all('<MouseWheel>', self.wheel)
@@ -866,10 +871,10 @@ class Launcher:
         body.columnconfigure(0, weight=3)
         body.columnconfigure(1, weight=2)
         info = ttk.Frame(body)
+
         self.checks = {}
         for key in ('game', 'saves', 'gpu', 'fsr4'):
             self.checks[key] = ttk.Label(info, text='', justify='left', wraplength=self.px(440))
-            self.checks[key].pack(anchor='w', pady=3)
         quick = ttk.Frame(body)
         quick.grid(row=0, column=0, sticky='nw')
         ttk.Label(quick, text=_('Quick Settings', 'Основное'), style='Section.TLabel').grid(
@@ -912,9 +917,6 @@ class Launcher:
         if not self.banner_image:
             c.create_text(30, h - 70, text='Bloodborne', anchor='w', fill='#f2ead9', font=('Georgia', 36))
         info = game_info(self.var('game_dir', 'app').get())
-        sub = (_('CUSA03173 · game version {}', 'CUSA03173 · версия игры {}').format(info[1]) if info
-               else _('Game folder not set', 'Папка игры не выбрана'))
-        c.create_text(33, h - 30, text=sub, anchor='w', fill=GOLD, font=('Segoe UI', 11))
 
     def scaled_art(self, path, width):
         """The cover art scaled to `width`: Pillow (smooth) or Tk's integer subsampling."""
@@ -1676,7 +1678,6 @@ class Launcher:
         holder = ttk.Frame(f)
         holder.grid(row=self.next_row(f), column=0, columnspan=2, sticky='w', pady=(10, 0))
         ttk.Button(holder, text=_('Desktop shortcut', 'Ярлык на рабочем столе'), command=self.shortcut).pack(side='left')
-        ttk.Button(holder, text=_('Add to Steam'), command=self.add_to_steam).pack(side='left', padx=(6, 0))
         ttk.Button(holder, text=_('Port folder', 'Папка порта'), command=lambda: self.open_path(DATA_DIR)).pack(side='left', padx=6)
         ttk.Button(holder, text='bbport.ini', command=lambda: self.open_path(ini_path())).pack(side='left')
         holder = ttk.Frame(f)
