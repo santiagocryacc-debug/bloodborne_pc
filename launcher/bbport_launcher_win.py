@@ -71,16 +71,30 @@ def attach_stdio():
 
 
 def _ui_title(text):
-    text = text.title().replace("Game'S", "Game's")
+    # Remove parenthetical notes from visible UI labels.
+    out = []
+    depth = 0
+    for ch in str(text):
+        if ch == '(':
+            depth += 1
+        elif ch == ')' and depth:
+            depth -= 1
+        elif depth == 0:
+            out.append(ch)
+
+    text = ' '.join(''.join(out).split()).title().replace("Game'S", "Game's")
     for a, b in [
         ("Dlss", "DLSS"), ("Fsr", "FSR"), ("Taa", "TAA"),
         ("Gpu", "GPU"), ("Hdr", "HDR"), ("Vsync", "VSync"),
         ("Fifo", "FIFO"), ("Rcas", "RCAS"), ("Dof", "DoF"),
         ("Ssr", "SSR"), ("Ssao", "SSAO"), ("Npid", "NPID"),
-        ("Api", "API"), ("Webapi", "WebAPI"),
+        ("Api", "API"), ("Webapi", "WebAPI"), ("Fps", "FPS"),
+        ("Rtx", "RTX"), ("Amd", "AMD"), ("Nvidia", "NVIDIA"),
+        ("Int8", "INT8"), ("Hz", "Hz"),
     ]:
         text = text.replace(a, b)
     return text
+
 
 class LossyStream:
     """Output whose reader may be gone (a launcher that was closed): on Windows a write to such a
@@ -103,7 +117,6 @@ class LossyStream:
 
     def __getattr__(self, name):
         return getattr(self.stream, name)
-
 
 def run_role(argv):
     """--run [args]: run.py; --script <file> [args]: a preparation script. Returns an exit code."""
@@ -576,7 +589,7 @@ class Launcher:
         self.mod_order, self.mod_vars, self.patch_vars = [], {}, {}
         self.tracker = trophies.Tracker(self.trophy_dir())
         self.trophies_loaded, self.toasts = False, []
-        root.title('Bloodborne — bbport')
+        root.title('Bloodborne')
         root.configure(bg=BG)
         self.dpi = root.winfo_fpixels('1i') / 96.0
         root.geometry(f'{self.px(1120)}x{self.px(740)}')
@@ -702,7 +715,7 @@ class Launcher:
         """A combobox over (value, (english, russian)) pairs, kept in sync with its variable."""
         var = self.var(key, store)
         values = [v for v, _t in options]
-        box = self.ttk.Combobox(parent, values=[_(*text) for _v, text in options], state='readonly', width=width)
+        box = self.ttk.Combobox(parent, values=[_ui_title(_(*text)) for _v, text in options], state='readonly', width=width)
         if var.get() not in values:
             var.set(values[0])
 
@@ -722,9 +735,6 @@ class Launcher:
         r = self.next_row(parent)
         ttk.Label(parent, text=_ui_title(title)).grid(row=r, column=0, sticky='nw', padx=(0, 18), pady=(8, 0))
         widget.grid(row=r, column=1, sticky='w', pady=(5, 0))
-        if hint:
-            ttk.Label(parent, text=hint, style='Muted.TLabel', wraplength=self.px(560), justify='left').grid(
-                row=r + 1, column=1, sticky='w', pady=(2, 2))
         return widget
 
     def check(self, parent, key, store, title, hint=None):
@@ -732,13 +742,9 @@ class Launcher:
         r = self.next_row(parent)
         ttk.Checkbutton(parent, text=_ui_title(title), variable=self.var(key, store)).grid(
             row=r, column=0, columnspan=2, sticky='w', pady=(4, 0))
-        if hint:
-            ttk.Label(parent, text=hint, style='Muted.TLabel', wraplength=self.px(640), justify='left').grid(
-                row=r + 1, column=0, columnspan=2, sticky='w', padx=(26, 0))
 
     def note(self, parent, text, top=12):
-        self.ttk.Label(parent, text=text, style='Muted.TLabel', wraplength=self.px(680), justify='left').grid(
-            row=self.next_row(parent), column=0, columnspan=2, sticky='w', pady=(top, 0))
+        return None
 
     def section(self, parent, title, top=18):
         self.ttk.Label(parent, text=_ui_title(title), style='Section.TLabel').grid(
@@ -768,7 +774,6 @@ class Launcher:
         head = ttk.Frame(outer, padding=(28, 22, 28, 6))
         head.pack(fill='x')
         ttk.Label(head, text=_ui_title(title), background=PANEL, foreground=TEXT, font=('Georgia', 20)).pack(anchor='w')
-        ttk.Label(head, text=subtitle, style='Muted.TLabel').pack(anchor='w')
         canvas = tk.Canvas(outer, bg=PANEL, highlightthickness=0, bd=0)
         bar = ttk.Scrollbar(outer, orient='vertical', command=canvas.yview)
         inner = ttk.Frame(canvas, padding=(28, 0, 28, 24))
@@ -789,7 +794,7 @@ class Launcher:
         side = tk.Frame(self.root, bg=BG, width=self.px(220))
         side.pack(side='left', fill='y')
         side.pack_propagate(False)
-        tk.Label(side, text='BLOODBORNE', bg=BG, fg=GOLD, font=('Georgia', 16)).pack(anchor='w', padx=22, pady=(24, 0))
+        tk.Label(side, text='Bloodborne', bg=BG, fg=GOLD, font=('Georgia', 16)).pack(anchor='w', padx=22, pady=(24, 0))
         self.side = side
         self.nav, self.current_page = {}, None
         for name, title in (('play', _('Play', 'Играть')), ('graphics', _('Graphics', 'Графика')),
@@ -910,10 +915,6 @@ class Launcher:
             for i, stipple in enumerate(('gray12', 'gray25', 'gray50', 'gray75')):
                 c.create_rectangle(0, h - 120 + i * 24, w, h - 96 + i * 24, fill=PANEL, outline='', stipple=stipple)
             c.create_rectangle(0, h - 24, w, h, fill=PANEL, outline='')
-        else:
-            c.create_text(w // 2, h // 2 - 20, text=_('Choose your game folder (Game & effects)',
-                                                       'Выберите папку игры («Игра и эффекты»)'),
-                          fill=MUTED, font=('Segoe UI', 11))
         if not self.banner_image:
             c.create_text(30, h - 70, text='Bloodborne', anchor='w', fill='#f2ead9', font=('Georgia', 36))
         info = game_info(self.var('game_dir', 'app').get())
@@ -946,18 +947,12 @@ class Launcher:
         self.row(f, _('Output Resolution', 'Разрешение вывода'), self.choice(f, 'output_res', 'ini', OUTPUTS),
                  _('What the upscaler produces; the HUD is drawn at this size too.',
                    'Что выдаёт апскейлер; интерфейс рисуется в этом же размере.'))
-        self.row(f, _('HUD position (ultrawide)', 'Положение интерфейса (21:9)'),
-                 self.choice(f, 'hud_position', 'ini', HUD_POSITIONS),
-                 _('21:9 outputs: health, items and Blood Echoes at the screen edges, or in the centred '
-                   '16:9 area as on a 16:9 screen.',
-                   'Для 21:9: здоровье, предметы и Отголоски крови у краёв экрана или в центральной '
-                   'области 16:9, как на обычном экране.'))
         self.row(f, _('Live resolution changes', 'Смена разрешения на лету'), self.choice(f, 'live_resolution', 'ini', LIVE),
                  _('Off: outputs other than 1080p are set by a patch at start (fastest; changing them in the '
                    'game restarts it). On: change output and preset in the game without a restart, at a cost.',
                    'Выкл.: разрешения кроме 1080p задаются патчем при запуске (быстрее). Вкл.: менять в игре '
                    'без перезапуска, но медленнее.'))
-        self.check(f, 'sharpen', 'ini', _('Sharpening (RCAS)', 'Резкость (RCAS)'))
+        self.check(f, 'sharpen', 'ini', _('Sharpening', 'Резкость'))
         holder = ttk.Frame(f)
         ttk.Scale(holder, from_=0.0, to=2.0, variable=self.var('sharpness', 'ini'), length=300).pack(side='left')
         value = ttk.Label(holder, width=5)
@@ -1019,7 +1014,7 @@ class Launcher:
                    'Other game versions always run at 30 FPS (the patches would corrupt them).',
                    'Патчи сообщества для версии 1.09. «Без ограничения» — игра использует реальное время кадра. '
                    'Другие версии всегда работают в 30 FPS.'))
-        self.row(f, _('Frame cap (unlocked mode)', 'Ограничение FPS (режим без ограничения)'),
+        self.row(f, _('Frame Cap', 'Ограничение FPS'),
                  self.choice(f, 'frame_cap', 'app', FRAME_CAPS),
                  _("Above about 120 FPS the game's movement timing breaks (running and rolling get slower, "
                    'physics and animations can glitch): higher caps are at your own risk.',
