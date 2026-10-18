@@ -182,13 +182,13 @@ def windows_language():
 # launcher's own settings.json (passed to run.py as environment variables).
 
 EFFECTS = [
+    ('effect_game_aa', ('Native AA', 'Собственное сглаживание игры'), True),
+    ('effect_ssr', ('Reflections', 'Отражения SSR (не было в игре)'), False),
     ('effect_chromatic_aberration', ('Chromatic aberration', 'Хроматическая аберрация'), True),
     ('effect_dof', ('Depth of field', 'Глубина резкости (DoF)'), True),
     ('effect_motion_blur', ('Motion blur', 'Размытие в движении'), True),
     ('effect_ssao', ('Ambient occlusion (SSAO)', 'Затенение SSAO'), True),
-    ('effect_game_aa', ("The game's own anti-aliasing", 'Собственное сглаживание игры'), True),
     ('effect_dynamic_shadows', ('Shadows of dynamic lights', 'Тени от динамических источников'), True),
-    ('effect_ssr', ('Screen-space reflections (not in the original)', 'Отражения SSR (не было в игре)'), False),
 ]
 EXTRAS = [
     ('skip_intro', ('Skip the intro logos and movie', 'Пропуск заставок при запуске'), False),
@@ -208,11 +208,11 @@ CHEATS = [
 TWEAKS = [
     ('tweak_no_rally', ('No Rally (hits do not give health back)', 'Без Rally (удары не возвращают здоровье)'), False),
     ('tweak_camera_distance', ('Camera further from the character', 'Камера дальше от персонажа'), False),
-    ('tweak_no_camera_rotation', ('No camera auto-rotation while moving', 'Без автоповорота камеры при движении'), False),
+    ('tweak_no_camera_rotation', ('No Camera Auto Rotation', 'Без автоповорота камеры при движении'), False),
     ('tweak_easy_run', ('Run with less stick tilt (about 70%)', 'Бег при меньшем наклоне стика (около 70%)'), False),
-    ('tweak_ragdoll', ('Dark Souls-style ragdoll physics (corpses fly further)',
+    ('tweak_ragdoll', ('Dark Souls style ragdoll physics (corpses fly further)',
                        'Физика тел как в Dark Souls (тела отлетают дальше)'), False),
-    ('tweak_circle_confirm', ('Japanese/Asian buttons: Circle confirms and interacts, Cross dodges',
+    ('tweak_circle_confirm', ('Japanese Or Asian Buttons',
                               'Японская раскладка: Круг — подтверждение и действие, Крест — уклонение'), False),
     ('quit_to_desktop', ('Quit to Desktop in the title menu and in the System menu',
                          'Пункт «Выйти на рабочий стол» в главном меню и в меню «Система»'), True),
@@ -250,7 +250,7 @@ FRAME_GENERATION = [('off', ('Off', 'Выключена')),
 FRAME_GEN_MULTIPLIERS = [('2', ('2× (one generated frame)', '2× (один кадр)')),
                          ('3', ('3× (DLSS on GeForce RTX 50)', '3× (DLSS на GeForce RTX 50)')),
                          ('4', ('4× (DLSS on GeForce RTX 50)', '4× (DLSS на GeForce RTX 50)'))]
-PRESETS = [('0', ('Native AA (×1.0)',)), ('1', ('Quality (×1.5)',)), ('2', ('Balanced (×1.7)',)),
+PRESETS = [('0', ('Native DLAA',)), ('1', ('Quality (×1.5)',)), ('2', ('Balanced (×1.7)',)),
            ('3', ('Performance (×2)',)), ('4', ('Ultra Performance (×3)',))]
 OUTPUTS = [('1280x720', ('1280 × 720 (Steam Deck)',)), ('1920x1080', ('1920 × 1080',)),
            ('2560x1440', ('2560 × 1440',)), ('3840x2160', ('3840 × 2160 (4K)',)),
@@ -281,9 +281,7 @@ READBACKS = [('', ('Relaxed (default)', 'Relaxed (по умолчанию)')), (
              ('2', ('Precise',))]
 # Frame cap of the unlocked mode (BB_FPS_LIMIT). '' leaves the port's own: the display refresh,
 # at most 120, because the game's movement timing breaks above about 120 FPS.
-FRAME_CAPS = [('', ('Auto: display refresh, max 120 (recommended)', 'Авто: частота монитора, макс. 120 (рекомендуется)')),
-              ('60', ('60',)), ('90', ('90',)), ('120', ('120',)), ('144', ('144  ⚠',)), ('165', ('165  ⚠',)),
-              ('240', ('240  ⚠',)), ('0', ('No limit  ⚠', 'Без ограничения  ⚠'))]
+FRAME_CAPS = [('', ('Auto', 'Авто'))]
 FRAMES_AHEAD = [('', ('1 (default)', '1 (по умолчанию)')), ('2', ('2',)), ('0', ('Unbounded', 'Без ограничения'))]
 UI_LANGUAGES = bbport_lang.LANGUAGE_NAMES
 
@@ -984,20 +982,6 @@ class Launcher:
                      'the GPU does less). Off: the multiplier as chosen.',
                      'Вкл.: не больше кадров, чем показывает монитор (при снятом ограничении FPS генерируется меньше, '
                      'видеокарта меньше нагружена). Выкл.: множитель как выбран.'))
-        self.section(f, _('FSR 4 assets', 'Ассеты FSR 4'))
-        self.fsr4_label = ttk.Label(f, text='', wraplength=self.px(640), justify='left')
-        self.fsr4_label.grid(row=self.next_row(f), column=0, columnspan=2, sticky='w')
-        holder = ttk.Frame(f)
-        holder.grid(row=self.next_row(f), column=0, columnspan=2, sticky='w', pady=(8, 0))
-        self.fsr4_button = ttk.Button(holder, text=_('Download FSR 4 assets', 'Скачать ассеты FSR 4'),
-                                      command=self.download_fsr4)
-        self.fsr4_button.pack(side='left')
-        self.fsr4_progress = ttk.Progressbar(holder, length=280, maximum=len(fsr4_files()))
-        self.fsr4_progress.pack(side='left', padx=12)
-        self.note(f, _("From FireBurn/Q2RTX on GitHub (built from AMD's MIT-licensed FidelityFX source), "
-                       'about 30 MB, into the fsr4_shaders folder of the port.',
-                       'С GitHub FireBurn/Q2RTX (собраны из MIT-исходников AMD FidelityFX), около 30 МБ, '
-                       'в папку fsr4_shaders порта.'), top=6)
         self.section(f, _('Detail', 'Детализация'))
         self.row(f, _('Model detail (LOD)', 'Детализация моделей'), self.choice(f, 'model_lod', 'ini', LODS),
                  _('A game patch (game version 1.09).', 'Патч игры (версия 1.09).'))
@@ -1080,21 +1064,21 @@ class Launcher:
 
     def build_online(self):
         ttk = self.ttk
-        f = self.scrolled_page('online', _('Online co-op'),
+        f = self.scrolled_page('online', _('Online'),
                                _("Messages, bloodstains and ghosts come from The Hunter's Dream; bells and summons "
                                  'go through a shadNet server.'))
         self.check(f, 'online', 'app', _('Play online'),
                    _('Off: the game stays offline, as before.'))
         self.var('online', 'app').trace_add('write', lambda *_a: self.refresh_status())
-        self.section(f, _('Co-op pool'))
+        self.section(f, _('Pool'))
         pool = self.var('online_pool', 'app')
         pool.trace_add('write', lambda *_a: self.refresh_status())
         pools = ttk.Frame(f)
-        ttk.Radiobutton(pools, text=_('shadNet server'), variable=pool, value='shadnet').pack(side='left')
-        ttk.Radiobutton(pools, text=_('SuperMedo Server'), variable=pool,
+        ttk.Radiobutton(pools, text=_('Play With SHADNET Server'), variable=pool, value='shadnet').pack(side='left')
+        ttk.Radiobutton(pools, text=_('SUPERMEDO Server'), variable=pool,
                         value='supermedo').pack(side='left', padx=(16, 0))
         if HUNTERS_DREAM_POOL:
-            ttk.Radiobutton(pools, text=_("The Hunter's Dream (with bbhost players)"), variable=pool,
+            ttk.Radiobutton(pools, text=_("The Hunter's Dream"), variable=pool,
                             value='huntersdream').pack(side='left', padx=(16, 0))
         elif pool.get() == 'huntersdream':
             pool.set('shadnet')
@@ -1185,7 +1169,7 @@ class Launcher:
         community = self.var('online_community', 'app')
         self.row(f, _('Game server'), ttk.Entry(f, textvariable=community, width=40),
                  _('The Hunter\'s Dream by default. Only the name is needed; the game picks the ports.'))
-        self.section(f, _('Co-op server (bells and summons)'))
+        self.section(f, _('Co Op Server'))
         server = self.var('online_server', 'app')
         self.row(f, _('Server address'), ttk.Entry(f, textvariable=server, width=40),
                  _('srv.shadps4.net:31313 is the public shadPS4 server. For a private server, enter '
@@ -1201,7 +1185,7 @@ class Launcher:
                  _('Saved on this PC with the other launcher settings.'))
         group('shadnet')
         self.section(f, _('Connection'))
-        self.check(f, 'online_upnp', 'app', _('UPnP (open a port on the router automatically)'),
+        self.check(f, 'online_upnp', 'app', _('UPNP'),
                    _('Turn it off on Tailscale or another VPN.'))
         group('upnp')
         result = ttk.Label(f, text='', style='Muted.TLabel', justify='left')
@@ -1238,7 +1222,7 @@ class Launcher:
                     text += '\n' + _('"Play online" is off: the game starts offline.')
                 self.ui_calls.put(lambda: result.configure(text=text))
             threading.Thread(target=work, daemon=True).start()
-        self.row(f, '', ttk.Button(f, text=_('Test connection'), command=check))
+        self.row(f, '', ttk.Button(f, text=_('Test Connection'), command=check))
         result.grid(row=self.next_row(f), column=1, sticky='w', pady=(6, 0))
         self.note(f, _('Everyone in a session needs the same game version (1.09) and the same server. '
                        'Cheats change the game for the other players too: turn them off when you play together.'))
@@ -1274,7 +1258,7 @@ class Launcher:
                     _('Empty: {}', 'Пусто: {}').format(DATA_DIR / 'mods'), on_change=self.refresh_lists)
         self.mods_frame = self.ttk.Frame(f)
         self.mods_frame.grid(row=self.next_row(f), column=0, columnspan=2, sticky='we', pady=(8, 0))
-        self.section(f, _('Third-party patches', 'Сторонние патчи'))
+        self.section(f, _('Third party patches', 'Сторонние патчи'))
         self.folder(f, 'patches_dir', _('Patches folder', 'Папка патчей'), _('Choose the patches folder', 'Выберите папку патчей'),
                     _('shadPS4/GoldHEN XML patch files for version 1.09. Empty: {}',
                       'XML-патчи shadPS4/GoldHEN для версии 1.09. Пусто: {}').format(DATA_DIR / 'patches'),
@@ -1668,25 +1652,21 @@ class Launcher:
         self.row(f, _('Launcher language', 'Язык лаунчера'), self.choice(f, 'ui_language', 'app', UI_LANGUAGES),
                  _('Applies when the launcher opens again.', 'Применится при следующем открытии лаунчера.'))
         self.check(f, 'close_on_play', 'app', _('Close the launcher when the game starts', 'Закрывать лаунчер при запуске игры'))
-        self.check(f, 'check_updates', 'app', _('Check for updates when the launcher opens',
+        self.check(f, 'check_updates', 'app', _('Check For Updates when the launcher opens',
                                                 'Проверять обновления при открытии лаунчера'))
         holder = ttk.Frame(f)
         holder.grid(row=self.next_row(f), column=0, columnspan=2, sticky='w', pady=(10, 0))
-        ttk.Button(holder, text=_('Desktop shortcut', 'Ярлык на рабочем столе'), command=self.shortcut).pack(side='left')
-        ttk.Button(holder, text=_('Port folder', 'Папка порта'), command=lambda: self.open_path(DATA_DIR)).pack(side='left', padx=6)
-        ttk.Button(holder, text='bbport.ini', command=lambda: self.open_path(ini_path())).pack(side='left')
+        ttk.Button(holder, text=_('Desktop Shortcut', 'Ярлык на рабочем столе'), command=self.shortcut).pack(side='left')
+        ttk.Button(holder, text=_('Port Folder', 'Папка порта'), command=lambda: self.open_path(DATA_DIR)).pack(side='left', padx=6)
+        ttk.Button(holder, text=_('INI File', 'Archivo INI'), command=lambda: self.open_path(ini_path())).pack(side='left')
         holder = ttk.Frame(f)
         holder.grid(row=self.next_row(f), column=0, columnspan=2, sticky='w', pady=(10, 0))
-        ttk.Button(holder, text=_('Check for updates', 'Проверить обновления'),
+        ttk.Button(holder, text=_('Check For Updates', 'Проверить обновления'),
                    command=lambda: threading.Thread(target=self.check_update, args=(True,), daemon=True).start()
                    ).pack(side='left')
-        ttk.Label(holder, text=f'v{VERSION}', style='Muted.TLabel').pack(side='left', padx=10)
         holder = ttk.Frame(f)
         holder.grid(row=self.next_row(f), column=0, columnspan=2, sticky='w', pady=(10, 0))
         ttk.Button(holder, text=_('Clear Shader Cache', 'Очистить кэш шейдеров'), command=self.clear_cache).pack(side='left')
-        ttk.Label(holder, text=_('If the game only shows a black screen, this usually helps.',
-                                 'Если игра показывает только чёрный экран, обычно это помогает.'),
-                  style='Muted.TLabel').pack(side='left', padx=10)
         self.section(f, _('Performance', 'Производительность'))
         self.row(f, _('Two Stage GPU Pipeline', 'Двухстадийный конвейер GPU'), self.choice(f, 'draw_pipe', 'app', DRAW_PIPE),
                  _('20–30% faster; switch it off if the game is unstable.', 'Быстрее на 20–30%; при нестабильности выключите.'))
@@ -1748,11 +1728,7 @@ class Launcher:
         saves = list((user / 'savedata').glob('*/*/SPRJ*')) if (user / 'savedata').is_dir() else []
         save = (_('✓ Saves found in {}', '✓ Найдены сохранения в {}').format(user) if saves
                 else _('• No saves yet: the game creates them in {}', '• Сохранений пока нет: игра создаст их в {}').format(user))
-        missing = fsr4_missing()
-        fsr4 = (_('✓ FSR 4 assets installed', '✓ Ассеты FSR 4 установлены') if not missing else
-                _('• FSR 4 assets missing (Graphics); FSR 3.1 is used meanwhile',
-                  '• Нет ассетов FSR 4 («Графика»); пока используется FSR 3.1'))
-        for key, text in (('game', game), ('saves', save), ('gpu', self.gpu_text), ('fsr4', fsr4)):
+        for key, text in (('game', game), ('saves', save), ('gpu', self.gpu_text)):
             self.checks[key].configure(text=text, foreground=MUTED if text.startswith('•') else
                                        '#d9a441' if text.startswith('⚠') else '#d36b5c' if text.startswith('✗') else TEXT)
         for label in getattr(self, 'warnings', []):
@@ -1856,9 +1832,6 @@ class Launcher:
             self.mod_order = known + [n for n in available if n not in known]
         old = {n: v.get() for n, v in self.mod_vars.items()}
         self.mod_vars = {}
-        if not available:
-            ttk.Label(self.mods_frame, text=_('No mods in {} yet.', 'В {} пока нет модов.').format(root),
-                      style='Muted.TLabel').pack(anchor='w')
         for index, name in enumerate(self.mod_order):
             line = ttk.Frame(self.mods_frame)
             line.pack(fill='x', pady=1)
