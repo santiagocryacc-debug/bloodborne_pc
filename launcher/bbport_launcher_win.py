@@ -281,7 +281,10 @@ READBACKS = [('', ('Relaxed (default)', 'Relaxed (по умолчанию)')), (
              ('2', ('Precise',))]
 # Frame cap of the unlocked mode (BB_FPS_LIMIT). '' leaves the port's own: the display refresh,
 # at most 120, because the game's movement timing breaks above about 120 FPS.
-FRAME_CAPS = [('', ('Auto', 'Авто'))]
+FRAME_CAPS = [('', ('Auto', 'Авто')),
+              ('60', ('60',)), ('90', ('90',)), ('120', ('120',)),
+              ('165', ('165',)), ('240', ('240',)),
+              ('0', ('No Limit', 'Без ограничения'))]
 FRAMES_AHEAD = [('', ('1 (default)', '1 (по умолчанию)')), ('2', ('2',)), ('0', ('Unbounded', 'Без ограничения'))]
 UI_LANGUAGES = bbport_lang.LANGUAGE_NAMES
 
