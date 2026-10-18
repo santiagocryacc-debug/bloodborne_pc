@@ -182,7 +182,7 @@ def windows_language():
 # launcher's own settings.json (passed to run.py as environment variables).
 
 EFFECTS = [
-    ('effect_game_aa', ('Native AA', 'Собственное сглаживание игры'), True),
+    ('effect_game_aa', ('Default Anti Aliasing', 'Собственное сглаживание игры'), True),
     ('effect_ssr', ('Reflections', 'Отражения SSR (не было в игре)'), False),
     ('effect_chromatic_aberration', ('Chromatic aberration', 'Хроматическая аберрация'), True),
     ('effect_dof', ('Depth of field', 'Глубина резкости (DoF)'), True),
@@ -250,7 +250,7 @@ FRAME_GENERATION = [('off', ('Off', 'Выключена')),
 FRAME_GEN_MULTIPLIERS = [('2', ('2× (one generated frame)', '2× (один кадр)')),
                          ('3', ('3× (DLSS on GeForce RTX 50)', '3× (DLSS на GeForce RTX 50)')),
                          ('4', ('4× (DLSS on GeForce RTX 50)', '4× (DLSS на GeForce RTX 50)'))]
-PRESETS = [('0', ('Native DLAA',)), ('1', ('Quality (×1.5)',)), ('2', ('Balanced (×1.7)',)),
+PRESETS = [('0', ('Native',)), ('1', ('Quality (×1.5)',)), ('2', ('Balanced (×1.7)',)),
            ('3', ('Performance (×2)',)), ('4', ('Ultra Performance (×3)',))]
 OUTPUTS = [('1280x720', ('1280 × 720 (Steam Deck)',)), ('1920x1080', ('1920 × 1080',)),
            ('2560x1440', ('2560 × 1440',)), ('3840x2160', ('3840 × 2160 (4K)',)),
