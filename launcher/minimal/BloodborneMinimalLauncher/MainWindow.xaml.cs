@@ -12,6 +12,7 @@ public partial class MainWindow : Window
 {
     private string _portDir = "";
     private string _gameDir = "";
+    private string _savesDir = "";
     private IniFile? _ini;
     private bool _launchInProgress;
     private readonly string _settingsPath = Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.ApplicationData), "BloodborneMinimalLauncher", "settings.ini");
@@ -57,6 +58,7 @@ public partial class MainWindow : Window
         RefreshIni();
         AutoDetectGameDirectory();
         UpdateGameDirectoryDisplay();
+        UpdateSavesDirectoryDisplay();
     }
 
     private static void Fill(System.Windows.Controls.ComboBox box, (string Label, string Value)[] items)
@@ -83,6 +85,7 @@ public partial class MainWindow : Window
             var settings = new IniFile(_settingsPath);
             _portDir = settings.Get("port_dir");
             _gameDir = settings.Get("game_dir");
+            _savesDir = settings.Get("saves_dir");
             Select(DrawPipeBox, settings.Get("draw_pipe", ""), "");
             Select(ReadbacksBox, settings.Get("readbacks", ""), "");
             Select(FrameRateBox, settings.Get("fps_mode", "60"), "60");
@@ -97,6 +100,7 @@ public partial class MainWindow : Window
         var settings = new IniFile(_settingsPath);
         settings.Set("port_dir", _portDir);
         settings.Set("game_dir", _gameDir);
+        settings.Set("saves_dir", _savesDir);
         settings.Set("draw_pipe", Selected(DrawPipeBox, ""));
         settings.Set("readbacks", Selected(ReadbacksBox, ""));
         settings.Set("fps_mode", Selected(FrameRateBox, "60"));
@@ -235,18 +239,42 @@ public partial class MainWindow : Window
         }
     }
 
-    private void SaveGameFolder_Click(object sender, RoutedEventArgs e)
+    private void UpdateSavesDirectoryDisplay()
     {
+        SavesDirectoryText.Text = string.IsNullOrWhiteSpace(_savesDir)
+            ? "Default: Game Files\\Saves"
+            : _savesDir;
+    }
+
+    private void BrowseSavesFolder_Click(object sender, RoutedEventArgs e)
+    {
+        using var dialog = new System.Windows.Forms.FolderBrowserDialog
+        {
+            Description = "Select the folder containing the saves you want to use",
+            UseDescriptionForTitle = true,
+            SelectedPath = Directory.Exists(_savesDir) ? _savesDir :
+                Directory.Exists(Path.Combine(_gameDir, "Saves")) ? Path.Combine(_gameDir, "Saves") : ""
+        };
+        if (dialog.ShowDialog() != System.Windows.Forms.DialogResult.OK)
+            return;
+        if (!Directory.Exists(dialog.SelectedPath))
+        {
+            System.Windows.MessageBox.Show(this, "Saves folder does not exist.", "Bloodborne",
+                MessageBoxButton.OK, MessageBoxImage.Warning);
+            return;
+        }
+        var previous = _savesDir;
         try
         {
-            if (string.IsNullOrWhiteSpace(_gameDir) || !Directory.Exists(_gameDir))
-                throw new DirectoryNotFoundException("Choose an existing game folder first.");
+            _savesDir = dialog.SelectedPath;
             SaveSettings();
-            StatusText.Text = "Game folder saved.";
+            UpdateSavesDirectoryDisplay();
+            StatusText.Text = "Saves folder selected.";
         }
         catch (Exception ex)
         {
-            StatusText.Text = "Could not save the game folder: " + ex.Message;
+            _savesDir = previous;
+            UpdateSavesDirectoryDisplay();
             System.Windows.MessageBox.Show(this, ex.Message, "Bloodborne",
                 MessageBoxButton.OK, MessageBoxImage.Warning);
         }
@@ -339,16 +367,15 @@ public partial class MainWindow : Window
             if (readbacks.Length > 0) info.Environment["BB_READBACKS"] = readbacks;
             else info.Environment.Remove("BB_READBACKS");
 
-            // Preserve existing saves without moving or copying any game files.
-            // bb-start is expected to forward BB_USER_DIR to bb-probe; verify its
-            // effective --user argument in the process list on this engine build.
-            var existingSaves = Path.Combine(_gameDir, "Saves");
-            if (Directory.Exists(existingSaves))
-                info.Environment["BB_USER_DIR"] = existingSaves;
-            else
+            // Never copy or move saves: point bbhost at the selected existing folder.
+            var chosenSaves = string.IsNullOrWhiteSpace(_savesDir)
+                ? Path.Combine(_gameDir, "Saves")
+                : _savesDir;
+            if (!Directory.Exists(chosenSaves))
                 throw new DirectoryNotFoundException(
-                    "Existing saves folder not found: " + existingSaves +
-                    ". Launch cancelled to avoid using a different save directory.");
+                    "Saves folder not found: " + chosenSaves +
+                    ". Select an existing SAVES FOLDER before playing.");
+            info.Environment["BB_USER_DIR"] = chosenSaves;
             // The engine is responsible for preparing patches, mods and launching bb-probe.
             // Do not invoke the original Bloodborne Launcher.exe.
             _launchInProgress = true;
