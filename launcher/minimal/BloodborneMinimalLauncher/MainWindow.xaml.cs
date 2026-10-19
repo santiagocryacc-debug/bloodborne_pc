@@ -298,6 +298,17 @@ public partial class MainWindow : Window
             };
             info.ArgumentList.Add("--game-dir");
             info.ArgumentList.Add(_gameDir);
+
+            // Preserve existing saves without moving or copying any game files.
+            // bb-start is expected to forward BB_USER_DIR to bb-probe; verify its
+            // effective --user argument in the process list on this engine build.
+            var existingSaves = Path.Combine(_gameDir, "Saves");
+            if (Directory.Exists(existingSaves))
+                info.Environment["BB_USER_DIR"] = existingSaves;
+            else
+                throw new DirectoryNotFoundException(
+                    "Existing saves folder not found: " + existingSaves +
+                    ". Launch cancelled to avoid using a different save directory.");
             // The engine is responsible for preparing patches, mods and launching bb-probe.
             // Do not invoke the original Bloodborne Launcher.exe.
             _launchInProgress = true;
