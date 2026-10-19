@@ -132,12 +132,6 @@ public partial class MainWindow : Window
             GameAaBox.IsChecked = _ini.Get("effect_game_aa", "1") == "1";
             ScreenSpaceReflectionsBox.IsChecked = _ini.Get("effect_ssr", "0") == "1";
             SkipIntroBox.IsChecked = _ini.Get("skip_intro", "0") == "1";
-            FreeCameraBox.IsChecked = _ini.Get("debug_camera", "0") == "1";
-            NoRallyBox.IsChecked = _ini.Get("tweak_no_rally", "0") == "1";
-            CameraDistanceBox.IsChecked = _ini.Get("tweak_camera_distance", "0") == "1";
-            NoCameraRotationBox.IsChecked = _ini.Get("tweak_no_camera_rotation", "0") == "1";
-            EasyRunBox.IsChecked = _ini.Get("tweak_easy_run", "0") == "1";
-            RagdollBox.IsChecked = _ini.Get("tweak_ragdoll", "0") == "1";
             StatusText.Text = "";
         }
         catch (Exception ex)
@@ -195,12 +189,6 @@ public partial class MainWindow : Window
             _ini.Set("effect_game_aa", GameAaBox.IsChecked == true ? "1" : "0");
             _ini.Set("effect_ssr", ScreenSpaceReflectionsBox.IsChecked == true ? "1" : "0");
             _ini.Set("skip_intro", SkipIntroBox.IsChecked == true ? "1" : "0");
-            _ini.Set("debug_camera", FreeCameraBox.IsChecked == true ? "1" : "0");
-            _ini.Set("tweak_no_rally", NoRallyBox.IsChecked == true ? "1" : "0");
-            _ini.Set("tweak_camera_distance", CameraDistanceBox.IsChecked == true ? "1" : "0");
-            _ini.Set("tweak_no_camera_rotation", NoCameraRotationBox.IsChecked == true ? "1" : "0");
-            _ini.Set("tweak_easy_run", EasyRunBox.IsChecked == true ? "1" : "0");
-            _ini.Set("tweak_ragdoll", RagdollBox.IsChecked == true ? "1" : "0");
             _ini.Set("fps_mode", Selected(FrameCapBox, "60"));
             _ini.Set("present_mode", Selected(PresentationBox, "Mailbox"));
             _ini.SaveWithBackup();
