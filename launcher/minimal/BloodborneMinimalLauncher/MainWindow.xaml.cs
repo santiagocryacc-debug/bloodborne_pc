@@ -163,9 +163,10 @@ public partial class MainWindow : Window
     {
         try
         {
-            RefreshIni();
-            if (_ini is null)
+            var iniPath = FindIniPath();
+            if (string.IsNullOrWhiteSpace(iniPath))
                 throw new InvalidOperationException("BBPort.ini was not found. Place this launcher in the game folder, beside blobborne.exe.");
+            _ini = new IniFile(iniPath);
             _ini.Set("output_res", Selected(ResolutionBox, "1920x1080"));
             _ini.Set("upscaler", Selected(UpscalerBox, "fsr4"));
             _ini.Set("preset", Selected(PresetBox, "1"));
