@@ -1,6 +1,6 @@
-using System.Windows;
 using System.Windows.Interop;
 using System.Windows.Media;
+using Application = System.Windows.Application;
 
 namespace BloodborneMinimalLauncher;
 
