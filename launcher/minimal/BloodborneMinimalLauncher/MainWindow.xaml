@@ -36,6 +36,7 @@
       <CheckBox x:Name="MotionBlurBox" Content="Motion Blur" HorizontalAlignment="Left" />
       <CheckBox x:Name="GameAaBox" Content="Game Own Anti Aliasing" HorizontalAlignment="Left" />
       <CheckBox x:Name="ScreenSpaceReflectionsBox" Content="Screen Space Reflections" HorizontalAlignment="Left" />
+      <CheckBox x:Name="SkipIntroBox" Content="Skip Intro" HorizontalAlignment="Left" />
      </StackPanel>
     </Border>
     <TextBlock x:Name="StatusText" Text="" Foreground="{StaticResource GoldBrush}" TextWrapping="Wrap" Margin="0,2,0,4" />
