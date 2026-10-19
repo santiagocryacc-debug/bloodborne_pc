@@ -38,6 +38,13 @@
       <CheckBox x:Name="ScreenSpaceReflectionsBox" Content="Screen Space Reflections" HorizontalAlignment="Left" />
       <CheckBox x:Name="SkipIntroBox" Content="Skip Intro" HorizontalAlignment="Left" />
      </StackPanel>
+      <TextBlock Text="GAMEPLAY TWEAKS" Foreground="{StaticResource GoldBrush}" FontWeight="Bold" Margin="0,12,0,8" />
+      <CheckBox x:Name="FreeCameraBox" Content="Free Camera" HorizontalAlignment="Left" />
+      <CheckBox x:Name="NoRallyBox" Content="No Rally" HorizontalAlignment="Left" />
+      <CheckBox x:Name="CameraDistanceBox" Content="Camera Distance" HorizontalAlignment="Left" />
+      <CheckBox x:Name="NoCameraRotationBox" Content="Disable Camera Auto Rotation" HorizontalAlignment="Left" />
+      <CheckBox x:Name="EasyRunBox" Content="Easy Run" HorizontalAlignment="Left" />
+      <CheckBox x:Name="RagdollBox" Content="Ragdoll Physics" HorizontalAlignment="Left" />
     </Border>
     <TextBlock x:Name="StatusText" Text="" Foreground="{StaticResource GoldBrush}" TextWrapping="Wrap" Margin="0,2,0,4" />
    </StackPanel>
