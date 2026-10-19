@@ -224,8 +224,24 @@ public partial class MainWindow : Window
         try
         {
             _gameDir = candidate;
-            SaveSettings();
             UpdateGameDirectoryDisplay();
+            StatusText.Text = "Game folder selected. Click SAVE FOLDER to remember it.";
+        }
+        catch (Exception ex)
+        {
+            StatusText.Text = "Could not save the game folder: " + ex.Message;
+            System.Windows.MessageBox.Show(this, ex.Message, "Bloodborne",
+                MessageBoxButton.OK, MessageBoxImage.Warning);
+        }
+    }
+
+    private void SaveGameFolder_Click(object sender, RoutedEventArgs e)
+    {
+        try
+        {
+            if (string.IsNullOrWhiteSpace(_gameDir) || !Directory.Exists(_gameDir))
+                throw new DirectoryNotFoundException("Choose an existing game folder first.");
+            SaveSettings();
             StatusText.Text = "Game folder saved.";
         }
         catch (Exception ex)
