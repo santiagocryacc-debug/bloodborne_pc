@@ -26,6 +26,8 @@ public partial class MainWindow : Window
         ("30 FPS", "30"), ("60 FPS", "60"), ("90 FPS", "90"), ("120 FPS", "120"), ("Uncapped", "uncap") };
     private static readonly (string Label, string Value)[] PresentModes = {
         ("Mailbox", "Mailbox"), ("FIFO", "Fifo"), ("FIFO Relaxed", "FifoRelaxed"), ("Immediate", "Immediate") };
+    private static readonly (string Label, string Value)[] LiveResolutionModes = {
+        ("Auto", "auto"), ("Off", "0"), ("On", "1") };
 
     public MainWindow()
     {
@@ -35,6 +37,7 @@ public partial class MainWindow : Window
         Fill(PresetBox, Presets);
         Fill(FrameCapBox, FrameCaps);
         Fill(PresentationBox, PresentModes);
+        Fill(LiveResolutionBox, LiveResolutionModes);
         LoadSettings();
         RefreshIni();
     }
@@ -112,11 +115,11 @@ public partial class MainWindow : Window
             Select(PresetBox, _ini.Get("preset", "0"), "0");
             FullscreenBox.IsChecked = _ini.Get("fullscreen", "1") == "1";
             HideMouseBox.IsChecked = _ini.Get("hide_cursor", "1") == "1";
-            WidescreenBox.IsChecked = _ini.Get("widescreen", "1") != "0";
-            LiveResolutionBox.IsChecked = _ini.Get("live_resolution", "0") == "1";
+            Select(LiveResolutionBox, _ini.Get("live_resolution", "auto"), "auto");
             SharpenBox.IsChecked = _ini.Get("sharpen", "1") == "1";
+            SharpnessSlider.Value = double.TryParse(_ini.Get("sharpness", "0.50"), System.Globalization.NumberStyles.Float, System.Globalization.CultureInfo.InvariantCulture, out var sharpness) ? Math.Clamp(sharpness, 0, 2) : 0.5;
+            SharpnessValueText.Text = SharpnessSlider.Value.ToString("0.00", System.Globalization.CultureInfo.InvariantCulture);
             ObjectMotionBox.IsChecked = _ini.Get("object_motion", "1") == "1";
-            ShowFpsBox.IsChecked = _ini.Get("show_fps", "1") == "1";
             SsaoBox.IsChecked = _ini.Get("effect_ssao", "1") == "1";
             DynamicShadowsBox.IsChecked = _ini.Get("effect_dynamic_shadows", "1") == "1";
             ChromaticAberrationBox.IsChecked = _ini.Get("effect_chromatic_aberration", "0") == "1";
@@ -131,6 +134,12 @@ public partial class MainWindow : Window
             _ini = null;
             StatusText.Text = "Could not read settings: " + ex.Message;
         }
+    }
+
+    private void SharpnessSlider_ValueChanged(object sender, RoutedPropertyChangedEventArgs<double> e)
+    {
+        if (SharpnessValueText is not null)
+            SharpnessValueText.Text = e.NewValue.ToString("0.00", System.Globalization.CultureInfo.InvariantCulture);
     }
 
     private void ChoosePort_Click(object sender, RoutedEventArgs e)
@@ -162,11 +171,10 @@ public partial class MainWindow : Window
             _ini.Set("preset", Selected(PresetBox, "0"));
             _ini.Set("fullscreen", FullscreenBox.IsChecked == true ? "1" : "0");
             _ini.Set("hide_cursor", HideMouseBox.IsChecked == true ? "1" : "0");
-            _ini.Set("widescreen", WidescreenBox.IsChecked == true ? "1" : "0");
-            _ini.Set("live_resolution", LiveResolutionBox.IsChecked == true ? "1" : "0");
+            _ini.Set("live_resolution", Selected(LiveResolutionBox, "auto"));
             _ini.Set("sharpen", SharpenBox.IsChecked == true ? "1" : "0");
+            _ini.Set("sharpness", SharpnessSlider.Value.ToString("0.00", System.Globalization.CultureInfo.InvariantCulture));
             _ini.Set("object_motion", ObjectMotionBox.IsChecked == true ? "1" : "0");
-            _ini.Set("show_fps", ShowFpsBox.IsChecked == true ? "1" : "0");
             _ini.Set("effect_ssao", SsaoBox.IsChecked == true ? "1" : "0");
             _ini.Set("effect_dynamic_shadows", DynamicShadowsBox.IsChecked == true ? "1" : "0");
             _ini.Set("effect_chromatic_aberration", ChromaticAberrationBox.IsChecked == true ? "1" : "0");
