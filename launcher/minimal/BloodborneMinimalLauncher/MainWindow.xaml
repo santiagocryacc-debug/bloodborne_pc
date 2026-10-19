@@ -1,14 +1,79 @@
 <Window x:Class="BloodborneMinimalLauncher.MainWindow"
  xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
  xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
- Title="Bloodborne" Icon="Bloodborne.ico" Width="845" Height="1055" MinWidth="650" MinHeight="600"
- WindowStartupLocation="CenterScreen" Background="{StaticResource BackgroundBrush}" Foreground="{StaticResource TextBrush}">
- <Grid Margin="24">
-  <Grid.RowDefinitions><RowDefinition Height="Auto"/><RowDefinition Height="*"/><RowDefinition Height="Auto"/></Grid.RowDefinitions>
-  <TextBlock Text="BLOODBORNE" Foreground="{StaticResource GoldBrush}" FontSize="24" FontWeight="Bold" Margin="0,0,0,18" />
-  <ScrollViewer Grid.Row="1" VerticalScrollBarVisibility="Auto" HorizontalScrollBarVisibility="Disabled" Padding="0">
-   <StackPanel Margin="0">
-    <Border Background="{StaticResource PanelBrush}" BorderBrush="{StaticResource MutedGoldBrush}" BorderThickness="1" CornerRadius="4" Padding="16" Margin="0,0,0,12">
+ Title="Bloodborne" Icon="Bloodborne.ico"
+ Width="1320" Height="780" MinWidth="1080" MinHeight="640"
+ WindowStartupLocation="CenterScreen" Background="#090D11" Foreground="#E6D5BA"
+ FontFamily="Georgia">
+ <Window.Resources>
+  <LinearGradientBrush x:Key="NightBrush" StartPoint="0,0" EndPoint="0.8,1">
+   <GradientStop Offset="0" Color="#070A0D"/><GradientStop Offset="0.43" Color="#1C2B32"/><GradientStop Offset="1" Color="#090B0E"/>
+  </LinearGradientBrush>
+  <LinearGradientBrush x:Key="MistBrush" StartPoint="0,0" EndPoint="0,1">
+   <GradientStop Offset="0" Color="#002D3945"/><GradientStop Offset="1" Color="#A817222A"/>
+  </LinearGradientBrush>
+  <Style TargetType="TabControl"><Setter Property="Background" Value="#D90B0D11"/><Setter Property="BorderBrush" Value="#8B6541"/></Style>
+  <Style TargetType="TabItem">
+   <Setter Property="Foreground" Value="#D8B66A"/><Setter Property="FontFamily" Value="Georgia"/>
+   <Setter Property="FontSize" Value="11"/><Setter Property="FontWeight" Value="Bold"/>
+   <Setter Property="Padding" Value="9,13"/><Setter Property="Background" Value="#16191B"/>
+   <Setter Property="BorderBrush" Value="#795B35"/>
+  </Style>
+ </Window.Resources>
+ <Grid ClipToBounds="True">
+  <Grid.Background><StaticResource ResourceKey="NightBrush"/></Grid.Background>
+  <Canvas IsHitTestVisible="False">
+   <Ellipse Canvas.Left="530" Canvas.Top="44" Width="230" Height="230" Fill="#CFB8B8A5" Opacity="0.75"/>
+   <Ellipse Canvas.Left="540" Canvas.Top="51" Width="218" Height="218" Fill="#FFE7DFD0" Opacity="0.15"/>
+   <Rectangle Canvas.Left="0" Canvas.Top="0" Width="1400" Height="780" Fill="{StaticResource MistBrush}"/>
+   <Polygon Points="230,600 230,420 253,420 253,330 263,330 263,270 278,220 293,270 293,330 304,330 304,420 335,420 335,600" Fill="#D6080D12"/>
+   <Polygon Points="355,615 355,390 385,390 385,305 399,260 413,305 413,390 442,390 442,615" Fill="#E7070A0E"/>
+   <Polygon Points="430,620 430,465 466,465 466,355 485,305 504,355 504,465 535,465 535,620" Fill="#EB0B1014"/>
+   <Polygon Points="535,620 535,470 562,470 562,352 577,300 591,352 591,470 621,470 621,620" Fill="#E8080D10"/>
+   <Polygon Points="630,610 630,410 666,410 666,320 680,265 694,320 694,410 729,410 729,610" Fill="#E6090E12"/>
+   <Polygon Points="740,630 740,485 768,485 768,390 780,330 793,390 793,485 827,485 827,630" Fill="#D70B1013"/>
+   <Rectangle Canvas.Left="250" Canvas.Top="555" Width="650" Height="230" Fill="#F00A0A0C"/>
+   <Line X1="250" Y1="555" X2="900" Y2="555" Stroke="#795B35" StrokeThickness="1" Opacity=".55"/>
+  </Canvas>
+  <Grid>
+   <Grid.RowDefinitions><RowDefinition Height="*"/><RowDefinition Height="42"/></Grid.RowDefinitions>
+   <Grid.ColumnDefinitions><ColumnDefinition Width="280"/><ColumnDefinition Width="*"/><ColumnDefinition Width="480"/></Grid.ColumnDefinitions>
+   <Border Grid.Column="0" Background="#E407090C" BorderBrush="#695137" BorderThickness="0,0,1,0" Padding="25">
+    <Grid>
+     <Grid.RowDefinitions><RowDefinition Height="Auto"/><RowDefinition Height="*"/><RowDefinition Height="Auto"/></Grid.RowDefinitions>
+     <StackPanel Margin="0,38,0,0">
+      <TextBlock Text="✥" Foreground="#BB9360" HorizontalAlignment="Center" FontSize="40" Margin="0,0,0,10"/>
+      <TextBlock Text="BLOODBORNE" FontFamily="Georgia" FontWeight="Bold" FontSize="27" Foreground="#F4E5D5" TextAlignment="Center" />
+      <TextBlock Text="T H E  H U N T  A W A I T S" FontSize="9" Foreground="#C5A274" HorizontalAlignment="Center" Margin="0,12,0,0"/>
+      <Rectangle Height="1" Fill="#805736" Margin="8,22,8,28"/>
+      <Button x:Name="PlayButton" Content="PLAY" Click="Play_Click" FontSize="26" FontWeight="Bold"
+       Background="#8A1519" BorderBrush="#D8B66A" BorderThickness="2" Padding="14,16" Margin="0,0,0,23"/>
+      <TextBlock Text="THE NIGHT IS LONG" FontSize="11" Foreground="#AA947A" TextAlignment="Center"/>
+      <TextBlock Text="THE HUNT BEGINS HERE" FontSize="11" Foreground="#AA947A" TextAlignment="Center" Margin="0,7,0,0"/>
+     </StackPanel>
+     <StackPanel Grid.Row="2" Margin="0,0,0,25">
+      <TextBlock Text="A Hunter Is Never Alone" FontSize="17" FontStyle="Italic" Foreground="#BB9360" TextAlignment="Center"/>
+      <Rectangle Height="1" Fill="#795B35" Margin="0,15,0,0" />
+     </StackPanel>
+    </Grid>
+   </Border>
+   <Grid Grid.Column="1" IsHitTestVisible="False">
+    <Grid.RowDefinitions><RowDefinition Height="*"/><RowDefinition Height="Auto"/></Grid.RowDefinitions>
+    <StackPanel VerticalAlignment="Bottom" Margin="25,0,25,60">
+     <TextBlock Text="YHARNAM" FontSize="37" FontWeight="Bold" Foreground="#E7D1A9" Opacity=".9"/>
+     <TextBlock Text="THE HUNT AWAITS" FontSize="15" Foreground="#BF9D6D" Margin="2,6,0,0"/>
+     <Rectangle Height="1" Fill="#A57A4C" Margin="0,16,0,0"/>
+    </StackPanel>
+   </Grid>
+   <Border Grid.Column="2" BorderBrush="#A17B50" BorderThickness="1,0,0,0" Background="#ED0A0B0E" Padding="12,19,18,8">
+    <Grid>
+     <Grid.RowDefinitions><RowDefinition Height="Auto"/><RowDefinition Height="*"/><RowDefinition Height="Auto"/></Grid.RowDefinitions>
+     <StackPanel Margin="8,0,0,15">
+      <TextBlock Text="GAME SETTINGS" FontSize="20" Foreground="#D8B66A" FontWeight="Bold"/>
+      <TextBlock Text="CONFIGURE YOUR HUNT" Margin="0,6,0,0" FontSize="10" Foreground="#9B856A"/>
+     </StackPanel>
+     <TabControl Grid.Row="1" x:Name="SettingsTabs">
+      <TabItem Header="DISPLAY"><ScrollViewer VerticalScrollBarVisibility="Auto" HorizontalScrollBarVisibility="Disabled" Padding="12"><StackPanel>    <Border Background="{StaticResource PanelBrush}" BorderBrush="{StaticResource MutedGoldBrush}" BorderThickness="1" CornerRadius="4" Padding="16" Margin="0,0,0,16">
      <StackPanel>
       <TextBlock Text="DISPLAY" Foreground="{StaticResource GoldBrush}" FontWeight="Bold" Margin="0,0,0,12" />
       <Grid Margin="0,0,0,10"><Grid.ColumnDefinitions><ColumnDefinition Width="*"/><ColumnDefinition Width="190"/></Grid.ColumnDefinitions><TextBlock Text="Resolution"/><ComboBox x:Name="ResolutionBox" Grid.Column="1" HorizontalAlignment="Stretch"/></Grid>
@@ -21,10 +86,10 @@
       <CheckBox x:Name="PictureTuningBox" Content="Picture Tuning" HorizontalAlignment="Left" />
       <Grid Margin="0,8,0,0"><Grid.ColumnDefinitions><ColumnDefinition Width="*"/><ColumnDefinition Width="190"/></Grid.ColumnDefinitions><TextBlock Text="Live Resolution Change"/><ComboBox x:Name="LiveResolutionBox" Grid.Column="1" HorizontalAlignment="Stretch"/></Grid>
      </StackPanel>
-    </Border>
-    <Border Background="{StaticResource PanelBrush}" BorderBrush="{StaticResource MutedGoldBrush}" BorderThickness="1" CornerRadius="4" Padding="16" Margin="0,0,0,8">
+    </Border></StackPanel></ScrollViewer></TabItem>
+      <TabItem Header="GRAPHICS"><ScrollViewer VerticalScrollBarVisibility="Auto" HorizontalScrollBarVisibility="Disabled" Padding="12"><StackPanel>    <Border Background="{StaticResource PanelBrush}" BorderBrush="{StaticResource MutedGoldBrush}" BorderThickness="1" CornerRadius="4" Padding="16" Margin="0,0,0,8">
      <StackPanel>
-      <TextBlock Text="GRAPHICS" Foreground="{StaticResource GoldBrush}" FontWeight="Bold" Margin="0,0,0,12" />
+      <TextBlock Text="GRAPHICS" Foreground="{StaticResource GoldBrush}" FontWeight="Bold" Margin="0,0,0,16" />
       <Grid Margin="0,0,0,10"><Grid.ColumnDefinitions><ColumnDefinition Width="*"/><ColumnDefinition Width="190"/></Grid.ColumnDefinitions><TextBlock Text="Upscaler"/><ComboBox x:Name="UpscalerBox" Grid.Column="1" HorizontalAlignment="Stretch"/></Grid>
       <Grid Margin="0,0,0,10"><Grid.ColumnDefinitions><ColumnDefinition Width="*"/><ColumnDefinition Width="190"/></Grid.ColumnDefinitions><TextBlock Text="Upscaling Preset"/><ComboBox x:Name="PresetBox" Grid.Column="1" HorizontalAlignment="Stretch"/></Grid>
       <Grid Margin="0,0,0,10"><Grid.ColumnDefinitions><ColumnDefinition Width="*"/><ColumnDefinition Width="190"/></Grid.ColumnDefinitions><TextBlock Text="Model Detail"/><ComboBox x:Name="ModelLodBox" Grid.Column="1" HorizontalAlignment="Stretch"/></Grid>
@@ -34,8 +99,8 @@
       <Grid Margin="0,8,0,10"><Grid.ColumnDefinitions><ColumnDefinition Width="*"/><ColumnDefinition Width="190"/></Grid.ColumnDefinitions><TextBlock Text="Two Stage GPU Pipeline"/><ComboBox x:Name="DrawPipeBox" Grid.Column="1" HorizontalAlignment="Stretch"/></Grid>
       <Grid Margin="0,0,0,10"><Grid.ColumnDefinitions><ColumnDefinition Width="*"/><ColumnDefinition Width="190"/></Grid.ColumnDefinitions><TextBlock Text="CPU Reads Of GPU Data"/><ComboBox x:Name="ReadbacksBox" Grid.Column="1" HorizontalAlignment="Stretch"/></Grid>
      </StackPanel>
-    </Border>
-    <Border Background="{StaticResource PanelBrush}" BorderBrush="{StaticResource MutedGoldBrush}" BorderThickness="1" CornerRadius="4" Padding="16" Margin="0,0,0,12">
+    </Border></StackPanel></ScrollViewer></TabItem>
+      <TabItem Header="EFFECTS"><ScrollViewer VerticalScrollBarVisibility="Auto" HorizontalScrollBarVisibility="Disabled" Padding="12"><StackPanel>    <Border Background="{StaticResource PanelBrush}" BorderBrush="{StaticResource MutedGoldBrush}" BorderThickness="1" CornerRadius="4" Padding="16" Margin="0,0,0,16">
      <StackPanel>
       <TextBlock Text="GAME EFFECTS" Foreground="{StaticResource GoldBrush}" FontWeight="Bold" Margin="0,0,0,12" />
       <CheckBox x:Name="SsaoBox" Content="Ambient Occlusion" HorizontalAlignment="Left" />
@@ -46,29 +111,35 @@
       <CheckBox x:Name="ChromaticAberrationBox" Content="Chromatic Aberration" HorizontalAlignment="Left" />
       <CheckBox x:Name="DepthOfFieldBox" Content="Depth Of Field" HorizontalAlignment="Left" />
      </StackPanel>
-    </Border>
-    <Border Background="{StaticResource PanelBrush}" BorderBrush="{StaticResource MutedGoldBrush}" BorderThickness="1" CornerRadius="4" Padding="16" Margin="0,0,0,12">
+    </Border></StackPanel></ScrollViewer></TabItem>
+      <TabItem Header="FOLDERS"><ScrollViewer VerticalScrollBarVisibility="Auto" Padding="12"><StackPanel>    <Border Background="{StaticResource PanelBrush}" BorderBrush="{StaticResource MutedGoldBrush}" BorderThickness="1" CornerRadius="4" Padding="16" Margin="0,0,0,16">
      <StackPanel>
       <TextBlock Text="GAME FOLDER" Foreground="{StaticResource GoldBrush}" FontWeight="Bold" Margin="0,0,0,10" />
       <TextBlock x:Name="GameDirectoryText" Text="No game folder selected" TextWrapping="Wrap" Margin="0,0,0,8" />
       <Button Content="BROWSE GAME FOLDER" Click="BrowseGameDirectory_Click" Padding="8,6" HorizontalAlignment="Stretch" Margin="0,0,0,8" />
 
      </StackPanel>
-    </Border>
-    <Border Background="{StaticResource PanelBrush}" BorderBrush="{StaticResource MutedGoldBrush}" BorderThickness="1" CornerRadius="4" Padding="16" Margin="0,0,0,12">
+    </Border>    <Border Background="{StaticResource PanelBrush}" BorderBrush="{StaticResource MutedGoldBrush}" BorderThickness="1" CornerRadius="4" Padding="16" Margin="0,0,0,16">
      <StackPanel>
       <TextBlock Text="SAVES FOLDER" Foreground="{StaticResource GoldBrush}" FontWeight="Bold" Margin="0,0,0,10" />
       <TextBlock x:Name="SavesDirectoryText" Text="No saves folder selected" TextWrapping="Wrap" Margin="0,0,0,8" />
       <Button Content="BROWSE SAVES FOLDER" Click="BrowseSavesFolder_Click" Padding="8,6" HorizontalAlignment="Stretch" Margin="0" />
      </StackPanel>
-    </Border>
-    <TextBlock x:Name="StatusText" Text="" Foreground="{StaticResource GoldBrush}" TextWrapping="Wrap" Margin="0,2,0,4" />
-   </StackPanel>
-  </ScrollViewer>
-  <Grid Grid.Row="2" Margin="0,8,17,0">
-   <Grid.ColumnDefinitions><ColumnDefinition Width="*"/><ColumnDefinition Width="*"/></Grid.ColumnDefinitions>
-   <Button Content="SAVE SETTINGS" Click="Save_Click" Margin="0,0,6,0" Padding="12,12" FontSize="14"/>
-   <Button x:Name="PlayButton" Grid.Column="1" Content="PLAY" Click="Play_Click" Margin="6,0,0,0" Padding="12,12" FontSize="14"/>
+    </Border></StackPanel></ScrollViewer></TabItem>
+     </TabControl>
+     <StackPanel Grid.Row="2" Margin="0,12,0,3">
+      <TextBlock x:Name="StatusText" Text="" TextWrapping="Wrap" Foreground="#D8B66A" Margin="0,0,0,9"/>
+      <Button Content="SAVE SETTINGS" Click="Save_Click" FontSize="14" Padding="12,12" Margin="0" Background="#4B1716" BorderBrush="#B18C53"/>
+     </StackPanel>
+    </Grid>
+   </Border>
+   <Border Grid.Row="1" Grid.ColumnSpan="3" Background="#F207080A" BorderBrush="#87613E" BorderThickness="0,1,0,0" Padding="23,10">
+    <DockPanel>
+     <TextBlock Text="BLOODBORNE" Foreground="#B59A72" FontSize="11" Margin="0,0,24,0"/>
+     <TextBlock Text="●  GAME READY" Foreground="#B8CC9C" FontSize="11" Margin="0,0,24,0"/>
+     <TextBlock Text="YHARNAM AWAITS" Foreground="#A88B64" FontSize="11" HorizontalAlignment="Right"/>
+    </DockPanel>
+   </Border>
   </Grid>
  </Grid>
 </Window>
