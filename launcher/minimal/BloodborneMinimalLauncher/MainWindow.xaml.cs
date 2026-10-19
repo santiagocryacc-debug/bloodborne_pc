@@ -9,6 +9,7 @@ namespace BloodborneMinimalLauncher;
 public partial class MainWindow : Window
 {
     private string _portDir = "";
+    private string _gameDir = "";
     private IniFile? _ini;
     private readonly string _settingsPath = Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.ApplicationData), "BloodborneMinimalLauncher", "settings.ini");
 
@@ -43,6 +44,7 @@ public partial class MainWindow : Window
         Fill(ModelLodBox, ModelLods);
         LoadSettings();
         RefreshIni();
+        UpdateGameDirectoryDisplay();
     }
 
     private static void Fill(System.Windows.Controls.ComboBox box, (string Label, string Value)[] items)
@@ -68,6 +70,7 @@ public partial class MainWindow : Window
             if (!File.Exists(_settingsPath)) return;
             var settings = new IniFile(_settingsPath);
             _portDir = settings.Get("port_dir");
+            _gameDir = settings.Get("game_dir");
             Select(FrameCapBox, settings.Get("fps_mode", "60"), "60");
             Select(PresentationBox, settings.Get("present_mode", "Mailbox"), "Mailbox");
         }
@@ -78,6 +81,7 @@ public partial class MainWindow : Window
     {
         var settings = new IniFile(_settingsPath);
         settings.Set("port_dir", _portDir);
+        settings.Set("game_dir", _gameDir);
         settings.Set("fps_mode", Selected(FrameCapBox, "60"));
         settings.Set("present_mode", Selected(PresentationBox, "Mailbox"));
         settings.Save();
@@ -168,6 +172,48 @@ public partial class MainWindow : Window
         {
             _ini = null;
             StatusText.Text = "Could not read settings: " + ex.Message;
+        }
+    }
+
+    private void UpdateGameDirectoryDisplay()
+    {
+        GameDirectoryText.Text = string.IsNullOrWhiteSpace(_gameDir)
+            ? "No game folder selected"
+            : _gameDir;
+    }
+
+    private void BrowseGameDirectory_Click(object sender, RoutedEventArgs e)
+    {
+        using var dialog = new System.Windows.Forms.FolderBrowserDialog
+        {
+            Description = "Select the game folder containing eboot.bin",
+            UseDescriptionForTitle = true,
+            SelectedPath = Directory.Exists(_gameDir) ? _gameDir : ""
+        };
+        if (dialog.ShowDialog() != System.Windows.Forms.DialogResult.OK)
+            return;
+
+        var candidate = dialog.SelectedPath;
+        if (!File.Exists(Path.Combine(candidate, "eboot.bin")))
+        {
+            System.Windows.MessageBox.Show(this,
+                "The selected folder does not contain eboot.bin.",
+                "Bloodborne", MessageBoxButton.OK, MessageBoxImage.Warning);
+            return;
+        }
+
+        try
+        {
+            _gameDir = candidate;
+            SaveSettings();
+            UpdateGameDirectoryDisplay();
+            StatusText.Text = "Game folder saved.";
+        }
+        catch (Exception ex)
+        {
+            StatusText.Text = "Could not save the game folder: " + ex.Message;
+            System.Windows.MessageBox.Show(this, ex.Message, "Bloodborne",
+                MessageBoxButton.OK, MessageBoxImage.Warning);
         }
     }
 
