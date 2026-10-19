@@ -80,7 +80,7 @@ public partial class MainWindow : Window
         settings.Set("port_dir", _portDir);
         settings.Set("fps_mode", Selected(FrameCapBox, "60"));
         settings.Set("present_mode", Selected(PresentationBox, "Mailbox"));
-        settings.SaveWithBackup();
+        settings.Save();
     }
 
     private string FindIniPath()
@@ -205,7 +205,7 @@ public partial class MainWindow : Window
             _ini.Set("skip_intro", SkipIntroBox.IsChecked == true ? "1" : "0");
             _ini.Set("fps_mode", Selected(FrameCapBox, "60"));
             _ini.Set("present_mode", Selected(PresentationBox, "Mailbox"));
-            _ini.SaveWithBackup();
+            _ini.Save();
             SaveSettings();
             StatusText.Text = "Settings Saved.";
         }
