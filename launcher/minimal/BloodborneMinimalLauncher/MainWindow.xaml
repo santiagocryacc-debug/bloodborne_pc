@@ -49,6 +49,10 @@
     <TextBlock x:Name="StatusText" Text="" Foreground="{StaticResource GoldBrush}" TextWrapping="Wrap" Margin="0,2,0,4" />
    </StackPanel>
   </ScrollViewer>
-  <Button Grid.Row="2" Content="SAVE SETTINGS" Click="Save_Click" HorizontalAlignment="Stretch" Margin="0" Padding="12,12" FontSize="14"/>
+  <Grid Grid.Row="2">
+   <Grid.ColumnDefinitions><ColumnDefinition Width="*"/><ColumnDefinition Width="*"/></Grid.ColumnDefinitions>
+   <Button Content="SAVE SETTINGS" Click="Save_Click" Margin="0,0,6,0" Padding="12,12" FontSize="14"/>
+   <Button x:Name="PlayButton" Grid.Column="1" Content="PLAY" Click="Play_Click" Margin="6,0,0,0" Padding="12,12" FontSize="14"/>
+  </Grid>
  </Grid>
 </Window>
