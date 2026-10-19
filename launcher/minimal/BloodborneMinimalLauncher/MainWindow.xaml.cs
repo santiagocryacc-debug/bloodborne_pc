@@ -35,6 +35,10 @@ public partial class MainWindow : Window
         ("Mailbox", "Mailbox"), ("FIFO", "Fifo"), ("FIFO Relaxed", "FifoRelaxed"), ("Immediate", "Immediate") };
     private static readonly (string Label, string Value)[] LiveResolutionModes = {
         ("Auto", "auto"), ("Off", "0"), ("On", "1") };
+    private static readonly (string Label, string Value)[] DrawPipes = {
+        ("Auto", ""), ("On", "1"), ("Off", "0") };
+    private static readonly (string Label, string Value)[] Readbacks = {
+        ("Relaxed", ""), ("Off", "0"), ("Precise", "2") };
     private static readonly (string Label, string Value)[] ModelLods = {
         ("As In Game", "0"), ("Highest", "-2"), ("Lower", "1"), ("Lowest", "2") };
 
@@ -49,6 +53,8 @@ public partial class MainWindow : Window
         Fill(PresentationBox, PresentModes);
         Fill(LiveResolutionBox, LiveResolutionModes);
         Fill(ModelLodBox, ModelLods);
+        Fill(DrawPipeBox, DrawPipes);
+        Fill(ReadbacksBox, Readbacks);
         LoadSettings();
         RefreshIni();
         AutoDetectGameDirectory();
@@ -79,6 +85,8 @@ public partial class MainWindow : Window
             var settings = new IniFile(_settingsPath);
             _portDir = settings.Get("port_dir");
             _gameDir = settings.Get("game_dir");
+            Select(DrawPipeBox, settings.Get("draw_pipe", ""), "");
+            Select(ReadbacksBox, settings.Get("readbacks", ""), "");
             Select(FrameRateBox, settings.Get("fps_mode", "60"), "60");
             Select(FrameCapBox, settings.Get("frame_cap", ""), "");
             Select(PresentationBox, settings.Get("present_mode", "Mailbox"), "Mailbox");
@@ -91,6 +99,8 @@ public partial class MainWindow : Window
         var settings = new IniFile(_settingsPath);
         settings.Set("port_dir", _portDir);
         settings.Set("game_dir", _gameDir);
+        settings.Set("draw_pipe", Selected(DrawPipeBox, ""));
+        settings.Set("readbacks", Selected(ReadbacksBox, ""));
         settings.Set("fps_mode", Selected(FrameRateBox, "60"));
         settings.Set("frame_cap", Selected(FrameCapBox, ""));
         settings.Set("present_mode", Selected(PresentationBox, "Mailbox"));
@@ -163,6 +173,7 @@ public partial class MainWindow : Window
             Select(ModelLodBox, _ini.Get("model_lod", "0"), "0");
             FullscreenBox.IsChecked = _ini.Get("fullscreen", "1") == "1";
             HideMouseBox.IsChecked = _ini.Get("hide_cursor", "1") == "1";
+            PictureTuningBox.IsChecked = _ini.Get("graphics_controls", "1") == "1";
             Select(LiveResolutionBox, _ini.Get("live_resolution", "auto"), "auto");
             SharpenBox.IsChecked = _ini.Get("sharpen", "1") == "1";
             SharpnessSlider.Value = double.TryParse(_ini.Get("sharpness", "0.50"), System.Globalization.NumberStyles.Float, System.Globalization.CultureInfo.InvariantCulture, out var sharpness) ? Math.Clamp(sharpness, 0, 2) : 0.5;
@@ -307,6 +318,12 @@ public partial class MainWindow : Window
             info.Environment["BB_FPS"] = Selected(FrameRateBox, "60");
             var cap = Selected(FrameCapBox, "");
             if (!string.IsNullOrEmpty(cap)) info.Environment["BB_FPS_LIMIT"] = cap;
+            var drawPipe = Selected(DrawPipeBox, "");
+            if (drawPipe.Length > 0) info.Environment["BB_DRAW_PIPE"] = drawPipe;
+            else info.Environment.Remove("BB_DRAW_PIPE");
+            var readbacks = Selected(ReadbacksBox, "");
+            if (readbacks.Length > 0) info.Environment["BB_READBACKS"] = readbacks;
+            else info.Environment.Remove("BB_READBACKS");
 
             // Preserve existing saves without moving or copying any game files.
             // bb-start is expected to forward BB_USER_DIR to bb-probe; verify its
@@ -375,6 +392,7 @@ public partial class MainWindow : Window
             _ini.Set("model_lod", Selected(ModelLodBox, "0"));
             _ini.Set("fullscreen", FullscreenBox.IsChecked == true ? "1" : "0");
             _ini.Set("hide_cursor", HideMouseBox.IsChecked == true ? "1" : "0");
+            _ini.Set("graphics_controls", PictureTuningBox.IsChecked == true ? "1" : "0");
             _ini.Set("live_resolution", Selected(LiveResolutionBox, "auto"));
             _ini.Set("sharpen", SharpenBox.IsChecked == true ? "1" : "0");
             _ini.Set("sharpness", SharpnessSlider.Value.ToString("0.00", System.Globalization.CultureInfo.InvariantCulture));
