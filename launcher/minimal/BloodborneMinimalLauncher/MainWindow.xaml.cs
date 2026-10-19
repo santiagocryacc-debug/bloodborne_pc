@@ -121,10 +121,15 @@ public partial class MainWindow : Window
 
     private void ChoosePort_Click(object sender, RoutedEventArgs e)
     {
-        var dialog = new OpenFolderDialog { Title = "Choose the folder containing BBPort.ini" };
-        if (dialog.ShowDialog() == true)
+        using var dialog = new System.Windows.Forms.FolderBrowserDialog
         {
-            _portDir = dialog.FolderName;
+            Description = "Choose the folder containing BBPort.ini",
+            UseDescriptionForTitle = true,
+            ShowNewFolderButton = false
+        };
+        if (dialog.ShowDialog() == System.Windows.Forms.DialogResult.OK)
+        {
+            _portDir = dialog.SelectedPath;
             RefreshIni();
             try { SaveSettings(); } catch (Exception ex) { StatusText.Text = ex.Message; }
         }
