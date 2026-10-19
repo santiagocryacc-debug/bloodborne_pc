@@ -22,6 +22,41 @@
    <Setter Property="BorderThickness" Value="1" />
    <Setter Property="Padding" Value="6,4" />
    <Setter Property="MinWidth" Value="170" />
+   <Setter Property="Template">
+    <Setter.Value>
+     <ControlTemplate TargetType="ComboBox">
+      <Grid>
+       <ToggleButton x:Name="DropDownToggle" Focusable="False" ClickMode="Press"
+                     IsChecked="{Binding IsDropDownOpen, Mode=TwoWay, RelativeSource={RelativeSource TemplatedParent}}"
+                     Background="{TemplateBinding Background}" BorderBrush="{TemplateBinding BorderBrush}"
+                     BorderThickness="{TemplateBinding BorderThickness}">
+        <Grid>
+         <Grid.ColumnDefinitions><ColumnDefinition Width="*"/><ColumnDefinition Width="28"/></Grid.ColumnDefinitions>
+         <ContentPresenter Margin="{TemplateBinding Padding}" VerticalAlignment="Center" HorizontalAlignment="Left"
+                           Content="{TemplateBinding SelectionBoxItem}" ContentTemplate="{TemplateBinding SelectionBoxItemTemplate}"
+                           ContentStringFormat="{TemplateBinding SelectionBoxItemStringFormat}" TextElement.Foreground="{StaticResource TextBrush}" />
+         <Path Grid.Column="1" Data="M 0,0 L 5,5 L 10,0" Stroke="{StaticResource GoldBrush}" StrokeThickness="1.8"
+               HorizontalAlignment="Center" VerticalAlignment="Center" />
+        </Grid>
+       </ToggleButton>
+       <Popup x:Name="PART_Popup" Placement="Bottom" IsOpen="{TemplateBinding IsDropDownOpen}" AllowsTransparency="True"
+              Focusable="False" PopupAnimation="Fade">
+        <Border Background="#38251F" BorderBrush="{StaticResource GoldBrush}" BorderThickness="1"
+                MinWidth="{Binding ActualWidth, RelativeSource={RelativeSource TemplatedParent}}">
+         <ScrollViewer MaxHeight="{TemplateBinding MaxDropDownHeight}" SnapsToDevicePixels="True">
+          <ItemsPresenter KeyboardNavigation.DirectionalNavigation="Contained" />
+         </ScrollViewer>
+        </Border>
+       </Popup>
+      </Grid>
+      <ControlTemplate.Triggers>
+       <Trigger Property="IsEnabled" Value="False"><Setter Property="Opacity" Value="0.5"/></Trigger>
+       <Trigger Property="IsMouseOver" Value="True"><Setter TargetName="DropDownToggle" Property="BorderBrush" Value="{StaticResource GoldBrush}"/></Trigger>
+       <Trigger Property="IsKeyboardFocusWithin" Value="True"><Setter TargetName="DropDownToggle" Property="BorderBrush" Value="{StaticResource GoldBrush}"/></Trigger>
+      </ControlTemplate.Triggers>
+     </ControlTemplate>
+    </Setter.Value>
+   </Setter>
   </Style>
 
   <Style TargetType="ComboBoxItem">
