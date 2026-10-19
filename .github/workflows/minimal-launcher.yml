@@ -19,6 +19,12 @@ jobs:
       - name: Checkout
         uses: actions/checkout@v4
 
+      - name: Restore launcher icon
+        shell: pwsh
+        run: |
+          $iconBase64 = Get-Content launcher/minimal/BloodborneMinimalLauncher/Bloodborne.ico.b64 -Raw
+          [IO.File]::WriteAllBytes("launcher/minimal/BloodborneMinimalLauncher/Bloodborne.ico", [Convert]::FromBase64String($iconBase64))
+
       - name: Set up .NET 8
         uses: actions/setup-dotnet@v4
         with:
