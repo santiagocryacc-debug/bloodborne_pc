@@ -274,7 +274,7 @@ public partial class MainWindow : Window
             if (File.Exists(gamePathFile))
             {
                 var fromEngine = File.ReadAllText(gamePathFile)
-                    .Trim().TrimStart('\\uFEFF').Trim('"').Trim();
+                    .Trim().TrimStart('\uFEFF').Trim('"').Trim();
                 if (Directory.Exists(fromEngine))
                     _gameDir = fromEngine;
             }
@@ -282,9 +282,9 @@ public partial class MainWindow : Window
             if (string.IsNullOrWhiteSpace(_gameDir) || !Directory.Exists(_gameDir))
                 throw new InvalidOperationException(
                     "Game directory not accessible. Engine file: " + gamePathFile +
-                    "\\nFile exists: " + File.Exists(gamePathFile) +
-                    "\\nSaved directory: " + (_gameDir.Length == 0 ? "(empty)" : _gameDir) +
-                    "\\nCheck that drive Y: is available, or select the folder manually.");
+                    "\nFile exists: " + File.Exists(gamePathFile) +
+                    "\nSaved directory: " + (_gameDir.Length == 0 ? "(empty)" : _gameDir) +
+                    "\nCheck that drive Y: is available, or select the folder manually.");
 
             UpdateGameDirectoryDisplay();
 
