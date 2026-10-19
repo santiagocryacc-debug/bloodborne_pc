@@ -1,0 +1,38 @@
+name: Build minimal Bloodborne launcher
+
+on:
+  workflow_dispatch:
+  push:
+    branches:
+      - minimal-launcher-build
+    paths:
+      - 'launcher/minimal/**'
+      - '.github/workflows/minimal-launcher.yml'
+
+permissions:
+  contents: read
+
+jobs:
+  build:
+    runs-on: windows-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Set up .NET 8
+        uses: actions/setup-dotnet@v4
+        with:
+          dotnet-version: '8.0.x'
+
+      - name: Publish Windows x64 executable
+        shell: pwsh
+        run: |
+          dotnet publish launcher/minimal/BloodborneMinimalLauncher/BloodborneMinimalLauncher.csproj -c Release -r win-x64 --self-contained true -p:PublishSingleFile=true -p:IncludeNativeLibrariesForSelfExtract=true -o artifacts/BloodborneMinimalLauncher
+
+      - name: Upload launcher artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: BloodborneMinimalLauncher-win-x64
+          path: artifacts/BloodborneMinimalLauncher/
+          if-no-files-found: error
+          retention-days: 14
