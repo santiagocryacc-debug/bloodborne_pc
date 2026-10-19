@@ -4,9 +4,10 @@
  Title="Bloodborne" Icon="Bloodborne.ico" Width="845" Height="1055" MinWidth="650" MinHeight="600"
  WindowStartupLocation="CenterScreen" Background="{StaticResource BackgroundBrush}" Foreground="{StaticResource TextBrush}">
  <Grid Margin="24">
+  <Grid.ColumnDefinitions><ColumnDefinition Width="*"/><ColumnDefinition Width="10"/></Grid.ColumnDefinitions>
   <Grid.RowDefinitions><RowDefinition Height="Auto"/><RowDefinition Height="*"/><RowDefinition Height="Auto"/></Grid.RowDefinitions>
   <TextBlock Text="BLOODBORNE" Foreground="{StaticResource GoldBrush}" FontSize="24" FontWeight="Bold" Margin="0,0,0,18" />
-  <ScrollViewer Grid.Row="1" VerticalScrollBarVisibility="Auto" HorizontalScrollBarVisibility="Disabled" Padding="0">
+  <ScrollViewer Grid.Row="1" Grid.Column="0" VerticalScrollBarVisibility="Auto" HorizontalScrollBarVisibility="Disabled" Padding="0">
    <StackPanel Margin="0">
     <Border Background="{StaticResource PanelBrush}" BorderBrush="{StaticResource MutedGoldBrush}" BorderThickness="1" CornerRadius="4" Padding="16" Margin="0,0,0,12">
      <StackPanel>
@@ -65,7 +66,7 @@
     <TextBlock x:Name="StatusText" Text="" Foreground="{StaticResource GoldBrush}" TextWrapping="Wrap" Margin="0,2,0,4" />
    </StackPanel>
   </ScrollViewer>
-  <Grid Grid.Row="2" Margin="0,8,10,0">
+  <Grid Grid.Row="2" Grid.Column="0" Margin="0,8,0,0">
    <Grid.ColumnDefinitions><ColumnDefinition Width="*"/><ColumnDefinition Width="*"/></Grid.ColumnDefinitions>
    <Button Content="SAVE SETTINGS" Click="Save_Click" Margin="0,0,6,0" Padding="12,12" FontSize="14"/>
    <Button x:Name="PlayButton" Grid.Column="1" Content="PLAY" Click="Play_Click" Margin="6,0,0,0" Padding="12,12" FontSize="14"/>
