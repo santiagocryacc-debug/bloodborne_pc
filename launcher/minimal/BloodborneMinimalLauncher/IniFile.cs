@@ -28,17 +28,11 @@ public sealed class IniFile
     public string Get(string key, string fallback = "") => _values.TryGetValue(key, out var value) ? value : fallback;
     public void Set(string key, string value) => _values[key] = value;
 
-    public void SaveWithBackup()
+    public void Save()
     {
         var dir = Path.GetDirectoryName(PathName);
         if (string.IsNullOrWhiteSpace(dir)) throw new InvalidOperationException("The INI path is invalid.");
         Directory.CreateDirectory(dir);
-        if (File.Exists(PathName))
-        {
-            var backup = PathName + ".backup-" + DateTime.Now.ToString("yyyyMMdd-HHmmss-fff");
-            File.Copy(PathName, backup, false);
-        }
-
         var output = new List<string>();
         var written = new HashSet<string>(StringComparer.OrdinalIgnoreCase);
         foreach (var line in _lines)
