@@ -190,7 +190,7 @@ public partial class MainWindow : Window
     {
         using var dialog = new System.Windows.Forms.FolderBrowserDialog
         {
-            Description = "Select the game folder containing eboot.bin",
+            Description = "Select the game files directory",
             UseDescriptionForTitle = true,
             SelectedPath = Directory.Exists(_gameDir) ? _gameDir : ""
         };
@@ -198,10 +198,10 @@ public partial class MainWindow : Window
             return;
 
         var candidate = dialog.SelectedPath;
-        if (!File.Exists(Path.Combine(candidate, "eboot.bin")))
+        if (!Directory.Exists(candidate))
         {
             System.Windows.MessageBox.Show(this,
-                "The selected folder does not contain eboot.bin.",
+                "The selected game directory does not exist.",
                 "Bloodborne", MessageBoxButton.OK, MessageBoxImage.Warning);
             return;
         }
@@ -240,8 +240,7 @@ public partial class MainWindow : Window
 
     private void AutoDetectGameDirectory()
     {
-        if (Directory.Exists(_gameDir) && File.Exists(Path.Combine(_gameDir, "eboot.bin")))
-            return;
+        // Prefer the engine-provided path, even when this distribution stores eboot.bin in a subfolder.
         var engineStart = LocateEngineStart();
         if (engineStart is null)
             return;
@@ -251,9 +250,10 @@ public partial class MainWindow : Window
         try
         {
             var candidate = File.ReadAllText(pathFile).Trim().Trim('"');
-            if (File.Exists(Path.Combine(candidate, "eboot.bin")))
+            if (Directory.Exists(candidate))
             {
                 _gameDir = candidate;
+                UpdateGameDirectoryDisplay();
                 SaveSettings();
             }
         }
@@ -269,8 +269,8 @@ public partial class MainWindow : Window
         {
             var engineStart = LocateEngineStart()
                 ?? throw new FileNotFoundException("engine/out/bb-start.exe was not found beside the port.");
-            if (!File.Exists(Path.Combine(_gameDir, "eboot.bin")))
-                throw new InvalidOperationException("Select a game folder containing eboot.bin before playing.");
+            if (string.IsNullOrWhiteSpace(_gameDir) || !Directory.Exists(_gameDir))
+                throw new InvalidOperationException("Select an existing game directory before playing.");
 
             var info = new ProcessStartInfo(engineStart)
             {
