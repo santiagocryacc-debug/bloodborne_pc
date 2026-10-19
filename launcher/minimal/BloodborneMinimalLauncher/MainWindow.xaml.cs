@@ -269,8 +269,24 @@ public partial class MainWindow : Window
         {
             var engineStart = LocateEngineStart()
                 ?? throw new FileNotFoundException("engine/out/bb-start.exe was not found beside the port.");
+            // Resolve again at launch time: the engine's game_dir is the source of truth.
+            var gamePathFile = Path.Combine(Path.GetDirectoryName(engineStart)!, "game_dir");
+            if (File.Exists(gamePathFile))
+            {
+                var fromEngine = File.ReadAllText(gamePathFile)
+                    .Trim().TrimStart('\\uFEFF').Trim('"').Trim();
+                if (Directory.Exists(fromEngine))
+                    _gameDir = fromEngine;
+            }
+
             if (string.IsNullOrWhiteSpace(_gameDir) || !Directory.Exists(_gameDir))
-                throw new InvalidOperationException("Select an existing game directory before playing.");
+                throw new InvalidOperationException(
+                    "Game directory not accessible. Engine file: " + gamePathFile +
+                    "\\nFile exists: " + File.Exists(gamePathFile) +
+                    "\\nSaved directory: " + (_gameDir.Length == 0 ? "(empty)" : _gameDir) +
+                    "\\nCheck that drive Y: is available, or select the folder manually.");
+
+            UpdateGameDirectoryDisplay();
 
             var info = new ProcessStartInfo(engineStart)
             {
