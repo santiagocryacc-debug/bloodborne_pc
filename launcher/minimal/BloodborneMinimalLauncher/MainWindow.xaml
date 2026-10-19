@@ -10,6 +10,13 @@
    <StackPanel>
     <Border Background="{StaticResource PanelBrush}" Padding="16" Margin="0,0,0,12">
      <StackPanel>
+      <TextBlock Text="GAME FOLDER" Foreground="{StaticResource GoldBrush}" FontWeight="Bold" Margin="0,0,0,10" />
+      <TextBlock x:Name="GameDirectoryText" Text="No game folder selected" TextWrapping="Wrap" Margin="0,0,0,8" />
+      <Button Content="BROWSE GAME FOLDER" Click="BrowseGameDirectory_Click" Padding="8,6" HorizontalAlignment="Stretch" />
+     </StackPanel>
+    </Border>
+    <Border Background="{StaticResource PanelBrush}" Padding="16" Margin="0,0,0,12">
+     <StackPanel>
       <TextBlock Text="DISPLAY" Foreground="{StaticResource GoldBrush}" FontWeight="Bold" Margin="0,0,0,12" />
       <Grid Margin="0,0,0,10"><Grid.ColumnDefinitions><ColumnDefinition Width="*"/><ColumnDefinition Width="190"/></Grid.ColumnDefinitions><TextBlock Text="Resolution"/><ComboBox x:Name="ResolutionBox" Grid.Column="1" HorizontalAlignment="Stretch"/></Grid>
       <Grid Margin="0,0,0,10"><Grid.ColumnDefinitions><ColumnDefinition Width="*"/><ColumnDefinition Width="190"/></Grid.ColumnDefinitions><TextBlock Text="Presentation Mode"/><ComboBox x:Name="PresentationBox" Grid.Column="1" HorizontalAlignment="Stretch"/></Grid>
