@@ -39,15 +39,15 @@ public partial class MainWindow : Window
         RefreshIni();
     }
 
-    private static void Fill(ComboBox box, (string Label, string Value)[] items)
+    private static void Fill(System.Windows.Controls.ComboBox box, (string Label, string Value)[] items)
     {
         box.ItemsSource = items.Select(x => new ComboBoxItem { Content = x.Label, Tag = x.Value }).ToList();
     }
 
-    private static string Selected(ComboBox box, string fallback) =>
+    private static string Selected(System.Windows.Controls.ComboBox box, string fallback) =>
         (box.SelectedItem as ComboBoxItem)?.Tag?.ToString() ?? fallback;
 
-    private static void Select(ComboBox box, string value, string fallback)
+    private static void Select(System.Windows.Controls.ComboBox box, string value, string fallback)
     {
         foreach (ComboBoxItem item in box.Items)
             if (Equals(item.Tag?.ToString(), value)) { box.SelectedItem = item; return; }
