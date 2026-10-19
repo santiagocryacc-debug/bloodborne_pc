@@ -5,6 +5,7 @@ using System.Threading.Tasks;
 using System.Linq;
 using System.Windows;
 using System.Windows.Controls;
+using System.Windows.Media.Imaging;
 
 namespace BloodborneMinimalLauncher;
 
@@ -44,6 +45,7 @@ public partial class MainWindow : Window
     public MainWindow()
     {
         InitializeComponent();
+        LoadArtwork();
         Fill(ResolutionBox, Resolutions);
         Fill(UpscalerBox, Upscalers);
         Fill(PresetBox, Presets);
@@ -60,6 +62,40 @@ public partial class MainWindow : Window
         UpdateGameDirectoryDisplay();
         UpdateSavesDirectoryDisplay();
     }
+
+    private void LoadArtwork()
+    {
+        // Optional assets. Missing images never prevent the launcher from starting.
+        LoadArtworkImage(HeroArtwork, "Yharnam.jpg");
+        LoadArtworkImage(WelcomeArtwork, "Welcome.jpg");
+        LoadArtworkImage(NightmaresArtwork, "Nightmares.jpg");
+    }
+
+    private static void LoadArtworkImage(System.Windows.Controls.Image target, string filename)
+    {
+        try
+        {
+            var file = Path.Combine(AppContext.BaseDirectory, "Assets", filename);
+            if (!File.Exists(file))
+                return;
+            var image = new BitmapImage();
+            image.BeginInit();
+            image.CacheOption = BitmapCacheOption.OnLoad;
+            image.UriSource = new Uri(file, UriKind.Absolute);
+            image.EndInit();
+            image.Freeze();
+            target.Source = image;
+        }
+        catch (Exception)
+        {
+            // Keep the fallback background if an asset is invalid.
+        }
+    }
+
+    private void OpenDisplay_Click(object sender, RoutedEventArgs e) => SettingsTabs.SelectedIndex = 0;
+    private void OpenGraphics_Click(object sender, RoutedEventArgs e) => SettingsTabs.SelectedIndex = 1;
+    private void OpenEffects_Click(object sender, RoutedEventArgs e) => SettingsTabs.SelectedIndex = 2;
+    private void OpenSaves_Click(object sender, RoutedEventArgs e) => SettingsTabs.SelectedIndex = 3;
 
     private static void Fill(System.Windows.Controls.ComboBox box, (string Label, string Value)[] items)
     {
