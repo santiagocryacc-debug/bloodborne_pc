@@ -16,6 +16,7 @@
       <Grid Margin="0,0,0,10"><Grid.ColumnDefinitions><ColumnDefinition Width="*"/><ColumnDefinition Width="190"/></Grid.ColumnDefinitions><TextBlock Text="Frame Cap"/><ComboBox x:Name="FrameCapBox" Grid.Column="1" HorizontalAlignment="Stretch"/></Grid>
       <CheckBox x:Name="FullscreenBox" Content="Fullscreen" HorizontalAlignment="Left" />
       <CheckBox x:Name="HideMouseBox" Content="Hide Mouse" HorizontalAlignment="Left" />
+      <CheckBox x:Name="SkipIntroBox" Content="Skip Intro" HorizontalAlignment="Left" />
       <Grid Margin="0,8,0,0"><Grid.ColumnDefinitions><ColumnDefinition Width="*"/><ColumnDefinition Width="190"/></Grid.ColumnDefinitions><TextBlock Text="Live Resolution Change"/><ComboBox x:Name="LiveResolutionBox" Grid.Column="1" HorizontalAlignment="Stretch"/></Grid>
      </StackPanel>
     </Border>
@@ -31,12 +32,11 @@
       <TextBlock Text="GAME EFFECTS" Foreground="{StaticResource GoldBrush}" FontWeight="Bold" Margin="0,12,0,8" />
       <CheckBox x:Name="SsaoBox" Content="Ambient Occlusion" HorizontalAlignment="Left" />
       <CheckBox x:Name="DynamicShadowsBox" Content="Dynamic Light Shadow" HorizontalAlignment="Left" />
-      <CheckBox x:Name="ChromaticAberrationBox" Content="Chromatic Aberration" HorizontalAlignment="Left" />
-      <CheckBox x:Name="DepthOfFieldBox" Content="Depth Of Field" HorizontalAlignment="Left" />
-      <CheckBox x:Name="MotionBlurBox" Content="Motion Blur" HorizontalAlignment="Left" />
       <CheckBox x:Name="GameAaBox" Content="Game Own Anti Aliasing" HorizontalAlignment="Left" />
       <CheckBox x:Name="ScreenSpaceReflectionsBox" Content="Screen Space Reflections" HorizontalAlignment="Left" />
-      <CheckBox x:Name="SkipIntroBox" Content="Skip Intro" HorizontalAlignment="Left" />
+      <CheckBox x:Name="MotionBlurBox" Content="Motion Blur" HorizontalAlignment="Left" />
+      <CheckBox x:Name="ChromaticAberrationBox" Content="Chromatic Aberration" HorizontalAlignment="Left" />
+      <CheckBox x:Name="DepthOfFieldBox" Content="Depth Of Field" HorizontalAlignment="Left" />
      </StackPanel>
     </Border>
     <TextBlock x:Name="StatusText" Text="" Foreground="{StaticResource GoldBrush}" TextWrapping="Wrap" Margin="0,2,0,4" />
