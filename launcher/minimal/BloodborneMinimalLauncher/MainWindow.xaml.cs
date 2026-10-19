@@ -17,10 +17,8 @@ public partial class MainWindow : Window
     private readonly string _settingsPath = Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.ApplicationData), "BloodborneMinimalLauncher", "settings.ini");
 
     private static readonly (string Label, string Value)[] Resolutions = {
-        ("1280 720", "1280x720"), ("1920 1080", "1920x1080"), ("2560 1440", "2560x1440"),
-        ("3840 2160", "3840x2160"), ("2560 1080", "2560x1080"), ("3440 1440", "3440x1440"),
-        ("3840 1600", "3840x1600"), ("5120 2160", "5120x2160"), ("3840 1080", "3840x1080"),
-        ("5120 1440", "5120x1440"), ("7680 2160", "7680x2160"), ("Auto", "auto") };
+        ("1920 1080", "1920x1080"), ("2560 1440", "2560x1440"),
+        ("3840 2160", "3840x2160") };
     private static readonly (string Label, string Value)[] Upscalers = {
         ("FSR 4", "fsr4"), ("FSR 4.1.1", "fsr411"), ("FSR 3", "fsr3"),
         ("DLSS", "dlss"), ("TAA", "taa"), ("Off", "off") };
