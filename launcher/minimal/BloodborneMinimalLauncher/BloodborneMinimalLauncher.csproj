@@ -7,6 +7,10 @@
     <Nullable>enable</Nullable>
     <ImplicitUsings>enable</ImplicitUsings>
     <AssemblyName>Launcher</AssemblyName>
+    <ApplicationIcon>Bloodborne.ico</ApplicationIcon>
     <RootNamespace>BloodborneMinimalLauncher</RootNamespace>
   </PropertyGroup>
+  <ItemGroup>
+    <Resource Include="Bloodborne.ico" />
+  </ItemGroup>
 </Project>
