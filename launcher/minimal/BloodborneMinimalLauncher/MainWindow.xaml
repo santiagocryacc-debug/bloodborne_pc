@@ -1,0 +1,34 @@
+<Window x:Class="BloodborneMinimalLauncher.MainWindow"
+ xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+ xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+ Title="Bloodborne" Width="620" Height="610" MinWidth="560" MinHeight="560"
+ WindowStartupLocation="CenterScreen" Background="{StaticResource BackgroundBrush}" Foreground="{StaticResource TextBrush}">
+ <Grid Margin="26">
+  <Grid.RowDefinitions><RowDefinition Height="Auto"/><RowDefinition Height="*"/><RowDefinition Height="Auto"/><RowDefinition Height="Auto"/></Grid.RowDefinitions>
+  <TextBlock Text="BLOODBORNE" Foreground="{StaticResource GoldBrush}" FontSize="25" FontWeight="Bold" Margin="0,0,0,20" />
+  <ScrollViewer Grid.Row="1" VerticalScrollBarVisibility="Auto">
+   <StackPanel>
+    <Border Background="{StaticResource PanelBrush}" Padding="16" Margin="0,0,0,12">
+     <StackPanel>
+      <TextBlock Text="DISPLAY" Foreground="{StaticResource GoldBrush}" FontWeight="Bold" Margin="0,0,0,12" />
+      <Grid Margin="0,0,0,10"><Grid.ColumnDefinitions><ColumnDefinition Width="*"/><ColumnDefinition Width="Auto"/></Grid.ColumnDefinitions><TextBlock Text="Resolution"/><ComboBox x:Name="ResolutionBox" Grid.Column="1" Width="230"/></Grid>
+      <Grid Margin="0,0,0,10"><Grid.ColumnDefinitions><ColumnDefinition Width="*"/><ColumnDefinition Width="Auto"/></Grid.ColumnDefinitions><TextBlock Text="Presentation Mode"/><ComboBox x:Name="PresentationBox" Grid.Column="1" Width="230"/></Grid>
+      <Grid Margin="0,0,0,10"><Grid.ColumnDefinitions><ColumnDefinition Width="*"/><ColumnDefinition Width="Auto"/></Grid.ColumnDefinitions><TextBlock Text="Frame Cap"/><ComboBox x:Name="FrameCapBox" Grid.Column="1" Width="230"/></Grid>
+      <CheckBox x:Name="FullscreenBox" Content="Fullscreen" />
+      <CheckBox x:Name="HideMouseBox" Content="Hide Mouse" />
+     </StackPanel>
+    </Border>
+    <Border Background="{StaticResource PanelBrush}" Padding="16" Margin="0,0,0,12">
+     <StackPanel>
+      <TextBlock Text="GRAPHICS" Foreground="{StaticResource GoldBrush}" FontWeight="Bold" Margin="0,0,0,12" />
+      <Grid Margin="0,0,0,10"><Grid.ColumnDefinitions><ColumnDefinition Width="*"/><ColumnDefinition Width="Auto"/></Grid.ColumnDefinitions><TextBlock Text="Upscaler"/><ComboBox x:Name="UpscalerBox" Grid.Column="1" Width="230"/></Grid>
+      <Grid><Grid.ColumnDefinitions><ColumnDefinition Width="*"/><ColumnDefinition Width="Auto"/></Grid.ColumnDefinitions><TextBlock Text="Upscaling Preset"/><ComboBox x:Name="PresetBox" Grid.Column="1" Width="230"/></Grid>
+     </StackPanel>
+    </Border>
+    <TextBlock x:Name="StatusText" Text="" Foreground="{StaticResource GoldBrush}" TextWrapping="Wrap" Margin="0,0,0,8" />
+   </StackPanel>
+  </ScrollViewer>
+  <Grid Grid.Row="2" Margin="0,10,0,14"><Grid.ColumnDefinitions><ColumnDefinition Width="*"/><ColumnDefinition Width="Auto"/></Grid.ColumnDefinitions><Button Content="Choose Port Folder" Click="ChoosePort_Click"/><Button Grid.Column="1" Content="Choose Game Folder" Click="ChooseGame_Click"/></Grid>
+  <Grid Grid.Row="3"><Grid.ColumnDefinitions><ColumnDefinition Width="*"/><ColumnDefinition Width="Auto"/></Grid.ColumnDefinitions><TextBlock x:Name="PathText" Text="Select the port folder and game folder." FontSize="11" Foreground="#BBAA92" TextWrapping="Wrap" VerticalAlignment="Center"/><Button Grid.Column="1" Content="SAVE &amp; PLAY" Padding="22,10" Click="Launch_Click" /></Grid>
+ </Grid>
+</Window>
