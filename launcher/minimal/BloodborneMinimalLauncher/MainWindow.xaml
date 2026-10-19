@@ -6,7 +6,7 @@
  <Grid Margin="24">
   <Grid.RowDefinitions><RowDefinition Height="Auto"/><RowDefinition Height="*"/><RowDefinition Height="Auto"/><RowDefinition Height="Auto"/></Grid.RowDefinitions>
   <TextBlock Text="BLOODBORNE" Foreground="{StaticResource GoldBrush}" FontSize="24" FontWeight="Bold" Margin="0,0,0,18" />
-  <ScrollViewer Grid.Row="1" VerticalScrollBarVisibility="Auto">
+  <ScrollViewer Grid.Row="1" VerticalScrollBarVisibility="Auto" HorizontalScrollBarVisibility="Disabled">
    <StackPanel>
     <Border Background="{StaticResource PanelBrush}" Padding="16" Margin="0,0,0,12">
      <StackPanel>
@@ -14,8 +14,8 @@
       <Grid Margin="0,0,0,10"><Grid.ColumnDefinitions><ColumnDefinition Width="*"/><ColumnDefinition Width="190"/></Grid.ColumnDefinitions><TextBlock Text="Resolution"/><ComboBox x:Name="ResolutionBox" Grid.Column="1" HorizontalAlignment="Stretch"/></Grid>
       <Grid Margin="0,0,0,10"><Grid.ColumnDefinitions><ColumnDefinition Width="*"/><ColumnDefinition Width="190"/></Grid.ColumnDefinitions><TextBlock Text="Presentation Mode"/><ComboBox x:Name="PresentationBox" Grid.Column="1" HorizontalAlignment="Stretch"/></Grid>
       <Grid Margin="0,0,0,10"><Grid.ColumnDefinitions><ColumnDefinition Width="*"/><ColumnDefinition Width="190"/></Grid.ColumnDefinitions><TextBlock Text="Frame Cap"/><ComboBox x:Name="FrameCapBox" Grid.Column="1" HorizontalAlignment="Stretch"/></Grid>
-      <CheckBox x:Name="FullscreenBox" Content="Fullscreen" />
-      <CheckBox x:Name="HideMouseBox" Content="Hide Mouse" />
+      <CheckBox x:Name="FullscreenBox" Content="Fullscreen" HorizontalAlignment="Left" />
+      <CheckBox x:Name="HideMouseBox" Content="Hide Mouse" HorizontalAlignment="Left" />
      </StackPanel>
     </Border>
     <Border Background="{StaticResource PanelBrush}" Padding="16" Margin="0,0,0,8">
