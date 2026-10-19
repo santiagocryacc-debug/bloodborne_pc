@@ -93,7 +93,25 @@ public partial class MainWindow : Window
         if (!string.IsNullOrWhiteSpace(_portDir))
             candidates.Add(_portDir);
 
-        foreach (var dir in candidates.Distinct(StringComparer.OrdinalIgnoreCase))
+        var uniqueCandidates = candidates.Distinct(StringComparer.OrdinalIgnoreCase).ToList();
+        var gameDirs = uniqueCandidates
+            .Where(dir => File.Exists(Path.Combine(dir, "blobborne.exe")))
+            .ToList();
+
+        foreach (var dir in gameDirs)
+        {
+            foreach (var name in new[] { "BBPort.ini", "bbport.ini" })
+            {
+                var candidate = Path.Combine(dir, name);
+                if (File.Exists(candidate))
+                {
+                    _portDir = dir;
+                    return candidate;
+                }
+            }
+        }
+
+        foreach (var dir in uniqueCandidates)
         {
             foreach (var name in new[] { "BBPort.ini", "bbport.ini" })
             {
