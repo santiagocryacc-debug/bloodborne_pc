@@ -1,5 +1,7 @@
 using System;
 using System.IO;
+using System.Diagnostics;
+using System.Threading.Tasks;
 using System.Linq;
 using System.Windows;
 using System.Windows.Controls;
@@ -11,6 +13,7 @@ public partial class MainWindow : Window
     private string _portDir = "";
     private string _gameDir = "";
     private IniFile? _ini;
+    private bool _launchInProgress;
     private readonly string _settingsPath = Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.ApplicationData), "BloodborneMinimalLauncher", "settings.ini");
 
     private static readonly (string Label, string Value)[] Resolutions = {
@@ -44,6 +47,7 @@ public partial class MainWindow : Window
         Fill(ModelLodBox, ModelLods);
         LoadSettings();
         RefreshIni();
+        AutoDetectGameDirectory();
         UpdateGameDirectoryDisplay();
     }
 
@@ -214,6 +218,104 @@ public partial class MainWindow : Window
             StatusText.Text = "Could not save the game folder: " + ex.Message;
             System.Windows.MessageBox.Show(this, ex.Message, "Bloodborne",
                 MessageBoxButton.OK, MessageBoxImage.Warning);
+        }
+    }
+
+    private string? LocateEngineStart()
+    {
+        var candidates = new System.Collections.Generic.List<string>();
+        var directory = new DirectoryInfo(AppContext.BaseDirectory);
+        for (var depth = 0; directory != null && depth < 5; depth++, directory = directory.Parent)
+            candidates.Add(directory.FullName);
+        if (!string.IsNullOrWhiteSpace(_portDir))
+            candidates.Add(_portDir);
+        foreach (var root in candidates.Distinct(StringComparer.OrdinalIgnoreCase))
+        {
+            var path = Path.Combine(root, "engine", "out", "bb-start.exe");
+            if (File.Exists(path))
+                return path;
+        }
+        return null;
+    }
+
+    private void AutoDetectGameDirectory()
+    {
+        if (Directory.Exists(_gameDir) && File.Exists(Path.Combine(_gameDir, "eboot.bin")))
+            return;
+        var engineStart = LocateEngineStart();
+        if (engineStart is null)
+            return;
+        var pathFile = Path.Combine(Path.GetDirectoryName(engineStart)!, "game_dir");
+        if (!File.Exists(pathFile))
+            return;
+        try
+        {
+            var candidate = File.ReadAllText(pathFile).Trim().Trim('"');
+            if (File.Exists(Path.Combine(candidate, "eboot.bin")))
+            {
+                _gameDir = candidate;
+                SaveSettings();
+            }
+        }
+        catch (IOException) { }
+        catch (UnauthorizedAccessException) { }
+    }
+
+    private async void Play_Click(object sender, RoutedEventArgs e)
+    {
+        if (_launchInProgress)
+            return;
+        try
+        {
+            var engineStart = LocateEngineStart()
+                ?? throw new FileNotFoundException("engine/out/bb-start.exe was not found beside the port.");
+            if (!File.Exists(Path.Combine(_gameDir, "eboot.bin")))
+                throw new InvalidOperationException("Select a game folder containing eboot.bin before playing.");
+
+            var info = new ProcessStartInfo(engineStart)
+            {
+                WorkingDirectory = Path.GetDirectoryName(engineStart)!,
+                UseShellExecute = false,
+                CreateNoWindow = true,
+                RedirectStandardOutput = true,
+                RedirectStandardError = true
+            };
+            info.ArgumentList.Add("--game-dir");
+            info.ArgumentList.Add(_gameDir);
+            // The engine is responsible for preparing patches, mods and launching bb-probe.
+            // Do not invoke the original Bloodborne Launcher.exe.
+            _launchInProgress = true;
+            PlayButton.IsEnabled = false;
+            StatusText.Text = "Starting Bloodborne...";
+            using var process = new Process { StartInfo = info };
+            if (!process.Start())
+                throw new InvalidOperationException("bb-start.exe could not be started.");
+
+            var logPath = Path.Combine(
+                Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData),
+                "BloodborneMinimalLauncher", "last_launch.log");
+            Directory.CreateDirectory(Path.GetDirectoryName(logPath)!);
+            var stdout = process.StandardOutput.ReadToEndAsync();
+            var stderr = process.StandardError.ReadToEndAsync();
+            await process.WaitForExitAsync();
+            var output = await stdout;
+            var errors = await stderr;
+            await File.WriteAllTextAsync(logPath,
+                $"Exit code: {process.ExitCode}{Environment.NewLine}{output}{Environment.NewLine}{errors}");
+            StatusText.Text = process.ExitCode == 0
+                ? "Game process finished."
+                : $"Game exited with code {process.ExitCode}. Log: {logPath}";
+        }
+        catch (Exception ex)
+        {
+            StatusText.Text = "Could not launch: " + ex.Message;
+            System.Windows.MessageBox.Show(this, ex.Message, "Bloodborne",
+                MessageBoxButton.OK, MessageBoxImage.Warning);
+        }
+        finally
+        {
+            _launchInProgress = false;
+            PlayButton.IsEnabled = true;
         }
     }
 
