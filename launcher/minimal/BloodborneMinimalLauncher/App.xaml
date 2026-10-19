@@ -8,40 +8,115 @@
   <SolidColorBrush x:Key="GoldBrush" Color="#D8B66A" />
   <SolidColorBrush x:Key="RedBrush" Color="#4B1716" />
   <SolidColorBrush x:Key="TextBrush" Color="#F0E4D0" />
+  <SolidColorBrush x:Key="MutedGoldBrush" Color="#795B35" />
+
   <Style TargetType="TextBlock">
    <Setter Property="Foreground" Value="{StaticResource TextBrush}" />
    <Setter Property="VerticalAlignment" Value="Center" />
   </Style>
+
   <Style TargetType="ComboBox">
-   <Setter Property="Foreground" Value="#F0E4D0" />
+   <Setter Property="Foreground" Value="{StaticResource TextBrush}" />
    <Setter Property="Background" Value="#38251F" />
-   <Setter Property="BorderBrush" Value="#79513A" />
+   <Setter Property="BorderBrush" Value="{StaticResource MutedGoldBrush}" />
+   <Setter Property="BorderThickness" Value="1" />
    <Setter Property="Padding" Value="6,4" />
    <Setter Property="MinWidth" Value="170" />
   </Style>
+
   <Style TargetType="ComboBoxItem">
-   <Setter Property="Foreground" Value="#F0E4D0" />
+   <Setter Property="Foreground" Value="{StaticResource TextBrush}" />
    <Setter Property="Background" Value="#38251F" />
-   <Setter Property="Padding" Value="6,5" />
-   <Style.Triggers>
-    <Trigger Property="IsHighlighted" Value="True">
-     <Setter Property="Background" Value="#4B1716" />
-     <Setter Property="Foreground" Value="#D8B66A" />
-    </Trigger>
-    <Trigger Property="IsSelected" Value="True">
-     <Setter Property="Background" Value="#4B1716" />
-     <Setter Property="Foreground" Value="#F0E4D0" />
-    </Trigger>
-   </Style.Triggers>
+   <Setter Property="Padding" Value="7,6" />
+   <Setter Property="BorderBrush" Value="#60452F" />
+   <Setter Property="BorderThickness" Value="0,0,0,1" />
+   <Setter Property="Template">
+    <Setter.Value>
+     <ControlTemplate TargetType="ComboBoxItem">
+      <Border x:Name="ItemBorder" Background="{TemplateBinding Background}" BorderBrush="{TemplateBinding BorderBrush}" BorderThickness="{TemplateBinding BorderThickness}">
+       <ContentPresenter Margin="{TemplateBinding Padding}" VerticalAlignment="Center" />
+      </Border>
+      <ControlTemplate.Triggers>
+       <Trigger Property="IsHighlighted" Value="True">
+        <Setter TargetName="ItemBorder" Property="Background" Value="{StaticResource RedBrush}" />
+        <Setter Property="Foreground" Value="{StaticResource GoldBrush}" />
+       </Trigger>
+       <Trigger Property="IsSelected" Value="True">
+        <Setter TargetName="ItemBorder" Property="Background" Value="{StaticResource RedBrush}" />
+        <Setter Property="Foreground" Value="{StaticResource GoldBrush}" />
+       </Trigger>
+       <Trigger Property="IsEnabled" Value="False">
+        <Setter Property="Opacity" Value="0.5" />
+       </Trigger>
+      </ControlTemplate.Triggers>
+     </ControlTemplate>
+    </Setter.Value>
+   </Setter>
   </Style>
+
   <Style TargetType="CheckBox">
    <Setter Property="Foreground" Value="{StaticResource TextBrush}" />
-   <Setter Property="Margin" Value="0,6,0,6" />
+   <Setter Property="Margin" Value="0,7,0,7" />
+   <Setter Property="VerticalContentAlignment" Value="Center" />
+   <Setter Property="Template">
+    <Setter.Value>
+     <ControlTemplate TargetType="CheckBox">
+      <Grid Background="Transparent" SnapsToDevicePixels="True">
+       <Grid.ColumnDefinitions><ColumnDefinition Width="20"/><ColumnDefinition Width="*"/></Grid.ColumnDefinitions>
+       <Border x:Name="CheckSurface" Width="16" Height="16" CornerRadius="3" BorderBrush="{StaticResource MutedGoldBrush}" BorderThickness="1" Background="#38251F" VerticalAlignment="Center" HorizontalAlignment="Left">
+        <Path x:Name="CheckMark" Data="M 3,8 L 6.5,11.5 L 13,4" Stroke="{StaticResource GoldBrush}" StrokeThickness="2.2" StrokeStartLineCap="Round" StrokeEndLineCap="Round" StrokeLineJoin="Round" Visibility="Collapsed" />
+       </Border>
+       <ContentPresenter Grid.Column="1" Margin="4,0,0,0" VerticalAlignment="{TemplateBinding VerticalContentAlignment}" RecognizesAccessKey="True" />
+      </Grid>
+      <ControlTemplate.Triggers>
+       <Trigger Property="IsChecked" Value="True">
+        <Setter TargetName="CheckSurface" Property="Background" Value="{StaticResource RedBrush}" />
+        <Setter TargetName="CheckSurface" Property="BorderBrush" Value="{StaticResource GoldBrush}" />
+        <Setter TargetName="CheckMark" Property="Visibility" Value="Visible" />
+       </Trigger>
+       <Trigger Property="IsMouseOver" Value="True">
+        <Setter TargetName="CheckSurface" Property="BorderBrush" Value="{StaticResource GoldBrush}" />
+       </Trigger>
+       <Trigger Property="IsEnabled" Value="False">
+        <Setter Property="Opacity" Value="0.45" />
+       </Trigger>
+      </ControlTemplate.Triggers>
+     </ControlTemplate>
+    </Setter.Value>
+   </Setter>
   </Style>
+
+  <Style TargetType="ScrollBar">
+   <Setter Property="Width" Value="10" />
+   <Setter Property="Background" Value="#211713" />
+   <Setter Property="Foreground" Value="{StaticResource GoldBrush}" />
+   <Setter Property="Template">
+    <Setter.Value>
+     <ControlTemplate TargetType="ScrollBar">
+      <Grid Background="{TemplateBinding Background}" Width="10">
+       <Track x:Name="PART_Track" IsDirectionReversed="True">
+        <Track.DecreaseRepeatButton><RepeatButton Command="ScrollBar.PageUpCommand" Opacity="0" Focusable="False" /></Track.DecreaseRepeatButton>
+        <Track.Thumb>
+         <Thumb>
+          <Thumb.Template>
+           <ControlTemplate TargetType="Thumb">
+            <Border Margin="1" CornerRadius="4" Background="#76502F" BorderBrush="{StaticResource GoldBrush}" BorderThickness="1" />
+           </ControlTemplate>
+          </Thumb.Template>
+         </Thumb>
+        </Track.Thumb>
+        <Track.IncreaseRepeatButton><RepeatButton Command="ScrollBar.PageDownCommand" Opacity="0" Focusable="False" /></Track.IncreaseRepeatButton>
+       </Track>
+      </Grid>
+     </ControlTemplate>
+    </Setter.Value>
+   </Setter>
+  </Style>
+
   <Style TargetType="Button">
    <Setter Property="Foreground" Value="#FFF1D5" />
    <Setter Property="Background" Value="{StaticResource RedBrush}" />
-   <Setter Property="BorderBrush" Value="#79513A" />
+   <Setter Property="BorderBrush" Value="{StaticResource MutedGoldBrush}" />
    <Setter Property="Padding" Value="14,8" />
    <Setter Property="Margin" Value="0,0,8,0" />
    <Setter Property="FontWeight" Value="SemiBold" />
