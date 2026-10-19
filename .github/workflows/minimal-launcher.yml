@@ -24,6 +24,12 @@ jobs:
         with:
           dotnet-version: '8.0.x'
 
+      - name: Restore Bloodborne icon
+        shell: pwsh
+        run: |
+          $iconText = Get-Content launcher/minimal/BloodborneMinimalLauncher/Bloodborne.ico.b64 -Raw
+          [IO.File]::WriteAllBytes("launcher/minimal/BloodborneMinimalLauncher/Bloodborne.ico", [Convert]::FromBase64String($iconText.Trim()))
+
       - name: Publish Windows x64 executable
         shell: pwsh
         run: |
