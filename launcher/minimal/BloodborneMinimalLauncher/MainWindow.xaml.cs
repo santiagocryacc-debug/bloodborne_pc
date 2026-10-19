@@ -28,6 +28,8 @@ public partial class MainWindow : Window
         ("Mailbox", "Mailbox"), ("FIFO", "Fifo"), ("FIFO Relaxed", "FifoRelaxed"), ("Immediate", "Immediate") };
     private static readonly (string Label, string Value)[] LiveResolutionModes = {
         ("Auto", "auto"), ("Off", "0"), ("On", "1") };
+    private static readonly (string Label, string Value)[] ModelLods = {
+        ("As In Game", "0"), ("Highest", "-2"), ("Lower", "1"), ("Lowest", "2") };
 
     public MainWindow()
     {
@@ -38,6 +40,7 @@ public partial class MainWindow : Window
         Fill(FrameCapBox, FrameCaps);
         Fill(PresentationBox, PresentModes);
         Fill(LiveResolutionBox, LiveResolutionModes);
+        Fill(ModelLodBox, ModelLods);
         LoadSettings();
         RefreshIni();
     }
@@ -113,6 +116,7 @@ public partial class MainWindow : Window
             Select(PresentationBox, _ini.Get("present_mode", "Mailbox"), "Mailbox");
             Select(UpscalerBox, _ini.Get("upscaler", "fsr4"), "fsr4");
             Select(PresetBox, _ini.Get("preset", "0"), "0");
+            Select(ModelLodBox, _ini.Get("model_lod", "0"), "0");
             FullscreenBox.IsChecked = _ini.Get("fullscreen", "1") == "1";
             HideMouseBox.IsChecked = _ini.Get("hide_cursor", "1") == "1";
             Select(LiveResolutionBox, _ini.Get("live_resolution", "auto"), "auto");
@@ -169,6 +173,7 @@ public partial class MainWindow : Window
             _ini.Set("output_res", Selected(ResolutionBox, "1920x1080"));
             _ini.Set("upscaler", Selected(UpscalerBox, "fsr4"));
             _ini.Set("preset", Selected(PresetBox, "0"));
+            _ini.Set("model_lod", Selected(ModelLodBox, "0"));
             _ini.Set("fullscreen", FullscreenBox.IsChecked == true ? "1" : "0");
             _ini.Set("hide_cursor", HideMouseBox.IsChecked == true ? "1" : "0");
             _ini.Set("live_resolution", Selected(LiveResolutionBox, "auto"));
