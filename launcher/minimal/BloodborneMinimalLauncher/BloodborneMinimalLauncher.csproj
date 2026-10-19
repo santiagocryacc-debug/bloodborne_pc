@@ -6,12 +6,7 @@
     <UseWindowsForms>true</UseWindowsForms>
     <Nullable>enable</Nullable>
     <ImplicitUsings>enable</ImplicitUsings>
-    <AssemblyName>Bloodborne Minimal Launcher</AssemblyName>
-    <ApplicationIcon>Bloodborne.ico</ApplicationIcon>
+    <AssemblyName>Launcher</AssemblyName>
     <RootNamespace>BloodborneMinimalLauncher</RootNamespace>
   </PropertyGroup>
-  <ItemGroup>
-    <Resource Include="Bloodborne.ico" />
-    <Content Include="Bloodborne.ico" CopyToOutputDirectory="PreserveNewest" />
-  </ItemGroup>
 </Project>
