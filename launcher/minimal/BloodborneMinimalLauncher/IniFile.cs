@@ -1,3 +1,7 @@
+using System;
+using System.Collections.Generic;
+using System.IO;
+using System.Linq;
 using System.Text;
 
 namespace BloodborneMinimalLauncher;
@@ -26,7 +30,7 @@ public sealed class IniFile
 
     public void SaveWithBackup()
     {
-        var dir = System.IO.Path.GetDirectoryName(PathName);
+        var dir = Path.GetDirectoryName(PathName);
         if (string.IsNullOrWhiteSpace(dir)) throw new InvalidOperationException("The INI path is invalid.");
         Directory.CreateDirectory(dir);
         if (File.Exists(PathName))
