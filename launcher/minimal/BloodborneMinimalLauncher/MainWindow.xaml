@@ -20,7 +20,8 @@
       <TextBlock Text="DISPLAY" Foreground="{StaticResource GoldBrush}" FontWeight="Bold" Margin="0,0,0,12" />
       <Grid Margin="0,0,0,10"><Grid.ColumnDefinitions><ColumnDefinition Width="*"/><ColumnDefinition Width="190"/></Grid.ColumnDefinitions><TextBlock Text="Resolution"/><ComboBox x:Name="ResolutionBox" Grid.Column="1" HorizontalAlignment="Stretch"/></Grid>
       <Grid Margin="0,0,0,10"><Grid.ColumnDefinitions><ColumnDefinition Width="*"/><ColumnDefinition Width="190"/></Grid.ColumnDefinitions><TextBlock Text="Presentation Mode"/><ComboBox x:Name="PresentationBox" Grid.Column="1" HorizontalAlignment="Stretch"/></Grid>
-      <Grid Margin="0,0,0,10"><Grid.ColumnDefinitions><ColumnDefinition Width="*"/><ColumnDefinition Width="190"/></Grid.ColumnDefinitions><TextBlock Text="Frame Cap"/><ComboBox x:Name="FrameCapBox" Grid.Column="1" HorizontalAlignment="Stretch"/></Grid>
+      <Grid Margin="0,0,0,10"><Grid.ColumnDefinitions><ColumnDefinition Width="*"/><ColumnDefinition Width="190"/></Grid.ColumnDefinitions><TextBlock Text="Frame Rate"/><ComboBox x:Name="FrameRateBox" Grid.Column="1" HorizontalAlignment="Stretch"/></Grid>
+      <Grid Margin="0,0,0,10"><Grid.ColumnDefinitions><ColumnDefinition Width="*"/><ColumnDefinition Width="190"/></Grid.ColumnDefinitions><TextBlock Text="Frame Cap (Unlocked)"/><ComboBox x:Name="FrameCapBox" Grid.Column="1" HorizontalAlignment="Stretch"/></Grid>
       <CheckBox x:Name="FullscreenBox" Content="Fullscreen" HorizontalAlignment="Left" />
       <CheckBox x:Name="HideMouseBox" Content="Hide Mouse" HorizontalAlignment="Left" />
       <CheckBox x:Name="SkipIntroBox" Content="Skip Intro" HorizontalAlignment="Left" />
