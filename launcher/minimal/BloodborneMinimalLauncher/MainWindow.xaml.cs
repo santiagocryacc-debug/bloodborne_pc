@@ -85,16 +85,29 @@ public partial class MainWindow : Window
 
     private string FindIniPath()
     {
-        foreach (var dir in new[] { _portDir, AppContext.BaseDirectory.TrimEnd(Path.DirectorySeparatorChar) }
-                     .Where(x => !string.IsNullOrWhiteSpace(x)).Distinct())
+        var candidates = new System.Collections.Generic.List<string>();
+        var current = new DirectoryInfo(AppContext.BaseDirectory);
+        for (var depth = 0; current is not null && depth < 5; depth++, current = current.Parent)
+            candidates.Add(current.FullName);
+        candidates.Add(Environment.CurrentDirectory);
+        if (!string.IsNullOrWhiteSpace(_portDir))
+            candidates.Add(_portDir);
+
+        foreach (var dir in candidates.Distinct(StringComparer.OrdinalIgnoreCase))
         {
             foreach (var name in new[] { "BBPort.ini", "bbport.ini" })
             {
                 var candidate = Path.Combine(dir, name);
-                if (File.Exists(candidate)) return candidate;
+                if (File.Exists(candidate))
+                {
+                    _portDir = dir;
+                    return candidate;
+                }
             }
         }
-        return string.IsNullOrWhiteSpace(_portDir) ? "" : Path.Combine(_portDir, "bbport.ini");
+
+        _portDir = "";
+        return "";
     }
 
     private void RefreshIni()
@@ -105,8 +118,7 @@ public partial class MainWindow : Window
             if (string.IsNullOrWhiteSpace(path) || !File.Exists(path))
             {
                 _ini = null;
-                if (!string.IsNullOrWhiteSpace(_portDir))
-                    StatusText.Text = "BBPort.ini not found in the selected folder.";
+                StatusText.Text = "BBPort.ini not found. Place this launcher in the game folder, beside blobborne.exe.";
                 return;
             }
 
@@ -147,30 +159,13 @@ public partial class MainWindow : Window
             SharpnessValueText.Text = e.NewValue.ToString("0.00", System.Globalization.CultureInfo.InvariantCulture);
     }
 
-    private void ChoosePort_Click(object sender, RoutedEventArgs e)
-    {
-        using var dialog = new System.Windows.Forms.FolderBrowserDialog
-        {
-            Description = "Choose the folder containing BBPort.ini",
-            UseDescriptionForTitle = true,
-            ShowNewFolderButton = false
-        };
-        if (dialog.ShowDialog() == System.Windows.Forms.DialogResult.OK)
-        {
-            _portDir = dialog.SelectedPath;
-            RefreshIni();
-            try { SaveSettings(); } catch (Exception ex) { StatusText.Text = ex.Message; }
-        }
-    }
-
     private void Save_Click(object sender, RoutedEventArgs e)
     {
         try
         {
-            if (string.IsNullOrWhiteSpace(_portDir))
-                throw new InvalidOperationException("Choose the port folder first.");
+            RefreshIni();
             if (_ini is null)
-                throw new InvalidOperationException("BBPort.ini was not found. Choose the folder containing BBPort.ini.");
+                throw new InvalidOperationException("BBPort.ini was not found. Place this launcher in the game folder, beside blobborne.exe.");
             _ini.Set("output_res", Selected(ResolutionBox, "1920x1080"));
             _ini.Set("upscaler", Selected(UpscalerBox, "fsr4"));
             _ini.Set("preset", Selected(PresetBox, "1"));
