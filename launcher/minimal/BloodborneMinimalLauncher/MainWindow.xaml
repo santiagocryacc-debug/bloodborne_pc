@@ -1,10 +1,10 @@
 <Window x:Class="BloodborneMinimalLauncher.MainWindow"
  xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
  xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
- Title="Bloodborne" Width="480" Height="590" MinWidth="450" MinHeight="540"
+ Title="Bloodborne" Icon="Bloodborne.ico" Width="520" Height="590" MinWidth="500" MinHeight="540"
  WindowStartupLocation="CenterScreen" Background="{StaticResource BackgroundBrush}" Foreground="{StaticResource TextBrush}">
  <Grid Margin="24">
-  <Grid.RowDefinitions><RowDefinition Height="Auto"/><RowDefinition Height="*"/><RowDefinition Height="Auto"/><RowDefinition Height="Auto"/></Grid.RowDefinitions>
+  <Grid.RowDefinitions><RowDefinition Height="Auto"/><RowDefinition Height="*"/><RowDefinition Height="Auto"/></Grid.RowDefinitions>
   <TextBlock Text="BLOODBORNE" Foreground="{StaticResource GoldBrush}" FontSize="24" FontWeight="Bold" Margin="0,0,0,18" />
   <ScrollViewer Grid.Row="1" VerticalScrollBarVisibility="Auto" HorizontalScrollBarVisibility="Disabled">
    <StackPanel>
@@ -42,9 +42,6 @@
     <TextBlock x:Name="StatusText" Text="" Foreground="{StaticResource GoldBrush}" TextWrapping="Wrap" Margin="0,2,0,4" />
    </StackPanel>
   </ScrollViewer>
-  <Grid Grid.Row="2" Margin="0,10,0,10">
-   <Button x:Name="ChoosePortButton" Content="CHOOSE PORT FOLDER" Click="ChoosePort_Click" HorizontalAlignment="Left" Width="190" Margin="0" Padding="12,9"/>
-  </Grid>
-  <Button Grid.Row="3" Content="SAVE SETTINGS" Click="Save_Click" HorizontalAlignment="Stretch" Margin="0" Padding="12,12" FontSize="14"/>
+  <Button Grid.Row="2" Content="SAVE SETTINGS" Click="Save_Click" HorizontalAlignment="Stretch" Margin="0" Padding="12,12" FontSize="14"/>
  </Grid>
 </Window>
