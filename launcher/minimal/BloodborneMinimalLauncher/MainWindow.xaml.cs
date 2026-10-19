@@ -62,8 +62,8 @@ public partial class MainWindow : Window
             if (!File.Exists(_settingsPath)) return;
             var settings = new IniFile(_settingsPath);
             _portDir = settings.Get("port_dir");
-            Select(FrameCapBox, settings.Get("frame_cap", "60"), "60");
-            Select(PresentationBox, settings.Get("presentation_mode", "Mailbox"), "Mailbox");
+            Select(FrameCapBox, settings.Get("fps_mode", "60"), "60");
+            Select(PresentationBox, settings.Get("present_mode", "Mailbox"), "Mailbox");
         }
         catch { }
     }
@@ -72,8 +72,8 @@ public partial class MainWindow : Window
     {
         var settings = new IniFile(_settingsPath);
         settings.Set("port_dir", _portDir);
-        settings.Set("frame_cap", Selected(FrameCapBox, "60"));
-        settings.Set("presentation_mode", Selected(PresentationBox, "Mailbox"));
+        settings.Set("fps_mode", Selected(FrameCapBox, "60"));
+        settings.Set("present_mode", Selected(PresentationBox, "Mailbox"));
         settings.SaveWithBackup();
     }
 
@@ -106,6 +106,8 @@ public partial class MainWindow : Window
 
             _ini = new IniFile(path);
             Select(ResolutionBox, _ini.Get("output_res", "1920x1080"), "1920x1080");
+            Select(FrameCapBox, _ini.Get("fps_mode", "60"), "60");
+            Select(PresentationBox, _ini.Get("present_mode", "Mailbox"), "Mailbox");
             Select(UpscalerBox, _ini.Get("upscaler", "fsr4"), "fsr4");
             Select(PresetBox, _ini.Get("preset", "0"), "0");
             FullscreenBox.IsChecked = _ini.Get("fullscreen", "1") == "1";
@@ -148,11 +150,11 @@ public partial class MainWindow : Window
             _ini.Set("preset", Selected(PresetBox, "0"));
             _ini.Set("fullscreen", FullscreenBox.IsChecked == true ? "1" : "0");
             _ini.Set("hide_cursor", HideMouseBox.IsChecked == true ? "1" : "0");
-            _ini.Set("frame_cap", Selected(FrameCapBox, "60"));
+            _ini.Set("fps_mode", Selected(FrameCapBox, "60"));
             _ini.Set("present_mode", Selected(PresentationBox, "Mailbox"));
             _ini.SaveWithBackup();
             SaveSettings();
-            StatusText.Text = "Settings saved.";
+            StatusText.Text = "Settings Saved.";
         }
         catch (Exception ex)
         {
