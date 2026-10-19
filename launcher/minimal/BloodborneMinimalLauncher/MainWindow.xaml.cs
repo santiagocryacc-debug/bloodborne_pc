@@ -26,8 +26,11 @@ public partial class MainWindow : Window
         ("DLSS", "dlss"), ("TAA", "taa"), ("Off", "off") };
     private static readonly (string Label, string Value)[] Presets = {
         ("Native", "0"), ("Quality", "1"), ("Balanced", "2"), ("Performance", "3"), ("Ultra Performance", "4") };
+    private static readonly (string Label, string Value)[] FrameRates = {
+        ("30 FPS", "30"), ("60 FPS", "60"), ("90 FPS", "90"), ("Unlocked", "uncap") };
     private static readonly (string Label, string Value)[] FrameCaps = {
-        ("30 FPS", "30"), ("60 FPS", "60"), ("90 FPS", "90"), ("120 FPS", "120"), ("Uncapped", "uncap") };
+        ("Auto", ""), ("60 FPS", "60"), ("90 FPS", "90"), ("120 FPS", "120"),
+        ("165 FPS", "165"), ("240 FPS", "240"), ("No Limit", "0") };
     private static readonly (string Label, string Value)[] PresentModes = {
         ("Mailbox", "Mailbox"), ("FIFO", "Fifo"), ("FIFO Relaxed", "FifoRelaxed"), ("Immediate", "Immediate") };
     private static readonly (string Label, string Value)[] LiveResolutionModes = {
@@ -41,6 +44,7 @@ public partial class MainWindow : Window
         Fill(ResolutionBox, Resolutions);
         Fill(UpscalerBox, Upscalers);
         Fill(PresetBox, Presets);
+        Fill(FrameRateBox, FrameRates);
         Fill(FrameCapBox, FrameCaps);
         Fill(PresentationBox, PresentModes);
         Fill(LiveResolutionBox, LiveResolutionModes);
@@ -75,7 +79,8 @@ public partial class MainWindow : Window
             var settings = new IniFile(_settingsPath);
             _portDir = settings.Get("port_dir");
             _gameDir = settings.Get("game_dir");
-            Select(FrameCapBox, settings.Get("fps_mode", "60"), "60");
+            Select(FrameRateBox, settings.Get("fps_mode", "60"), "60");
+            Select(FrameCapBox, settings.Get("frame_cap", ""), "");
             Select(PresentationBox, settings.Get("present_mode", "Mailbox"), "Mailbox");
         }
         catch { }
@@ -86,7 +91,8 @@ public partial class MainWindow : Window
         var settings = new IniFile(_settingsPath);
         settings.Set("port_dir", _portDir);
         settings.Set("game_dir", _gameDir);
-        settings.Set("fps_mode", Selected(FrameCapBox, "60"));
+        settings.Set("fps_mode", Selected(FrameRateBox, "60"));
+        settings.Set("frame_cap", Selected(FrameCapBox, ""));
         settings.Set("present_mode", Selected(PresentationBox, "Mailbox"));
         settings.Save();
     }
@@ -150,7 +156,7 @@ public partial class MainWindow : Window
 
             _ini = new IniFile(path);
             Select(ResolutionBox, _ini.Get("output_res", "1920x1080"), "1920x1080");
-            Select(FrameCapBox, _ini.Get("fps_mode", "60"), "60");
+            Select(FrameRateBox, _ini.Get("fps_mode", "60"), "60");
             Select(PresentationBox, _ini.Get("present_mode", "Mailbox"), "Mailbox");
             Select(UpscalerBox, _ini.Get("upscaler", "fsr4"), "fsr4");
             Select(PresetBox, _ini.Get("preset", "1"), "1");
@@ -298,6 +304,9 @@ public partial class MainWindow : Window
             };
             info.ArgumentList.Add("--game-dir");
             info.ArgumentList.Add(_gameDir);
+            info.Environment["BB_FPS"] = Selected(FrameRateBox, "60");
+            var cap = Selected(FrameCapBox, "");
+            if (!string.IsNullOrEmpty(cap)) info.Environment["BB_FPS_LIMIT"] = cap;
 
             // Preserve existing saves without moving or copying any game files.
             // bb-start is expected to forward BB_USER_DIR to bb-probe; verify its
@@ -378,7 +387,7 @@ public partial class MainWindow : Window
             _ini.Set("effect_game_aa", GameAaBox.IsChecked == true ? "1" : "0");
             _ini.Set("effect_ssr", ScreenSpaceReflectionsBox.IsChecked == true ? "1" : "0");
             _ini.Set("skip_intro", SkipIntroBox.IsChecked == true ? "1" : "0");
-            _ini.Set("fps_mode", Selected(FrameCapBox, "60"));
+            _ini.Set("fps_mode", Selected(FrameRateBox, "60"));
             _ini.Set("present_mode", Selected(PresentationBox, "Mailbox"));
             _ini.Save();
             SaveSettings();
