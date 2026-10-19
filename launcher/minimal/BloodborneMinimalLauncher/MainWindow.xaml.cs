@@ -112,6 +112,18 @@ public partial class MainWindow : Window
             Select(PresetBox, _ini.Get("preset", "0"), "0");
             FullscreenBox.IsChecked = _ini.Get("fullscreen", "1") == "1";
             HideMouseBox.IsChecked = _ini.Get("hide_cursor", "1") == "1";
+            WidescreenBox.IsChecked = _ini.Get("widescreen", "1") != "0";
+            LiveResolutionBox.IsChecked = _ini.Get("live_resolution", "0") == "1";
+            SharpenBox.IsChecked = _ini.Get("sharpen", "1") == "1";
+            ObjectMotionBox.IsChecked = _ini.Get("object_motion", "1") == "1";
+            ShowFpsBox.IsChecked = _ini.Get("show_fps", "1") == "1";
+            SsaoBox.IsChecked = _ini.Get("effect_ssao", "1") == "1";
+            DynamicShadowsBox.IsChecked = _ini.Get("effect_dynamic_shadows", "1") == "1";
+            ChromaticAberrationBox.IsChecked = _ini.Get("effect_chromatic_aberration", "0") == "1";
+            DepthOfFieldBox.IsChecked = _ini.Get("effect_dof", "0") == "1";
+            MotionBlurBox.IsChecked = _ini.Get("effect_motion_blur", "0") == "1";
+            GameAaBox.IsChecked = _ini.Get("effect_game_aa", "0") == "1";
+            ScreenSpaceReflectionsBox.IsChecked = _ini.Get("effect_ssr", "0") == "1";
             StatusText.Text = "";
         }
         catch (Exception ex)
@@ -150,6 +162,18 @@ public partial class MainWindow : Window
             _ini.Set("preset", Selected(PresetBox, "0"));
             _ini.Set("fullscreen", FullscreenBox.IsChecked == true ? "1" : "0");
             _ini.Set("hide_cursor", HideMouseBox.IsChecked == true ? "1" : "0");
+            _ini.Set("widescreen", WidescreenBox.IsChecked == true ? "1" : "0");
+            _ini.Set("live_resolution", LiveResolutionBox.IsChecked == true ? "1" : "0");
+            _ini.Set("sharpen", SharpenBox.IsChecked == true ? "1" : "0");
+            _ini.Set("object_motion", ObjectMotionBox.IsChecked == true ? "1" : "0");
+            _ini.Set("show_fps", ShowFpsBox.IsChecked == true ? "1" : "0");
+            _ini.Set("effect_ssao", SsaoBox.IsChecked == true ? "1" : "0");
+            _ini.Set("effect_dynamic_shadows", DynamicShadowsBox.IsChecked == true ? "1" : "0");
+            _ini.Set("effect_chromatic_aberration", ChromaticAberrationBox.IsChecked == true ? "1" : "0");
+            _ini.Set("effect_dof", DepthOfFieldBox.IsChecked == true ? "1" : "0");
+            _ini.Set("effect_motion_blur", MotionBlurBox.IsChecked == true ? "1" : "0");
+            _ini.Set("effect_game_aa", GameAaBox.IsChecked == true ? "1" : "0");
+            _ini.Set("effect_ssr", ScreenSpaceReflectionsBox.IsChecked == true ? "1" : "0");
             _ini.Set("fps_mode", Selected(FrameCapBox, "60"));
             _ini.Set("present_mode", Selected(PresentationBox, "Mailbox"));
             _ini.SaveWithBackup();
