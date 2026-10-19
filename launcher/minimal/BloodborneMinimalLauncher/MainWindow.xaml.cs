@@ -21,7 +21,7 @@ public partial class MainWindow : Window
         ("FSR 4", "fsr4"), ("FSR 4.1.1", "fsr411"), ("FSR 3", "fsr3"),
         ("DLSS", "dlss"), ("TAA", "taa"), ("Off", "off") };
     private static readonly (string Label, string Value)[] Presets = {
-        ("Native AA", "0"), ("Quality", "1"), ("Balanced", "2"), ("Performance", "3"), ("Ultra Performance", "4") };
+        ("Native", "0"), ("Quality", "1"), ("Balanced", "2"), ("Performance", "3"), ("Ultra Performance", "4") };
     private static readonly (string Label, string Value)[] FrameCaps = {
         ("30 FPS", "30"), ("60 FPS", "60"), ("90 FPS", "90"), ("120 FPS", "120"), ("Uncapped", "uncap") };
     private static readonly (string Label, string Value)[] PresentModes = {
@@ -115,7 +115,7 @@ public partial class MainWindow : Window
             Select(FrameCapBox, _ini.Get("fps_mode", "60"), "60");
             Select(PresentationBox, _ini.Get("present_mode", "Mailbox"), "Mailbox");
             Select(UpscalerBox, _ini.Get("upscaler", "fsr4"), "fsr4");
-            Select(PresetBox, _ini.Get("preset", "0"), "0");
+            Select(PresetBox, _ini.Get("preset", "1"), "1");
             Select(ModelLodBox, _ini.Get("model_lod", "0"), "0");
             FullscreenBox.IsChecked = _ini.Get("fullscreen", "1") == "1";
             HideMouseBox.IsChecked = _ini.Get("hide_cursor", "1") == "1";
@@ -173,7 +173,7 @@ public partial class MainWindow : Window
                 throw new InvalidOperationException("BBPort.ini was not found. Choose the folder containing BBPort.ini.");
             _ini.Set("output_res", Selected(ResolutionBox, "1920x1080"));
             _ini.Set("upscaler", Selected(UpscalerBox, "fsr4"));
-            _ini.Set("preset", Selected(PresetBox, "0"));
+            _ini.Set("preset", Selected(PresetBox, "1"));
             _ini.Set("model_lod", Selected(ModelLodBox, "0"));
             _ini.Set("fullscreen", FullscreenBox.IsChecked == true ? "1" : "0");
             _ini.Set("hide_cursor", HideMouseBox.IsChecked == true ? "1" : "0");
