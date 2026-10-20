@@ -6,26 +6,55 @@
  WindowStartupLocation="CenterScreen" Background="#08090B" Foreground="#E8DDC9"
  FontFamily="Georgia">
  <Window.Resources>
+  <!-- A single shared frame keeps the tab borders closed and perfectly aligned. -->
+  <Style TargetType="TabControl">
+   <Setter Property="Background" Value="#161110"/>
+   <Setter Property="BorderBrush" Value="#A58554"/>
+   <Setter Property="Template">
+    <Setter.Value>
+     <ControlTemplate TargetType="TabControl">
+      <Border Background="{TemplateBinding Background}"
+              BorderBrush="{TemplateBinding BorderBrush}"
+              BorderThickness="1" SnapsToDevicePixels="True">
+       <Grid KeyboardNavigation.TabNavigation="Local">
+        <Grid.RowDefinitions>
+         <RowDefinition Height="Auto"/>
+         <RowDefinition Height="*"/>
+        </Grid.RowDefinitions>
+        <ItemsPresenter Grid.Row="0" SnapsToDevicePixels="True"/>
+        <ContentPresenter x:Name="PART_SelectedContentHost" Grid.Row="1"
+                          ContentSource="SelectedContent" Margin="0"/>
+       </Grid>
+      </Border>
+     </ControlTemplate>
+    </Setter.Value>
+   </Setter>
+  </Style>
   <Style TargetType="TabItem">
    <Setter Property="Foreground" Value="#EBD9B5"/>
    <Setter Property="FontFamily" Value="Georgia"/>
    <Setter Property="FontWeight" Value="Bold"/>
    <Setter Property="FontSize" Value="12"/>
    <Setter Property="Background" Value="#191714"/>
-   <Setter Property="Padding" Value="11,12"/>
-   <Setter Property="Margin" Value="0,0,3,0"/>
+   <Setter Property="Padding" Value="8,12"/>
+   <Setter Property="Margin" Value="0"/>
    <Setter Property="BorderBrush" Value="#795B35"/>
+   <Setter Property="HorizontalAlignment" Value="Stretch"/>
    <Setter Property="Template">
     <Setter.Value>
      <ControlTemplate TargetType="TabItem">
-      <Border x:Name="TabSurface" Background="{TemplateBinding Background}" BorderBrush="{TemplateBinding BorderBrush}" BorderThickness="1,1,1,0">
-       <ContentPresenter ContentSource="Header" HorizontalAlignment="Center" VerticalAlignment="Center" Margin="{TemplateBinding Padding}" TextElement.Foreground="{TemplateBinding Foreground}"/>
+      <Border x:Name="TabSurface" Background="{TemplateBinding Background}"
+              BorderBrush="{TemplateBinding BorderBrush}" BorderThickness="0,0,1,1"
+              SnapsToDevicePixels="True">
+       <ContentPresenter ContentSource="Header" HorizontalAlignment="Center"
+                         VerticalAlignment="Center" Margin="{TemplateBinding Padding}"
+                         TextElement.Foreground="{TemplateBinding Foreground}"/>
       </Border>
       <ControlTemplate.Triggers>
        <Trigger Property="IsSelected" Value="True">
         <Setter TargetName="TabSurface" Property="Background" Value="#5B2422"/>
-        <Setter Property="Foreground" Value="#FFF0D2"/>
         <Setter TargetName="TabSurface" Property="BorderBrush" Value="#C6A36A"/>
+        <Setter Property="Foreground" Value="#FFF0D2"/>
        </Trigger>
        <Trigger Property="IsMouseOver" Value="True">
         <Setter TargetName="TabSurface" Property="Background" Value="#64302A"/>
@@ -94,7 +123,10 @@
       <Grid.RowDefinitions><RowDefinition Height="Auto"/><RowDefinition Height="*"/></Grid.RowDefinitions>
       <TextBlock Text="GAME SETTINGS" Foreground="#D8B66A" FontWeight="Bold" FontSize="22" Margin="3,4,0,16"/>
       <TabControl x:Name="SettingsTabs" Grid.Row="1" Background="#C80B0C0E" BorderBrush="#795B35">
-       <TabItem Header="DISPLAY"><StackPanel Margin="8">    <Border Background="#E51C1715" BorderBrush="#765A3B" BorderThickness="1" CornerRadius="4" Padding="16" Margin="0,0,0,16">
+       <TabControl.ItemsPanel>
+        <ItemsPanelTemplate><UniformGrid Rows="1" Columns="4"/></ItemsPanelTemplate>
+       </TabControl.ItemsPanel>
+       <TabItem Header="DISPLAY"><StackPanel Margin="0">    <Border Background="#E51C1715" BorderBrush="#765A3B" BorderThickness="0" CornerRadius="0" Padding="16" Margin="0">
      <StackPanel>
       <TextBlock Text="DISPLAY" Foreground="{StaticResource GoldBrush}" FontWeight="Bold" Margin="0,0,0,14" />
       <Grid Margin="0,0,0,10"><Grid.ColumnDefinitions><ColumnDefinition Width="*"/><ColumnDefinition Width="190"/></Grid.ColumnDefinitions><TextBlock Text="Resolution"/><ComboBox x:Name="ResolutionBox" Grid.Column="1" HorizontalAlignment="Stretch"/></Grid>
@@ -108,7 +140,7 @@
       <Grid Margin="0,8,0,0"><Grid.ColumnDefinitions><ColumnDefinition Width="*"/><ColumnDefinition Width="190"/></Grid.ColumnDefinitions><TextBlock Text="Live Resolution Change"/><ComboBox x:Name="LiveResolutionBox" Grid.Column="1" HorizontalAlignment="Stretch"/></Grid>
      </StackPanel>
     </Border></StackPanel></TabItem>
-       <TabItem Header="GRAPHICS"><StackPanel Margin="8">    <Border Background="#E51C1715" BorderBrush="#765A3B" BorderThickness="1" CornerRadius="4" Padding="16" Margin="0,0,0,14">
+       <TabItem Header="GRAPHICS"><StackPanel Margin="0">    <Border Background="#E51C1715" BorderBrush="#765A3B" BorderThickness="0" CornerRadius="0" Padding="16" Margin="0">
      <StackPanel>
       <TextBlock Text="GRAPHICS" Foreground="{StaticResource GoldBrush}" FontWeight="Bold" Margin="0,0,0,16" />
       <Grid Margin="0,0,0,10"><Grid.ColumnDefinitions><ColumnDefinition Width="*"/><ColumnDefinition Width="190"/></Grid.ColumnDefinitions><TextBlock Text="Upscaler"/><ComboBox x:Name="UpscalerBox" Grid.Column="1" HorizontalAlignment="Stretch"/></Grid>
@@ -121,7 +153,7 @@
       <Grid Margin="0,0,0,10"><Grid.ColumnDefinitions><ColumnDefinition Width="*"/><ColumnDefinition Width="190"/></Grid.ColumnDefinitions><TextBlock Text="CPU Reads Of GPU Data"/><ComboBox x:Name="ReadbacksBox" Grid.Column="1" HorizontalAlignment="Stretch"/></Grid>
      </StackPanel>
     </Border></StackPanel></TabItem>
-       <TabItem Header="EFFECTS"><StackPanel Margin="8">    <Border Background="#E51C1715" BorderBrush="#765A3B" BorderThickness="1" CornerRadius="4" Padding="16" Margin="0,0,0,16">
+       <TabItem Header="EFFECTS"><StackPanel Margin="0">    <Border Background="#E51C1715" BorderBrush="#765A3B" BorderThickness="0" CornerRadius="0" Padding="16" Margin="0">
      <StackPanel>
       <TextBlock Text="GAME EFFECTS" Foreground="{StaticResource GoldBrush}" FontWeight="Bold" Margin="0,0,0,14" />
       <CheckBox x:Name="SsaoBox" Content="Ambient Occlusion" HorizontalAlignment="Left" />
@@ -133,14 +165,14 @@
       <CheckBox x:Name="DepthOfFieldBox" Content="Depth Of Field" HorizontalAlignment="Left" />
      </StackPanel>
     </Border></StackPanel></TabItem>
-       <TabItem Header="FOLDERS"><StackPanel Margin="8">    <Border Background="#E51C1715" BorderBrush="#765A3B" BorderThickness="1" CornerRadius="4" Padding="16" Margin="0,0,0,16">
+       <TabItem Header="FOLDERS"><StackPanel Margin="0">    <Border Background="#E51C1715" BorderBrush="#765A3B" BorderThickness="0" CornerRadius="0" Padding="16" Margin="0">
      <StackPanel>
       <TextBlock Text="GAME FOLDER" Foreground="{StaticResource GoldBrush}" FontWeight="Bold" Margin="0,0,0,10" />
       <TextBlock x:Name="GameDirectoryText" Text="No game folder selected" TextWrapping="Wrap" Margin="0,0,0,14" />
       <Button Content="BROWSE GAME FOLDER" Click="BrowseGameDirectory_Click" Padding="8,6" HorizontalAlignment="Stretch" Margin="0,0,0,8" />
 
      </StackPanel>
-    </Border>    <Border Background="#E51C1715" BorderBrush="#765A3B" BorderThickness="1" CornerRadius="4" Padding="16" Margin="0,0,0,16">
+    </Border>    <Border Background="#E51C1715" BorderBrush="#765A3B" BorderThickness="0" CornerRadius="0" Padding="16" Margin="0">
      <StackPanel>
       <TextBlock Text="SAVES FOLDER" Foreground="{StaticResource GoldBrush}" FontWeight="Bold" Margin="0,0,0,10" />
       <TextBlock x:Name="SavesDirectoryText" Text="No saves folder selected" TextWrapping="Wrap" Margin="0,0,0,14" />
