@@ -16,6 +16,7 @@ public partial class MainWindow : Window
     private string _savesDir = "";
     private IniFile? _ini;
     private bool _launchInProgress;
+    private bool _backupInProgress;
     private readonly string _settingsPath = Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.ApplicationData), "BloodborneMinimalLauncher", "settings.ini");
 
     private static readonly (string Label, string Value)[] Resolutions = {
@@ -67,8 +68,6 @@ public partial class MainWindow : Window
     {
         // Optional assets. Missing images never prevent the launcher from starting.
         LoadArtworkImage(HeroArtwork, "Yharnam.jpg");
-        LoadArtworkImage(WelcomeArtwork, "Welcome.jpg");
-        LoadArtworkImage(NightmaresArtwork, "Nightmares.jpg");
     }
 
     private static void LoadArtworkImage(System.Windows.Controls.Image target, string filename)
@@ -89,6 +88,69 @@ public partial class MainWindow : Window
         catch (Exception)
         {
             // Keep the fallback background if an asset is invalid.
+        }
+    }
+
+    private async void Backup_Click(object sender, RoutedEventArgs e)
+    {
+        if (_launchInProgress || _backupInProgress)
+            return;
+        // Always back up the user's requested source, independently of the active save profile.
+        var source = @"Y:\Games\Library\Standalone\Bloodborne\Install\Game Files\Saves\savedata\1\CUSA00207\SPRJ0005";
+        var backupRoot = @"Y:\Games\Library\Standalone\Bloodborne\Install\Save Editor\backups";
+        try
+        {
+            if (!Directory.Exists(source))
+                throw new DirectoryNotFoundException("Source folder not found: " + source);
+            if (Process.GetProcessesByName("bb-probe").Length > 0)
+                throw new InvalidOperationException("Close Bloodborne before creating a backup.");
+
+            var destination = Path.Combine(backupRoot, "SPRJ0005_" + DateTime.Now.ToString("yyyy-MM-dd_HH-mm-ss"));
+            for (var suffix = 1; Directory.Exists(destination); suffix++)
+                destination = Path.Combine(backupRoot, "SPRJ0005_" +
+                    DateTime.Now.ToString("yyyy-MM-dd_HH-mm-ss") + "_" + suffix);
+
+            _backupInProgress = true;
+            BackupButton.IsEnabled = false;
+            PlayButton.IsEnabled = false;
+            StatusText.Text = "Creating backup...";
+
+            var copied = await Task.Run(() =>
+            {
+                // Never modify, delete or move source files. Do not overwrite previous backups.
+                Directory.CreateDirectory(destination);
+                foreach (var folder in Directory.EnumerateDirectories(source, "*", SearchOption.AllDirectories))
+                {
+                    var relative = Path.GetRelativePath(source, folder);
+                    Directory.CreateDirectory(Path.Combine(destination, relative));
+                }
+                var count = 0;
+                foreach (var file in Directory.EnumerateFiles(source, "*", SearchOption.AllDirectories))
+                {
+                    var relative = Path.GetRelativePath(source, file);
+                    var output = Path.Combine(destination, relative);
+                    Directory.CreateDirectory(Path.GetDirectoryName(output)!);
+                    File.Copy(file, output, overwrite: false);
+                    count++;
+                }
+                return count;
+            });
+            StatusText.Text = "Backup complete: " + copied + " files copied.";
+            System.Windows.MessageBox.Show(this,
+                "Backup created successfully.\n\n" + destination + "\n\nFiles: " + copied,
+                "Bloodborne Backup", MessageBoxButton.OK, MessageBoxImage.Information);
+        }
+        catch (Exception ex)
+        {
+            StatusText.Text = "Backup failed: " + ex.Message;
+            System.Windows.MessageBox.Show(this, ex.Message, "Bloodborne Backup",
+                MessageBoxButton.OK, MessageBoxImage.Warning);
+        }
+        finally
+        {
+            _backupInProgress = false;
+            BackupButton.IsEnabled = true;
+            PlayButton.IsEnabled = !_launchInProgress;
         }
     }
 
@@ -358,7 +420,7 @@ public partial class MainWindow : Window
 
     private async void Play_Click(object sender, RoutedEventArgs e)
     {
-        if (_launchInProgress)
+        if (_launchInProgress || _backupInProgress)
             return;
         try
         {
