@@ -97,7 +97,7 @@ public partial class MainWindow : Window
             return;
         // Always back up the user's requested source, independently of the active save profile.
         var source = @"Y:\Games\Library\Standalone\Bloodborne\Install\Game Files\Saves\savedata\1\CUSA00207\SPRJ0005";
-        var backupRoot = @"Y:\Games\Library\Standalone\Bloodborne\Install\Save Editor\backups";
+        var backupRoot = @"Y:\Games\Library\Standalone\Bloodborne\Install\Game Files\Backups";
         try
         {
             if (!Directory.Exists(source))
@@ -135,16 +135,11 @@ public partial class MainWindow : Window
                 }
                 return count;
             });
-            StatusText.Text = "Backup complete: " + copied + " files copied.";
-            System.Windows.MessageBox.Show(this,
-                "Backup created successfully.\n\n" + destination + "\n\nFiles: " + copied,
-                "Bloodborne Backup", MessageBoxButton.OK, MessageBoxImage.Information);
+            StatusText.Text = "Backup Complete";
         }
         catch (Exception ex)
         {
-            StatusText.Text = "Backup failed: " + ex.Message;
-            System.Windows.MessageBox.Show(this, ex.Message, "Bloodborne Backup",
-                MessageBoxButton.OK, MessageBoxImage.Warning);
+            StatusText.Text = "Backup Failed: " + ex.Message;
         }
         finally
         {
