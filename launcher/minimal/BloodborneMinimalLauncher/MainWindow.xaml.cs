@@ -543,7 +543,7 @@ public partial class MainWindow : Window
             _ini.Set("present_mode", Selected(PresentationBox, "Mailbox"));
             _ini.Save();
             SaveSettings();
-            StatusText.Text = "Settings Saved.";
+            StatusText.Text = "Settings Saved";
         }
         catch (Exception ex)
         {
