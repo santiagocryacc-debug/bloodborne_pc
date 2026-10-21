@@ -177,9 +177,9 @@
       <CheckBox x:Name="SsaoBox" Content="Ambient Occlusion" HorizontalAlignment="Left" />
       <CheckBox x:Name="DynamicShadowsBox" Content="Dynamic Light Shadow" HorizontalAlignment="Left" />
       <CheckBox x:Name="GameAaBox" Content="Game Own Anti Aliasing" HorizontalAlignment="Left" />
+      <CheckBox x:Name="NoMotionBlurSmearBox" Content="No Motion Blur Smear With Upscalers" HorizontalAlignment="Left" />
       <CheckBox x:Name="ScreenSpaceReflectionsBox" Content="Screen Space Reflections" HorizontalAlignment="Left" />
       <CheckBox x:Name="MotionBlurBox" Content="Motion Blur" HorizontalAlignment="Left" />
-      <CheckBox x:Name="NoMotionBlurSmearBox" Content="No Motion Blur Smear With Upscalers" HorizontalAlignment="Left" ToolTip="Prevents motion blur from smearing at resolutions other than 1920x1080 with an upscaler." />
       <CheckBox x:Name="ChromaticAberrationBox" Content="Chromatic Aberration" HorizontalAlignment="Left" />
       <CheckBox x:Name="DepthOfFieldBox" Content="Depth Of Field" HorizontalAlignment="Left" />
      </StackPanel>
