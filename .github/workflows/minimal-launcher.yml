@@ -6,6 +6,7 @@ on:
     branches:
       - minimal-launcher-build
       - beta-9-8-integration
+      - beta-9-37-integration
     paths:
       - 'launcher/minimal/**'
       - '.github/workflows/minimal-launcher.yml'
@@ -39,7 +40,7 @@ jobs:
       - name: Upload launcher artifact
         uses: actions/upload-artifact@v4
         with:
-          name: BloodborneBeta98Launcher-win-x64
+          name: BloodborneCinematicLauncher-win-x64
           path: artifacts/BloodborneMinimalLauncher/
           if-no-files-found: error
           retention-days: 14
