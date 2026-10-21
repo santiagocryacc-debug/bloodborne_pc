@@ -27,9 +27,6 @@ public partial class MainWindow : Window
         ("DLSS", "dlss"), ("TAA", "taa"), ("Off", "off") };
     private static readonly (string Label, string Value)[] Presets = {
         ("Native", "0"), ("Quality", "1"), ("Balanced", "2"), ("Performance", "3"), ("Ultra Performance", "4") };
-    // Supported by Lantern Engine 0.9.34 beta 9.6 and newer.
-    private static readonly (string Label, string Value)[] FrameGenerationModes = {
-        ("Off", "off"), ("FSR 3.1 x2", "fsr3") };
     private static readonly (string Label, string Value)[] FrameRates = {
         ("30 FPS", "30"), ("60 FPS", "60"), ("90 FPS", "90"), ("Unlocked", "uncap") };
     private static readonly (string Label, string Value)[] FrameCaps = {
@@ -55,7 +52,6 @@ public partial class MainWindow : Window
         Fill(PresetBox, Presets);
         Fill(FrameRateBox, FrameRates);
         Fill(FrameCapBox, FrameCaps);
-        Fill(FrameGenerationBox, FrameGenerationModes);
         Fill(PresentationBox, PresentModes);
         Fill(LiveResolutionBox, LiveResolutionModes);
         Fill(ModelLodBox, ModelLods);
@@ -291,7 +287,7 @@ public partial class MainWindow : Window
             Select(PresentationBox, _ini.Get("present_mode", "Mailbox"), "Mailbox");
             Select(UpscalerBox, _ini.Get("upscaler", "fsr4"), "fsr4");
             Select(PresetBox, _ini.Get("preset", "1"), "1");
-            Select(FrameGenerationBox, _ini.Get("frame_gen", "off"), "off");
+            FrameGenerationCheckBox.IsChecked = _ini.Get("frame_gen", "off") == "fsr3";
             HalfRefreshBox.IsChecked = _ini.Get("frame_gen_cap", "1") == "1";
             Select(ModelLodBox, _ini.Get("model_lod", "0"), "0");
             FullscreenBox.IsChecked = _ini.Get("fullscreen", "1") == "1";
@@ -564,7 +560,7 @@ public partial class MainWindow : Window
             _ini.Set("output_res", Selected(ResolutionBox, "1920x1080"));
             _ini.Set("upscaler", Selected(UpscalerBox, "fsr4"));
             _ini.Set("preset", Selected(PresetBox, "1"));
-            var frameGeneration = Selected(FrameGenerationBox, "off");
+            var frameGeneration = FrameGenerationCheckBox.IsChecked == true ? "fsr3" : "off";
             var activeUpscaler = Selected(UpscalerBox, "fsr4");
             if (frameGeneration != "off" && (activeUpscaler == "off" || activeUpscaler == "taa"))
                 throw new InvalidOperationException("Frame Generation requires an upscaler.");
