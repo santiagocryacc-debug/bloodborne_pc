@@ -528,9 +528,7 @@ public partial class MainWindow : Window
             // Match the upstream launcher: only pass the variable when enabled.
             if (SharpUiBox.IsChecked == true) info.Environment["BB_SHARP_UI"] = "1";
             else info.Environment.Remove("BB_SHARP_UI");
-            // Lantern Engine 9.8 engine switches: these are process environment
-            // variables, not bbport.ini keys. Never write 0 for defaults that
-            // should remain active unless the user explicitly unticks them.
+            // Lantern Engine 0.9.37 environment switches, not lantern.ini keys.
             info.Environment["BB_ANISO"] = Selected(TextureFilteringBox, "16");
             info.Environment["BB_BACKGROUND_FPS"] = Selected(BackgroundFrameRateBox, "30");
             if (RespawnDelayFixBox.IsChecked == true)
@@ -545,6 +543,26 @@ public partial class MainWindow : Window
                 info.Environment["BB_INTEL_TONEMAP_FIX"] = "1";
             else
                 info.Environment.Remove("BB_INTEL_TONEMAP_FIX");
+            // Lantern Engine 0.9.37 beta 4: the official launcher enables
+            // both new rendering paths only when their toggles are checked.
+            if (PcMemoryModelBox.IsChecked == true)
+                info.Environment["BB_GUEST_IN_PLACE"] = "1";
+            else
+                info.Environment.Remove("BB_GUEST_IN_PLACE");
+            if (NativeDrawCallsBox.IsChecked == true)
+                info.Environment["BB_NATIVE_CALLS"] = "1";
+            else
+                info.Environment.Remove("BB_NATIVE_CALLS");
+            if (NoMotionBlurSmearBox.IsChecked == true)
+                info.Environment["BB_UPSCALER_NO_BLUR"] = "1";
+            else
+                info.Environment.Remove("BB_UPSCALER_NO_BLUR");
+            // Upstream 0.9.37 beta 4's recommended defaults from GameEnvironment.
+            // No FPS counter, shader catalog or OptiScaler controls are added.
+            info.Environment["BB_PRECISE_PACING"] = "1";
+            info.Environment["BB_IMAGE_WRITEBACK_GC"] = "1";
+            info.Environment["BB_FAST_LOADING"] = "1";
+            info.Environment["BB_HOT_PAGES"] = "2";
 
             // Never copy or move saves: point bbhost at the selected existing folder.
             var chosenSaves = string.IsNullOrWhiteSpace(_savesDir)
