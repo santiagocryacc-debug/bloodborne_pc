@@ -529,6 +529,10 @@ public partial class MainWindow : Window
                 info.Environment["BB_DATA_DIR"] = Path.GetDirectoryName(selectedIni)!;
             }
             info.Environment["BB_PREBUILT"] = "1";
+            // This cinematic launcher owns all the controls we expose.
+            // Turn OFF the extra Insert/L3+R3 overlay entirely; keep the
+            // native System > PC Graphics/Effects/Colour menus untouched.
+            info.Environment["BB_OVERLAY_KEYS"] = "off";
             info.Environment["BB_FPS"] = Selected(FrameRateBox, "60");
             var cap = Selected(FrameCapBox, "");
             if (!string.IsNullOrEmpty(cap)) info.Environment["BB_FPS_LIMIT"] = cap;
