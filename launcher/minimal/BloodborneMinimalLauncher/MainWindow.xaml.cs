@@ -210,6 +210,26 @@ public partial class MainWindow : Window
 
     private string FindIniPath()
     {
+        // In parallel installs, always use the config belonging to the engine we are
+        // launching. An older saved port_dir must never override this package.
+        var engineStart = LocateEngineStart();
+        if (engineStart is not null)
+        {
+            var engineDir = Path.GetDirectoryName(Path.GetDirectoryName(engineStart)!)!;
+            var packageDir = Path.GetDirectoryName(engineDir)!;
+            foreach (var dir in new[] { packageDir, engineDir })
+            {
+                foreach (var name in new[] { "bbport.ini", "BBPort.ini" })
+                {
+                    var candidate = Path.Combine(dir, name);
+                    if (File.Exists(candidate))
+                    {
+                        _portDir = dir;
+                        return candidate;
+                    }
+                }
+            }
+        }
         var candidates = new System.Collections.Generic.List<string>();
         var current = new DirectoryInfo(AppContext.BaseDirectory);
         for (var depth = 0; current is not null && depth < 5; depth++, current = current.Parent)
@@ -458,6 +478,15 @@ public partial class MainWindow : Window
             };
             info.ArgumentList.Add("--game-dir");
             info.ArgumentList.Add(_gameDir);
+            // 9.8's engine reads these paths explicitly, so no prior installation's
+            // bbport.ini or data directory can leak into a side-by-side beta test.
+            var selectedIni = FindIniPath();
+            if (File.Exists(selectedIni))
+            {
+                info.Environment["BB_CONFIG"] = selectedIni;
+                info.Environment["BB_DATA_DIR"] = Path.GetDirectoryName(selectedIni)!;
+            }
+            info.Environment["BB_PREBUILT"] = "1";
             info.Environment["BB_FPS"] = Selected(FrameRateBox, "60");
             var cap = Selected(FrameCapBox, "");
             if (!string.IsNullOrEmpty(cap)) info.Environment["BB_FPS_LIMIT"] = cap;
