@@ -53,7 +53,6 @@ public partial class MainWindow : Window
     public MainWindow()
     {
         InitializeComponent();
-        LoadArtwork();
         Fill(ResolutionBox, Resolutions);
         Fill(UpscalerBox, Upscalers);
         Fill(PresetBox, Presets);
@@ -69,6 +68,7 @@ public partial class MainWindow : Window
         Select(TextureFilteringBox, "16", "16");
         Select(BackgroundFrameRateBox, "30", "30");
         LoadSettings();
+        LoadArtwork();
         RefreshIni();
         AutoDetectGameDirectory();
         UpdateGameDirectoryDisplay();
@@ -81,12 +81,21 @@ public partial class MainWindow : Window
         LoadArtworkImage(HeroArtwork, "Yharnam.jpg");
     }
 
-    private static void LoadArtworkImage(System.Windows.Controls.Image target, string filename)
+    private void LoadArtworkImage(System.Windows.Controls.Image target, string filename)
     {
         try
         {
-            var file = Path.Combine(AppContext.BaseDirectory, "Assets", filename);
-            if (!File.Exists(file))
+            // Full beta 4 test packages may be installed beside our old beta.
+            // Reuse the previous cinematic background if our new folder does
+            // not have Assets/Yharnam.jpg; never move or delete the user's art.
+            var candidates = new[]
+            {
+                Path.Combine(AppContext.BaseDirectory, "Assets", filename),
+                Path.Combine(_portDir, "Assets", filename),
+                Path.Combine(Environment.CurrentDirectory, "Assets", filename)
+            };
+            var file = candidates.FirstOrDefault(File.Exists);
+            if (file is null)
                 return;
             var image = new BitmapImage();
             image.BeginInit();
