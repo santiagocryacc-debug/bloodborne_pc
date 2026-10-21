@@ -232,69 +232,73 @@ public partial class MainWindow : Window
         settings.Save();
     }
 
+    // Lantern 0.9.37 beta 2+ uses lantern.ini. Always load the ini in
+    // the engine we're actually launching, never a separate old install.
     private string FindIniPath()
     {
-        // In parallel installs, always use the config belonging to the engine we are
-        // launching. An older saved port_dir must never override this package.
         var engineStart = LocateEngineStart();
         if (engineStart is not null)
         {
             var engineDir = Path.GetDirectoryName(Path.GetDirectoryName(engineStart)!)!;
             var packageDir = Path.GetDirectoryName(engineDir)!;
-            foreach (var dir in new[] { packageDir, engineDir })
-            {
-                foreach (var name in new[] { "bbport.ini", "BBPort.ini" })
-                {
-                    var candidate = Path.Combine(dir, name);
-                    if (File.Exists(candidate))
-                    {
-                        _portDir = dir;
-                        return candidate;
-                    }
-                }
-            }
+            _portDir = packageDir;
+            return EnsureLanternIni(packageDir, engineDir);
         }
-        var candidates = new System.Collections.Generic.List<string>();
         var current = new DirectoryInfo(AppContext.BaseDirectory);
         for (var depth = 0; current is not null && depth < 5; depth++, current = current.Parent)
-            candidates.Add(current.FullName);
-        candidates.Add(Environment.CurrentDirectory);
+        {
+            var path = Path.Combine(current.FullName, "lantern.ini");
+            if (File.Exists(path)) { _portDir = current.FullName; return path; }
+        }
         if (!string.IsNullOrWhiteSpace(_portDir))
-            candidates.Add(_portDir);
-
-        var uniqueCandidates = candidates.Distinct(StringComparer.OrdinalIgnoreCase).ToList();
-        var gameDirs = uniqueCandidates
-            .Where(dir => File.Exists(Path.Combine(dir, "blobborne.exe")))
-            .ToList();
-
-        foreach (var dir in gameDirs)
         {
-            foreach (var name in new[] { "BBPort.ini", "bbport.ini" })
-            {
-                var candidate = Path.Combine(dir, name);
-                if (File.Exists(candidate))
-                {
-                    _portDir = dir;
-                    return candidate;
-                }
-            }
+            var path = Path.Combine(_portDir, "lantern.ini");
+            if (File.Exists(path)) return path;
         }
-
-        foreach (var dir in uniqueCandidates)
-        {
-            foreach (var name in new[] { "BBPort.ini", "bbport.ini" })
-            {
-                var candidate = Path.Combine(dir, name);
-                if (File.Exists(candidate))
-                {
-                    _portDir = dir;
-                    return candidate;
-                }
-            }
-        }
-
         _portDir = "";
         return "";
+    }
+
+    private static string EnsureLanternIni(string packageDir, string engineDir)
+    {
+        var target = Path.Combine(packageDir, "lantern.ini");
+        var old = Path.Combine(packageDir, "bbport.ini");
+        var shipped = Path.Combine(engineDir, "lantern.default.ini");
+
+        // Migration copies settings rather than renaming or deleting the old file.
+        if (!File.Exists(target))
+        {
+            if (File.Exists(old)) File.Copy(old, target);
+            else if (File.Exists(shipped)) File.Copy(shipped, target);
+            else File.WriteAllText(target, "# Lantern Engine settings" + Environment.NewLine);
+        }
+        else if (File.Exists(old) && File.Exists(shipped) &&
+                 IniValuesEqual(target, shipped) && !IniValuesEqual(target, old))
+        {
+            // An update may ship a default lantern.ini beside customized
+            // bbport.ini: keep the actual user's settings, never touch saves.
+            File.Copy(old, target, overwrite: true);
+        }
+        return target;
+    }
+
+    private static bool IniValuesEqual(string left, string right)
+    {
+        static System.Collections.Generic.Dictionary<string, string> Read(string path)
+        {
+            var pairs = new System.Collections.Generic.Dictionary<string, string>(StringComparer.OrdinalIgnoreCase);
+            foreach (var line in File.ReadLines(path))
+            {
+                var trimmed = line.Trim();
+                if (trimmed.Length == 0 || trimmed.StartsWith('#') || trimmed.StartsWith(';')) continue;
+                var eq = trimmed.IndexOf('=');
+                if (eq > 0) pairs[trimmed[..eq].Trim()] = trimmed[(eq + 1)..].Trim();
+            }
+            return pairs;
+        }
+        var a = Read(left);
+        var b = Read(right);
+        return a.Count == b.Count && a.All(pair => b.TryGetValue(pair.Key, out var value) && value == pair.Value);
     }
 
     private void RefreshIni()
@@ -305,7 +309,7 @@ public partial class MainWindow : Window
             if (string.IsNullOrWhiteSpace(path) || !File.Exists(path))
             {
                 _ini = null;
-                StatusText.Text = "BBPort.ini not found. Place this launcher in the game folder, beside blobborne.exe.";
+                StatusText.Text = "lantern.ini not found. Place this launcher in the Lantern Engine beta 4 folder.";
                 return;
             }
 
@@ -502,8 +506,8 @@ public partial class MainWindow : Window
             };
             info.ArgumentList.Add("--game-dir");
             info.ArgumentList.Add(_gameDir);
-            // 9.8's engine reads these paths explicitly, so no prior installation's
-            // bbport.ini or data directory can leak into a side-by-side beta test.
+            // 0.9.37 reads these paths explicitly: no previous install's
+            // config or data directory can leak into this beta test.
             var selectedIni = FindIniPath();
             if (File.Exists(selectedIni))
             {
@@ -600,7 +604,7 @@ public partial class MainWindow : Window
         {
             var iniPath = FindIniPath();
             if (string.IsNullOrWhiteSpace(iniPath))
-                throw new InvalidOperationException("BBPort.ini was not found. Place this launcher in the game folder, beside blobborne.exe.");
+                throw new InvalidOperationException("lantern.ini was not found. Place this launcher in the Lantern Engine beta 4 folder.");
             _ini = new IniFile(iniPath);
             _ini.Set("output_res", Selected(ResolutionBox, "1920x1080"));
             _ini.Set("upscaler", Selected(UpscalerBox, "fsr4"));
