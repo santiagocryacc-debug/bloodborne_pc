@@ -1,0 +1,128 @@
+name: Package complete Lantern 0.9.37 beta 4 cinematic test
+
+on:
+  workflow_dispatch:
+  push:
+    branches:
+      - beta-9-37-integration
+    paths:
+      - '.github/workflows/package-lantern37.yml'
+
+permissions:
+  contents: read
+  actions: read
+
+jobs:
+  package:
+    runs-on: windows-latest
+    timeout-minutes: 40
+    steps:
+      - name: Download exact official Lantern 0.9.37 beta 4 engine release
+        shell: pwsh
+        run: |
+          $ErrorActionPreference = 'Stop'
+          $url = 'https://github.com/Awakenchan/LanternEngine/releases/download/v0.9.37-beta.4/LanternEngine-v0.9.37-beta.4-win64.zip'
+          Invoke-WebRequest -Uri $url -OutFile 'official-beta37.zip'
+          Expand-Archive -Path 'official-beta37.zip' -DestinationPath 'official-extracted'
+          $start = Get-ChildItem 'official-extracted' -Recurse -File -Filter bb-start.exe |
+            Where-Object { $_.FullName -match '[\\/]engine[\\/]out[\\/]bb-start\.exe$' } |
+            Select-Object -First 1
+          if ($null -eq $start) { throw 'Official beta 4 archive has no engine/out/bb-start.exe' }
+          $root = $start.Directory.Parent.Parent.FullName
+          if (-not (Test-Path (Join-Path $root 'engine/out/bb-probe.exe'))) {
+            throw 'Official beta 4 archive does not contain engine/out/bb-probe.exe'
+          }
+          New-Item -ItemType Directory -Force 'package' | Out-Null
+          Copy-Item -Path (Join-Path $root '*') -Destination 'package' -Recurse -Force
+          Write-Host "Copied official beta 4 distribution from $root"
+
+      - name: Download successful patched native engine binaries
+        uses: actions/download-artifact@v4
+        with:
+          name: LanternBeta37-HidePCGraphicsResolution-Engine
+          run-id: 39679986028
+          github-token: ${{ secrets.GITHUB_TOKEN }}
+          path: patched-engine
+
+      - name: Download successful cinematic Launcher.exe
+        uses: actions/download-artifact@v4
+        with:
+          name: BloodborneCinematicLauncher-win-x64
+          run-id: 39681356571
+          github-token: ${{ secrets.GITHUB_TOKEN }}
+          path: cinematic-launcher
+
+      - name: Overlay tested native fixes and our cinematic launcher
+        shell: pwsh
+        run: |
+          $ErrorActionPreference = 'Stop'
+          foreach ($file in @('bb-probe.exe', 'bb-engine-assets.exe')) {
+            $from = Join-Path 'patched-engine/engine/out' $file
+            $to = Join-Path 'package/engine/out' $file
+            if (-not (Test-Path $from)) { throw "Missing freshly patched native engine binary: $from" }
+            if (-not (Test-Path $to)) { throw "Official engine layout changed, refusing overlay: $to" }
+            Copy-Item -Path $from -Destination $to -Force
+            if ((Get-FileHash $from).Hash -ne (Get-FileHash $to).Hash) {
+              throw "Native engine integrity check failed: $file"
+            }
+          }
+          if (-not (Test-Path 'cinematic-launcher/Launcher.exe')) {
+            throw 'The successful cinematic build does not contain Launcher.exe'
+          }
+          Copy-Item 'cinematic-launcher/Launcher.exe' 'package/Launcher.exe' -Force
+          if (-not (Test-Path 'package/engine/out/bb-start.exe')) {
+            throw 'Native starter is absent in merged package'
+          }
+          @'
+          BLOODBORNE CINEMATIC LAUNCHER - LANTERN ENGINE 0.9.37 BETA 4
+          COMPLETE INDEPENDENT TEST PACKAGE
+
+          This archive combines the unmodified official 0.9.37 beta 4
+          distribution with our Windows cinematic Launcher.exe and two
+          custom-built 0.9.37 beta 4 engine binaries.
+
+          INSTALL:
+          1. Extract everything to a NEW EMPTY folder, outside OneDrive.
+             Never overwrite your stable game port or beta 9.8 test folder.
+          2. Keep your existing Game Files folder and save files untouched.
+          3. If necessary, copy Assets/Yharnam.jpg from your previous
+             cinematic launcher into this new folder's Assets/ directory.
+             The launcher can also reuse its previously saved artwork path.
+          4. If you want to migrate your old graphics settings, COPY the
+             old bbport.ini into this new folder BEFORE first launching.
+             It remains untouched: the cinematic launcher creates or
+             migrates the beta 4 lantern.ini file.
+          5. Start Launcher.exe (our cinematic launcher, NOT Lantern Engine.exe).
+             Select/check the existing game folder and existing saves folder,
+             then use SAVE SETTINGS and PLAY.
+
+          GAME:
+          The native System > PC Graphics menu no longer has the translucent
+          Output Resolution row. Use DISPLAY > Resolution in Launcher.exe.
+          PC Memory Model and Native Draw Calls are enabled by default.
+          If models vanish or textures become wrong, uncheck these first.
+          No Motion Blur Smear With Upscalers is optional, off by default.
+
+          WARNING:
+          This is a test build and in-game rendering must be checked on your
+          own computer. No game files or saves are distributed here.
+          Our launcher does not offer FPS counter customization, Shader
+          Catalog import/export or OptiScaler integration.
+          Our existing BACKUP functionality remains unchanged.
+          Do not mix any EXEs or DLLs with beta 9.8.
+          '@ | Set-Content 'package/READ-ME-CINEMATIC-BETA37.txt' -Encoding utf8
+          $names = @('Launcher.exe', 'engine/out/bb-probe.exe',
+                     'engine/out/bb-engine-assets.exe', 'engine/out/bb-start.exe')
+          foreach ($name in $names) {
+            if (-not (Test-Path (Join-Path 'package' $name))) { throw "Missing package file $name" }
+          }
+          Write-Host 'Verified complete Lantern beta 4 package with cinematic frontend and patched engine.'
+
+      - name: Upload one complete beta 4 test package
+        uses: actions/upload-artifact@v4
+        with:
+          name: BloodborneCinematic-Lantern-0.9.37-beta4-FULL
+          path: package/
+          if-no-files-found: error
+          compression-level: 6
+          retention-days: 14
