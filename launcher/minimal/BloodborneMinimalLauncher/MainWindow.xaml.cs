@@ -14,6 +14,7 @@ public partial class MainWindow : Window
     private string _portDir = "";
     private string _gameDir = "";
     private string _savesDir = "";
+    private string _artworkDir = "";
     private IniFile? _ini;
     private bool _launchInProgress;
     private bool _backupInProgress;
@@ -91,12 +92,14 @@ public partial class MainWindow : Window
             var candidates = new[]
             {
                 Path.Combine(AppContext.BaseDirectory, "Assets", filename),
+                Path.Combine(_artworkDir, "Assets", filename),
                 Path.Combine(_portDir, "Assets", filename),
                 Path.Combine(Environment.CurrentDirectory, "Assets", filename)
             };
             var file = candidates.FirstOrDefault(File.Exists);
             if (file is null)
                 return;
+            _artworkDir = Path.GetDirectoryName(Path.GetDirectoryName(file)!)!;
             var image = new BitmapImage();
             image.BeginInit();
             image.CacheOption = BitmapCacheOption.OnLoad;
@@ -198,6 +201,7 @@ public partial class MainWindow : Window
             if (!File.Exists(_settingsPath)) return;
             var settings = new IniFile(_settingsPath);
             _portDir = settings.Get("port_dir");
+            _artworkDir = settings.Get("artwork_dir", _portDir);
             _gameDir = settings.Get("game_dir");
             _savesDir = settings.Get("saves_dir");
             Select(DrawPipeBox, settings.Get("draw_pipe", ""), "");
@@ -222,6 +226,7 @@ public partial class MainWindow : Window
     {
         var settings = new IniFile(_settingsPath);
         settings.Set("port_dir", _portDir);
+        settings.Set("artwork_dir", _artworkDir);
         settings.Set("game_dir", _gameDir);
         settings.Set("saves_dir", _savesDir);
         settings.Set("draw_pipe", Selected(DrawPipeBox, ""));
