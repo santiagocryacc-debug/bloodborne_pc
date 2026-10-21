@@ -32,10 +32,10 @@ public partial class MainWindow : Window
     private static readonly (string Label, string Value)[] FrameCaps = {
         ("Auto", ""), ("60 FPS", "60"), ("90 FPS", "90"), ("120 FPS", "120"),
         ("165 FPS", "165"), ("240 FPS", "240"), ("No Limit", "0") };
-    // Exact BB_ANISO choices in Lantern Engine beta 9.8.
+    // Verified BB_ANISO values retained in Lantern Engine 0.9.37 beta 4.
     private static readonly (string Label, string Value)[] TextureFilteringModes = {
         ("16X", "16"), ("8X", "8"), ("4X", "4"), ("2X", "2"), ("Games Own", "0") };
-    // Exact BB_BACKGROUND_FPS choices in Lantern Engine beta 9.8.
+    // Verified BB_BACKGROUND_FPS values retained in Lantern Engine 0.9.37 beta 4.
     private static readonly (string Label, string Value)[] BackgroundFrameRates = {
         ("10 FPS", "10"), ("15 FPS", "15"), ("30 FPS", "30"),
         ("60 FPS", "60"), ("No Limit", "0") };
@@ -202,6 +202,9 @@ public partial class MainWindow : Window
             RespawnDelayFixBox.IsChecked = settings.Get("respawn_delay_fix", "1") == "1";
             WeaponSoundFixBox.IsChecked = settings.Get("weapon_sound_fix", "1") == "1";
             IntelToneMapFixBox.IsChecked = settings.Get("intel_tonemap_fix", "0") == "1";
+            PcMemoryModelBox.IsChecked = settings.Get("pc_memory_model", "1") == "1";
+            NativeDrawCallsBox.IsChecked = settings.Get("native_draw_calls", "1") == "1";
+            NoMotionBlurSmearBox.IsChecked = settings.Get("no_motion_blur_smear", "0") == "1";
         }
         catch { }
     }
@@ -223,6 +226,9 @@ public partial class MainWindow : Window
         settings.Set("respawn_delay_fix", RespawnDelayFixBox.IsChecked == true ? "1" : "0");
         settings.Set("weapon_sound_fix", WeaponSoundFixBox.IsChecked == true ? "1" : "0");
         settings.Set("intel_tonemap_fix", IntelToneMapFixBox.IsChecked == true ? "1" : "0");
+        settings.Set("pc_memory_model", PcMemoryModelBox.IsChecked == true ? "1" : "0");
+        settings.Set("native_draw_calls", NativeDrawCallsBox.IsChecked == true ? "1" : "0");
+        settings.Set("no_motion_blur_smear", NoMotionBlurSmearBox.IsChecked == true ? "1" : "0");
         settings.Save();
     }
 
