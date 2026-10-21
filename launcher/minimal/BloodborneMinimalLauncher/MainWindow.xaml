@@ -39,12 +39,13 @@
    <Setter Property="Padding" Value="6,12"/>
    <Setter Property="Margin" Value="0"/>
    <Setter Property="BorderBrush" Value="#795B35"/>
+    <Setter Property="BorderThickness" Value="0,0,1,1"/>
    <Setter Property="HorizontalAlignment" Value="Stretch"/>
    <Setter Property="Template">
     <Setter.Value>
      <ControlTemplate TargetType="TabItem">
       <Border x:Name="TabSurface" Background="{TemplateBinding Background}"
-              BorderBrush="{TemplateBinding BorderBrush}" BorderThickness="0,0,1,1"
+              BorderBrush="{TemplateBinding BorderBrush}" BorderThickness="{TemplateBinding BorderThickness}"
               SnapsToDevicePixels="True">
        <ContentPresenter ContentSource="Header" HorizontalAlignment="Center"
                          VerticalAlignment="Center" Margin="{TemplateBinding Padding}"
@@ -156,15 +157,18 @@
        <TextBlock Text="Texture Filtering"/>
        <ComboBox x:Name="TextureFilteringBox" Grid.Column="1" HorizontalAlignment="Stretch"/>
       </Grid>
-      <CheckBox x:Name="FrameGenerationCheckBox" Content="Frame Generation" HorizontalAlignment="Left" />
-      <CheckBox x:Name="HalfRefreshBox" Content="Half Refresh Rate" HorizontalAlignment="Left" IsChecked="True" IsEnabled="{Binding IsChecked, ElementName=FrameGenerationCheckBox}"/>
       <Grid Margin="0,0,0,10"><Grid.ColumnDefinitions><ColumnDefinition Width="*"/><ColumnDefinition Width="190"/></Grid.ColumnDefinitions><TextBlock Text="Model Detail"/><ComboBox x:Name="ModelLodBox" Grid.Column="1" HorizontalAlignment="Stretch"/></Grid>
       <CheckBox x:Name="SharpenBox" Content="Sharpening" HorizontalAlignment="Left" />
       <Grid Margin="0,2,0,10"><Grid.ColumnDefinitions><ColumnDefinition Width="*"/><ColumnDefinition Width="42"/></Grid.ColumnDefinitions><Slider x:Name="SharpnessSlider" Minimum="0" Maximum="2" Value="0.5" TickFrequency="0.1" IsSnapToTickEnabled="False" VerticalAlignment="Center" ValueChanged="SharpnessSlider_ValueChanged"/><TextBlock x:Name="SharpnessValueText" Grid.Column="1" Text="0.50" Foreground="{StaticResource GoldBrush}" FontWeight="SemiBold" HorizontalAlignment="Right"/></Grid>
       <CheckBox x:Name="ObjectMotionBox" Content="Object Motion Vectors" HorizontalAlignment="Left" />
       <CheckBox x:Name="SharpUiBox" Content="Sharp UI" HorizontalAlignment="Left" IsChecked="True" />
+      <CheckBox x:Name="FrameGenerationCheckBox" Content="Frame Generation" HorizontalAlignment="Left" />
+      <CheckBox x:Name="HalfRefreshBox" Content="Half Refresh Rate" HorizontalAlignment="Left" IsChecked="True" IsEnabled="{Binding IsChecked, ElementName=FrameGenerationCheckBox}"/>
       <Grid Margin="0,8,0,10"><Grid.ColumnDefinitions><ColumnDefinition Width="*"/><ColumnDefinition Width="190"/></Grid.ColumnDefinitions><TextBlock Text="Two Stage GPU Pipeline"/><ComboBox x:Name="DrawPipeBox" Grid.Column="1" HorizontalAlignment="Stretch"/></Grid>
       <Grid Margin="0,0,0,10"><Grid.ColumnDefinitions><ColumnDefinition Width="*"/><ColumnDefinition Width="190"/></Grid.ColumnDefinitions><TextBlock Text="CPU Reads Of GPU Data"/><ComboBox x:Name="ReadbacksBox" Grid.Column="1" HorizontalAlignment="Stretch"/></Grid>
+      <TextBlock Text="ENGINE PERFORMANCE" Foreground="{StaticResource GoldBrush}" FontWeight="Bold" Margin="0,12,0,10"/>
+      <CheckBox x:Name="PcMemoryModelBox" Content="PC Memory Model" HorizontalAlignment="Left" IsChecked="True" ToolTip="GPU reads game memory directly. Disable if textures or objects render incorrectly." />
+      <CheckBox x:Name="NativeDrawCallsBox" Content="Native Draw Calls" HorizontalAlignment="Left" IsChecked="True" ToolTip="Direct native graphics calls. Disable if the game displays missing or incorrect objects." />
      </StackPanel>
     </Border></StackPanel></TabItem>
        <TabItem Header="EFFECTS"><StackPanel Margin="0">    <Border Background="#E51C1715" BorderBrush="#765A3B" BorderThickness="0" CornerRadius="0" Padding="16" Margin="0">
@@ -175,6 +179,7 @@
       <CheckBox x:Name="GameAaBox" Content="Game Own Anti Aliasing" HorizontalAlignment="Left" />
       <CheckBox x:Name="ScreenSpaceReflectionsBox" Content="Screen Space Reflections" HorizontalAlignment="Left" />
       <CheckBox x:Name="MotionBlurBox" Content="Motion Blur" HorizontalAlignment="Left" />
+      <CheckBox x:Name="NoMotionBlurSmearBox" Content="No Motion Blur Smear With Upscalers" HorizontalAlignment="Left" ToolTip="Prevents motion blur from smearing at resolutions other than 1920x1080 with an upscaler." />
       <CheckBox x:Name="ChromaticAberrationBox" Content="Chromatic Aberration" HorizontalAlignment="Left" />
       <CheckBox x:Name="DepthOfFieldBox" Content="Depth Of Field" HorizontalAlignment="Left" />
      </StackPanel>
@@ -193,7 +198,7 @@
       <Button Content="BROWSE SAVES FOLDER" Click="BrowseSavesFolder_Click" Padding="8,6" HorizontalAlignment="Stretch" Margin="0" />
      </StackPanel>
     </Border></StackPanel></TabItem>
-       <TabItem Header="FIXES">
+       <TabItem Header="FIXES" BorderThickness="0,0,0,1">
         <StackPanel Margin="0">
          <Border Background="#E51C1715" BorderBrush="#765A3B" BorderThickness="0" Padding="16" Margin="0">
           <StackPanel>
