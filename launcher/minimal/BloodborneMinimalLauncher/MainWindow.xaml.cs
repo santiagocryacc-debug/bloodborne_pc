@@ -32,6 +32,13 @@ public partial class MainWindow : Window
     private static readonly (string Label, string Value)[] FrameCaps = {
         ("Auto", ""), ("60 FPS", "60"), ("90 FPS", "90"), ("120 FPS", "120"),
         ("165 FPS", "165"), ("240 FPS", "240"), ("No Limit", "0") };
+    // Exact BB_ANISO choices in Lantern Engine beta 9.8.
+    private static readonly (string Label, string Value)[] TextureFilteringModes = {
+        ("16X", "16"), ("8X", "8"), ("4X", "4"), ("2X", "2"), ("Games Own", "0") };
+    // Exact BB_BACKGROUND_FPS choices in Lantern Engine beta 9.8.
+    private static readonly (string Label, string Value)[] BackgroundFrameRates = {
+        ("10 FPS", "10"), ("15 FPS", "15"), ("30 FPS", "30"),
+        ("60 FPS", "60"), ("No Limit", "0") };
     private static readonly (string Label, string Value)[] PresentModes = {
         ("Mailbox", "Mailbox"), ("FIFO", "Fifo"), ("FIFO Relaxed", "FifoRelaxed"), ("Immediate", "Immediate") };
     private static readonly (string Label, string Value)[] LiveResolutionModes = {
@@ -57,6 +64,10 @@ public partial class MainWindow : Window
         Fill(ModelLodBox, ModelLods);
         Fill(DrawPipeBox, DrawPipes);
         Fill(ReadbacksBox, Readbacks);
+        Fill(TextureFilteringBox, TextureFilteringModes);
+        Fill(BackgroundFrameRateBox, BackgroundFrameRates);
+        Select(TextureFilteringBox, "16", "16");
+        Select(BackgroundFrameRateBox, "30", "30");
         LoadSettings();
         RefreshIni();
         AutoDetectGameDirectory();
@@ -153,6 +164,7 @@ public partial class MainWindow : Window
     private void OpenGraphics_Click(object sender, RoutedEventArgs e) => SettingsTabs.SelectedIndex = 1;
     private void OpenEffects_Click(object sender, RoutedEventArgs e) => SettingsTabs.SelectedIndex = 2;
     private void OpenSaves_Click(object sender, RoutedEventArgs e) => SettingsTabs.SelectedIndex = 3;
+    private void OpenFixes_Click(object sender, RoutedEventArgs e) => SettingsTabs.SelectedIndex = 4;
 
     private static void Fill(System.Windows.Controls.ComboBox box, (string Label, string Value)[] items)
     {
@@ -185,6 +197,11 @@ public partial class MainWindow : Window
             Select(FrameCapBox, settings.Get("frame_cap", ""), "");
             Select(PresentationBox, settings.Get("present_mode", "Mailbox"), "Mailbox");
             SharpUiBox.IsChecked = settings.Get("sharp_ui", "1") == "1";
+            Select(TextureFilteringBox, settings.Get("texture_filtering", "16"), "16");
+            Select(BackgroundFrameRateBox, settings.Get("background_fps", "30"), "30");
+            RespawnDelayFixBox.IsChecked = settings.Get("respawn_delay_fix", "1") == "1";
+            WeaponSoundFixBox.IsChecked = settings.Get("weapon_sound_fix", "1") == "1";
+            IntelToneMapFixBox.IsChecked = settings.Get("intel_tonemap_fix", "0") == "1";
         }
         catch { }
     }
@@ -201,6 +218,11 @@ public partial class MainWindow : Window
         settings.Set("frame_cap", Selected(FrameCapBox, ""));
         settings.Set("present_mode", Selected(PresentationBox, "Mailbox"));
         settings.Set("sharp_ui", SharpUiBox.IsChecked == true ? "1" : "0");
+        settings.Set("texture_filtering", Selected(TextureFilteringBox, "16"));
+        settings.Set("background_fps", Selected(BackgroundFrameRateBox, "30"));
+        settings.Set("respawn_delay_fix", RespawnDelayFixBox.IsChecked == true ? "1" : "0");
+        settings.Set("weapon_sound_fix", WeaponSoundFixBox.IsChecked == true ? "1" : "0");
+        settings.Set("intel_tonemap_fix", IntelToneMapFixBox.IsChecked == true ? "1" : "0");
         settings.Save();
     }
 
@@ -496,6 +518,23 @@ public partial class MainWindow : Window
             // Match the upstream launcher: only pass the variable when enabled.
             if (SharpUiBox.IsChecked == true) info.Environment["BB_SHARP_UI"] = "1";
             else info.Environment.Remove("BB_SHARP_UI");
+            // Lantern Engine 9.8 engine switches: these are process environment
+            // variables, not bbport.ini keys. Never write 0 for defaults that
+            // should remain active unless the user explicitly unticks them.
+            info.Environment["BB_ANISO"] = Selected(TextureFilteringBox, "16");
+            info.Environment["BB_BACKGROUND_FPS"] = Selected(BackgroundFrameRateBox, "30");
+            if (RespawnDelayFixBox.IsChecked == true)
+                info.Environment.Remove("BB_RESPAWN_DELAY_FIX");  // On by engine default.
+            else
+                info.Environment["BB_RESPAWN_DELAY_FIX"] = "0";
+            if (WeaponSoundFixBox.IsChecked == true)
+                info.Environment.Remove("BB_SOUND_HACK"); // On by engine default.
+            else
+                info.Environment["BB_SOUND_HACK"] = "0";
+            if (IntelToneMapFixBox.IsChecked == true)
+                info.Environment["BB_INTEL_TONEMAP_FIX"] = "1";
+            else
+                info.Environment.Remove("BB_INTEL_TONEMAP_FIX");
 
             // Never copy or move saves: point bbhost at the selected existing folder.
             var chosenSaves = string.IsNullOrWhiteSpace(_savesDir)
@@ -527,7 +566,7 @@ public partial class MainWindow : Window
             await File.WriteAllTextAsync(logPath,
                 $"Exit code: {process.ExitCode}{Environment.NewLine}{output}{Environment.NewLine}{errors}");
             StatusText.Text = process.ExitCode == 0
-                ? "Game process finished."
+                ? "Game Process Finished"
                 : $"Game exited with code {process.ExitCode}. Log: {logPath}";
         }
         catch (Exception ex)
