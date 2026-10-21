@@ -1,0 +1,147 @@
+name: Build patched Lantern 0.9.37 beta 4 engine (hide in-game resolution)
+
+on:
+  workflow_dispatch:
+  push:
+    branches:
+      - beta-9-37-integration
+    paths:
+      - 'launcher/minimal/engine37/**'
+      - '.github/workflows/build-lantern98-menu.yml'
+
+permissions:
+  contents: read
+
+jobs:
+  engine:
+    runs-on: windows-latest
+    timeout-minutes: 115
+    defaults:
+      run:
+        shell: pwsh
+    steps:
+      - name: Checkout our isolated beta integration branch
+        uses: actions/checkout@v4
+
+      - name: Retrieve pinned DarkIzuku 0.4 base and its submodules
+        run: |
+          git clone --depth 1 --branch v0.4.0-darkizuku-preview.1 --recurse-submodules https://github.com/DarkIzuku/bloodborne_pc.git engine37-src
+          if ($LASTEXITCODE -ne 0) { throw "Failed to download the pinned base engine" }
+
+      - name: Apply official Lantern beta 0.9.37 beta 4 source patch
+        run: |
+          $ErrorActionPreference = 'Stop'
+          $url = 'https://raw.githubusercontent.com/Awakenchan/LanternEngine/3e37a86d78b91b84346ceef7271799cd24333b4f/engine/bbhost-changes.patch'
+          Invoke-WebRequest -Uri $url -OutFile lantern-beta98.patch
+          git -C engine37-src apply --check ../lantern-beta98.patch
+          if ($LASTEXITCODE -ne 0) { throw "Lantern beta 0.9.37 beta 4 source patch does not apply cleanly" }
+          git -C engine37-src apply ../lantern-beta98.patch
+          if ($LASTEXITCODE -ne 0) { throw "Lantern beta 0.9.37 beta 4 source patch failed" }
+
+      - name: Remove only in-game PC Graphics Output Resolution
+        run: |
+          python launcher/minimal/engine37/hide_ingame_output_resolution.py engine37-src
+          if ($LASTEXITCODE -ne 0) { throw "Could not apply our exact beta 0.9.37 beta 4 menu modification" }
+          # The published official Lantern patch contains existing trailing
+          # whitespace; do not reject its unrelated code. The exact-match script
+          # has already validated the five intended menu edits.
+          git -C engine37-src diff --stat -- gpu/shim/engine/option_menu.cpp tools/engine/menu_assets.cpp
+
+      - name: Install MSYS2 CLANG64 toolchain
+        uses: msys2/setup-msys2@v2
+        with:
+          msystem: CLANG64
+          update: true
+          install: >-
+            git
+            patch
+            curl
+            mingw-w64-clang-x86_64-clang
+            mingw-w64-clang-x86_64-lld
+            mingw-w64-clang-x86_64-libc++
+            mingw-w64-clang-x86_64-cmake
+            mingw-w64-clang-x86_64-ninja
+            mingw-w64-clang-x86_64-pkgconf
+            mingw-w64-clang-x86_64-python
+            mingw-w64-clang-x86_64-sdl3
+            mingw-w64-clang-x86_64-boost
+            mingw-w64-clang-x86_64-fmt
+            mingw-w64-clang-x86_64-glslang
+            mingw-w64-clang-x86_64-spirv-cross
+            mingw-w64-clang-x86_64-spirv-headers
+            mingw-w64-clang-x86_64-vulkan-headers
+            mingw-w64-clang-x86_64-vulkan-loader
+            mingw-w64-clang-x86_64-vulkan-memory-allocator
+            mingw-w64-clang-x86_64-xxhash
+            mingw-w64-clang-x86_64-zydis
+            mingw-w64-clang-x86_64-robin-map
+            mingw-w64-clang-x86_64-ffmpeg
+            mingw-w64-clang-x86_64-protobuf
+            mingw-w64-clang-x86_64-nlohmann-json
+            mingw-w64-clang-x86_64-openssl
+            mingw-w64-clang-x86_64-miniupnpc
+            mingw-w64-clang-x86_64-zlib
+            mingw-w64-clang-x86_64-expat
+
+      - name: Compile native beta 0.9.37 beta 4 engine and menu asset generator
+        shell: msys2 {0}
+        run: |
+          set -euo pipefail
+          cd engine37-src
+          export CC=clang
+          export CXX=clang++
+          export BB_PGO=off
+          export BB_JOBS=4
+          # The exact beta 0.9.37 beta 4 patch ships this header but does not force-include
+          # it for the vendored FSR 3.1 SDK. Modern CLANG64 no longer supplies
+          # _countof transitively; use Lantern's own compatibility header.
+          export CXXFLAGS="-include $(cygpath -m "$PWD/gpu/win_compat.h")"
+          bash build.sh
+
+      - name: Verify correct native outputs
+        shell: msys2 {0}
+        run: |
+          set -euo pipefail
+          cd engine37-src
+          test -s out/bb-probe.exe
+          test -s out/bb-engine-assets.exe
+          test -s out/bb-start.exe
+          echo "Native beta 0.9.37 beta 4 engine and menu generator compiled."
+
+      - name: Package only replacement engine files
+        run: |
+          $ErrorActionPreference = 'Stop'
+          New-Item -ItemType Directory -Force "patched-engine/engine/out" | Out-Null
+          Copy-Item "engine37-src/out/bb-probe.exe" "patched-engine/engine/out/"
+          Copy-Item "engine37-src/out/bb-engine-assets.exe" "patched-engine/engine/out/"
+          @'
+          LANTERN ENGINE 0.9.34 BETA 0.9.37 beta 4 - OUTPUT RESOLUTION MENU FIX
+          Install ONLY over a clean, separate copy of the official beta 0.9.37 beta 4.
+          Close the game first. Back up both existing engine/out binaries.
+          Overlay this package into the beta 0.9.37 beta 4 package root so these two
+          binaries replace engine/out/bb-probe.exe and bb-engine-assets.exe.
+          Keep all other official beta 0.9.37 beta 4 engine files and DLLs unchanged.
+          The patched PC Graphics menu omits Output Resolution. Select the
+          resolution in our cinematic Launcher.exe under DISPLAY instead.
+          Never install over an older engine or your known-good Test Port.
+          No user saves or game files are included.
+          '@ | Set-Content -Path "patched-engine/README-FIRST.txt" -Encoding utf8
+
+      - name: Publish patched 0.9.37 beta 4 engine binaries (NOT just Launcher.exe)
+        uses: actions/upload-artifact@v4
+        with:
+          name: LanternBeta37-HidePCGraphicsResolution-Engine
+          path: patched-engine/
+          if-no-files-found: error
+          retention-days: 14
+
+      - name: Upload engine build log if compilation fails
+        if: failure()
+        uses: actions/upload-artifact@v4
+        with:
+          name: LanternBeta37-Engine-Build-Diagnostics
+          path: |
+            engine37-src/out/gpu-build.log
+            engine37-src/out/gpu/CMakeFiles/CMakeConfigureLog.yaml
+          if-no-files-found: ignore
+          retention-days: 7
