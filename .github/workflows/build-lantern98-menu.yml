@@ -95,7 +95,7 @@ jobs:
           # The exact beta 9.8 patch ships this header but does not force-include
           # it for the vendored FSR 3.1 SDK. Modern CLANG64 no longer supplies
           # _countof transitively; use Lantern's own compatibility header.
-          export CXXFLAGS="-include $PWD/gpu/win_compat.h"
+          export CXXFLAGS="-include $(cygpath -m "$PWD/gpu/win_compat.h")"
           bash build.sh
 
       - name: Verify correct native outputs
