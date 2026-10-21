@@ -36,7 +36,7 @@
    <Setter Property="FontWeight" Value="Bold"/>
    <Setter Property="FontSize" Value="12"/>
    <Setter Property="Background" Value="#191714"/>
-   <Setter Property="Padding" Value="8,12"/>
+   <Setter Property="Padding" Value="6,12"/>
    <Setter Property="Margin" Value="0"/>
    <Setter Property="BorderBrush" Value="#795B35"/>
    <Setter Property="HorizontalAlignment" Value="Stretch"/>
@@ -108,6 +108,7 @@
      <Button Content="FOLDERS" Click="OpenSaves_Click" Style="{StaticResource GothicMenuButton}" Margin="0,0,0,5"/>
      <Button Content="DISPLAY" Click="OpenDisplay_Click" Style="{StaticResource GothicMenuButton}" Margin="0,0,0,5"/>
      <Button Content="EFFECTS" Click="OpenEffects_Click" Style="{StaticResource GothicMenuButton}" Margin="0,0,0,5"/>
+     <Button Content="FIXES" Click="OpenFixes_Click" Style="{StaticResource GothicMenuButton}" Margin="0,0,0,5"/>
      <Button x:Name="BackupButton" Content="BACKUP" Click="Backup_Click" Style="{StaticResource GothicMenuButton}" Margin="0,0,0,5"/>
     </StackPanel>
 
@@ -124,7 +125,7 @@
       <TextBlock Text="GAME SETTINGS" Foreground="#D8B66A" FontWeight="Bold" FontSize="22" Margin="3,4,0,16"/>
       <TabControl x:Name="SettingsTabs" Grid.Row="1" Background="#C80B0C0E" BorderBrush="#795B35">
        <TabControl.ItemsPanel>
-        <ItemsPanelTemplate><UniformGrid Rows="1" Columns="4"/></ItemsPanelTemplate>
+        <ItemsPanelTemplate><UniformGrid Rows="1" Columns="5"/></ItemsPanelTemplate>
        </TabControl.ItemsPanel>
        <TabItem Header="DISPLAY"><StackPanel Margin="0">    <Border Background="#E51C1715" BorderBrush="#765A3B" BorderThickness="0" CornerRadius="0" Padding="16" Margin="0">
      <StackPanel>
@@ -133,6 +134,11 @@
       <Grid Margin="0,0,0,10"><Grid.ColumnDefinitions><ColumnDefinition Width="*"/><ColumnDefinition Width="190"/></Grid.ColumnDefinitions><TextBlock Text="Presentation Mode"/><ComboBox x:Name="PresentationBox" Grid.Column="1" HorizontalAlignment="Stretch"/></Grid>
       <Grid Margin="0,0,0,10"><Grid.ColumnDefinitions><ColumnDefinition Width="*"/><ColumnDefinition Width="190"/></Grid.ColumnDefinitions><TextBlock Text="Frame Rate"/><ComboBox x:Name="FrameRateBox" Grid.Column="1" HorizontalAlignment="Stretch"/></Grid>
       <Grid Margin="0,0,0,10"><Grid.ColumnDefinitions><ColumnDefinition Width="*"/><ColumnDefinition Width="190"/></Grid.ColumnDefinitions><TextBlock Text="Frame Cap"/><ComboBox x:Name="FrameCapBox" Grid.Column="1" HorizontalAlignment="Stretch"/></Grid>
+      <Grid Margin="0,0,0,10">
+       <Grid.ColumnDefinitions><ColumnDefinition Width="*" /><ColumnDefinition Width="190" /></Grid.ColumnDefinitions>
+       <TextBlock Text="Frame Rate in the Background" TextWrapping="Wrap" Margin="0,0,8,0"/>
+       <ComboBox x:Name="BackgroundFrameRateBox" Grid.Column="1" HorizontalAlignment="Stretch"/>
+      </Grid>
       <CheckBox x:Name="FullscreenBox" Content="Fullscreen" HorizontalAlignment="Left" />
       <CheckBox x:Name="HideMouseBox" Content="Hide Mouse" HorizontalAlignment="Left" />
       <CheckBox x:Name="SkipIntroBox" Content="Skip Intro" HorizontalAlignment="Left" />
@@ -145,6 +151,11 @@
       <TextBlock Text="GRAPHICS" Foreground="{StaticResource GoldBrush}" FontWeight="Bold" Margin="0,0,0,16" />
       <Grid Margin="0,0,0,10"><Grid.ColumnDefinitions><ColumnDefinition Width="*"/><ColumnDefinition Width="190"/></Grid.ColumnDefinitions><TextBlock Text="Upscaler"/><ComboBox x:Name="UpscalerBox" Grid.Column="1" HorizontalAlignment="Stretch"/></Grid>
       <Grid Margin="0,0,0,10"><Grid.ColumnDefinitions><ColumnDefinition Width="*"/><ColumnDefinition Width="190"/></Grid.ColumnDefinitions><TextBlock Text="Upscaling Preset"/><ComboBox x:Name="PresetBox" Grid.Column="1" HorizontalAlignment="Stretch"/></Grid>
+      <Grid Margin="0,0,0,10">
+       <Grid.ColumnDefinitions><ColumnDefinition Width="*"/><ColumnDefinition Width="190"/></Grid.ColumnDefinitions>
+       <TextBlock Text="Texture Filtering"/>
+       <ComboBox x:Name="TextureFilteringBox" Grid.Column="1" HorizontalAlignment="Stretch"/>
+      </Grid>
       <CheckBox x:Name="FrameGenerationCheckBox" Content="Frame Generation" HorizontalAlignment="Left" />
       <CheckBox x:Name="HalfRefreshBox" Content="Half Refresh Rate" HorizontalAlignment="Left" IsChecked="True" IsEnabled="{Binding IsChecked, ElementName=FrameGenerationCheckBox}"/>
       <Grid Margin="0,0,0,10"><Grid.ColumnDefinitions><ColumnDefinition Width="*"/><ColumnDefinition Width="190"/></Grid.ColumnDefinitions><TextBlock Text="Model Detail"/><ComboBox x:Name="ModelLodBox" Grid.Column="1" HorizontalAlignment="Stretch"/></Grid>
@@ -182,6 +193,18 @@
       <Button Content="BROWSE SAVES FOLDER" Click="BrowseSavesFolder_Click" Padding="8,6" HorizontalAlignment="Stretch" Margin="0" />
      </StackPanel>
     </Border></StackPanel></TabItem>
+       <TabItem Header="FIXES">
+        <StackPanel Margin="0">
+         <Border Background="#E51C1715" BorderBrush="#765A3B" BorderThickness="0" Padding="16" Margin="0">
+          <StackPanel>
+           <TextBlock Text="FIXES" Foreground="{StaticResource GoldBrush}" FontWeight="Bold" Margin="0,0,0,14"/>
+           <CheckBox x:Name="RespawnDelayFixBox" Content="No Minimum Loading Time After Death" TextElement.FontSize="12" IsChecked="True" HorizontalAlignment="Left"/>
+           <CheckBox x:Name="WeaponSoundFixBox" Content="Weapon Sound Save Fix" IsChecked="True" HorizontalAlignment="Left"/>
+           <CheckBox x:Name="IntelToneMapFixBox" Content="Intel Black Tone Map Fix" IsChecked="False" HorizontalAlignment="Left"/>
+          </StackPanel>
+         </Border>
+        </StackPanel>
+       </TabItem>
       </TabControl>
      </Grid>
     </Border>
