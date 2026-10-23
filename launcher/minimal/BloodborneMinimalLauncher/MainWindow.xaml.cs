@@ -29,7 +29,7 @@ public partial class MainWindow : Window
     private static readonly (string Label, string Value)[] Presets = {
         ("Native", "0"), ("Quality", "1"), ("Balanced", "2"), ("Performance", "3"), ("Ultra Performance", "4") };
     private static readonly (string Label, string Value)[] FrameGenerationModes = {
-        ("Off", "off"), ("FSR 3.1", "fsr3"), ("DLSS", "dlss") };
+        ("Off", "off"), ("FSR", "fsr3"), ("DLSS", "dlss") };
     // DLSS: 1 generated frame = 2x; RTX 50 may support up to 5 generated = 6x.
     // The engine checks and clamps unsupported GPU/driver combinations at runtime.
     private static readonly (string Label, string Value)[] GeneratedFrameModes = {
@@ -208,16 +208,22 @@ public partial class MainWindow : Window
             if (Equals(item.Tag?.ToString(), fallback)) { box.SelectedItem = item; return; }
     }
 
-    // Keep advanced DLSS choices inert unless DLSS Frame Generation is selected.
-    // FSR 3.1 continues to use the single generation mode and existing frame cap.
+    // Only DLSS Frame Generation enables generated frame count, Dynamic FG and Reflex.
+    private void UpscalerBox_SelectionChanged(object sender, SelectionChangedEventArgs e)
+    {
+        var isDlssUpscaler = Selected(UpscalerBox, "off") == "dlss";
+        if (DlssAutoExposureBox is not null)
+            DlssAutoExposureBox.IsEnabled = isDlssUpscaler;
+        if (DlssSharperTexturesBox is not null)
+            DlssSharperTexturesBox.IsEnabled = isDlssUpscaler;
+    }
+
     private void FrameGenerationBox_SelectionChanged(object sender, SelectionChangedEventArgs e)
     {
         if (GeneratedFramesBox is not null)
             GeneratedFramesBox.IsEnabled = Selected(FrameGenerationBox, "off") == "dlss";
         if (ReflexBox is not null)
             ReflexBox.IsEnabled = Selected(FrameGenerationBox, "off") == "dlss";
-        if (HalfRefreshBox is not null)
-            HalfRefreshBox.IsEnabled = Selected(FrameGenerationBox, "off") != "off";
         if (DynamicFrameGenBox is not null)
             DynamicFrameGenBox.IsEnabled = Selected(FrameGenerationBox, "off") == "dlss";
     }
@@ -361,11 +367,12 @@ public partial class MainWindow : Window
             Select(PresentationBox, _ini.Get("present_mode", "Mailbox"), "Mailbox");
             Select(UpscalerBox, _ini.Get("upscaler", "fsr4"), "fsr4");
             Select(PresetBox, _ini.Get("preset", "1"), "1");
+            DlssAutoExposureBox.IsChecked = _ini.Get("dlss_auto_exposure", "0") == "1";
+            DlssSharperTexturesBox.IsChecked = _ini.Get("dlss_mip_bias", "1") == "1";
             Select(FrameGenerationBox, _ini.Get("frame_gen", "off"), "off");
             Select(GeneratedFramesBox, _ini.Get("frame_gen_frames", "1"), "1");
             Select(ReflexBox, _ini.Get("reflex", "on"), "on");
             DynamicFrameGenBox.IsChecked = _ini.Get("frame_gen_dynamic", "0") == "1";
-            HalfRefreshBox.IsChecked = _ini.Get("frame_gen_cap", "1") == "1";
             Select(ModelLodBox, _ini.Get("model_lod", "0"), "0");
             FullscreenBox.IsChecked = _ini.Get("fullscreen", "1") == "1";
             HideMouseBox.IsChecked = _ini.Get("hide_cursor", "1") == "1";
@@ -676,6 +683,8 @@ public partial class MainWindow : Window
             _ini.Set("output_res", Selected(ResolutionBox, "1920x1080"));
             _ini.Set("upscaler", Selected(UpscalerBox, "fsr4"));
             _ini.Set("preset", Selected(PresetBox, "1"));
+            _ini.Set("dlss_auto_exposure", DlssAutoExposureBox.IsChecked == true ? "1" : "0");
+            _ini.Set("dlss_mip_bias", DlssSharperTexturesBox.IsChecked == true ? "1" : "0");
             var frameGeneration = Selected(FrameGenerationBox, "off");
             var activeUpscaler = Selected(UpscalerBox, "fsr4");
             if (frameGeneration != "off" && (activeUpscaler == "off" || activeUpscaler == "taa"))
@@ -684,7 +693,8 @@ public partial class MainWindow : Window
             _ini.Set("frame_gen_frames", Selected(GeneratedFramesBox, "1"));
             _ini.Set("reflex", Selected(ReflexBox, "on"));
             _ini.Set("frame_gen_dynamic", DynamicFrameGenBox.IsChecked == true ? "1" : "0");
-            _ini.Set("frame_gen_cap", HalfRefreshBox.IsChecked == true ? "1" : "0");
+            // Hidden by request: never throttle game FPS to a share of screen refresh.
+            _ini.Set("frame_gen_cap", "0");
             _ini.Set("model_lod", Selected(ModelLodBox, "0"));
             _ini.Set("fullscreen", FullscreenBox.IsChecked == true ? "1" : "0");
             _ini.Set("hide_cursor", HideMouseBox.IsChecked == true ? "1" : "0");
