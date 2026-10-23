@@ -2,6 +2,13 @@ name: Bloodborne cinematic Lantern 0.9.37 beta 8 complete test package
 
 on:
   workflow_dispatch:
+  pull_request:
+    branches:
+      - beta-9-37-integration
+    paths:
+      - 'launcher/minimal/BloodborneMinimalLauncher/**'
+      - 'launcher/minimal/engine37beta8/**'
+      - '.github/workflows/build-lantern-beta8-cinematic.yml'
   push:
     branches:
       - beta-9-37-beta8-integration
