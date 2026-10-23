@@ -28,6 +28,14 @@ public partial class MainWindow : Window
         ("DLSS", "dlss"), ("TAA", "taa"), ("Off", "off") };
     private static readonly (string Label, string Value)[] Presets = {
         ("Native", "0"), ("Quality", "1"), ("Balanced", "2"), ("Performance", "3"), ("Ultra Performance", "4") };
+    private static readonly (string Label, string Value)[] FrameGenerationModes = {
+        ("Off", "off"), ("FSR 3.1", "fsr3"), ("DLSS", "dlss") };
+    // DLSS: 1 generated frame = 2x; RTX 50 may support up to 5 generated = 6x.
+    // The engine checks and clamps unsupported GPU/driver combinations at runtime.
+    private static readonly (string Label, string Value)[] GeneratedFrameModes = {
+        ("2x", "1"), ("3x", "2"), ("4x", "3"), ("5x", "4"), ("6x", "5") };
+    private static readonly (string Label, string Value)[] ReflexModes = {
+        ("On", "on"), ("On + Boost", "boost"), ("Off", "off") };
     private static readonly (string Label, string Value)[] FrameRates = {
         ("30 FPS", "30"), ("60 FPS", "60"), ("90 FPS", "90"), ("Unlocked", "uncap") };
     private static readonly (string Label, string Value)[] FrameCaps = {
@@ -57,6 +65,12 @@ public partial class MainWindow : Window
         Fill(ResolutionBox, Resolutions);
         Fill(UpscalerBox, Upscalers);
         Fill(PresetBox, Presets);
+        Fill(FrameGenerationBox, FrameGenerationModes);
+        Fill(GeneratedFramesBox, GeneratedFrameModes);
+        Fill(ReflexBox, ReflexModes);
+        Select(FrameGenerationBox, "off", "off");
+        Select(GeneratedFramesBox, "1", "1");
+        Select(ReflexBox, "on", "on");
         Fill(FrameRateBox, FrameRates);
         Fill(FrameCapBox, FrameCaps);
         Fill(PresentationBox, PresentModes);
@@ -194,6 +208,18 @@ public partial class MainWindow : Window
             if (Equals(item.Tag?.ToString(), fallback)) { box.SelectedItem = item; return; }
     }
 
+    // Keep advanced DLSS choices inert unless DLSS Frame Generation is selected.
+    // FSR 3.1 continues to use the single generation mode and existing frame cap.
+    private void FrameGenerationBox_SelectionChanged(object sender, SelectionChangedEventArgs e)
+    {
+        if (GeneratedFramesBox is not null)
+            GeneratedFramesBox.IsEnabled = Selected(FrameGenerationBox, "off") == "dlss";
+        if (ReflexBox is not null)
+            ReflexBox.IsEnabled = Selected(FrameGenerationBox, "off") == "dlss";
+        if (HalfRefreshBox is not null)
+            HalfRefreshBox.IsEnabled = Selected(FrameGenerationBox, "off") != "off";
+    }
+
     private void LoadSettings()
     {
         try
@@ -323,7 +349,7 @@ public partial class MainWindow : Window
             if (string.IsNullOrWhiteSpace(path) || !File.Exists(path))
             {
                 _ini = null;
-                StatusText.Text = "lantern.ini not found. Place this launcher in the Lantern Engine beta 4 folder.";
+                StatusText.Text = "lantern.ini not found. Place this launcher in the Lantern Engine beta 8 folder.";
                 return;
             }
 
@@ -333,7 +359,9 @@ public partial class MainWindow : Window
             Select(PresentationBox, _ini.Get("present_mode", "Mailbox"), "Mailbox");
             Select(UpscalerBox, _ini.Get("upscaler", "fsr4"), "fsr4");
             Select(PresetBox, _ini.Get("preset", "1"), "1");
-            FrameGenerationCheckBox.IsChecked = _ini.Get("frame_gen", "off") == "fsr3";
+            Select(FrameGenerationBox, _ini.Get("frame_gen", "off"), "off");
+            Select(GeneratedFramesBox, _ini.Get("frame_gen_frames", "1"), "1");
+            Select(ReflexBox, _ini.Get("reflex", "on"), "on");
             HalfRefreshBox.IsChecked = _ini.Get("frame_gen_cap", "1") == "1";
             Select(ModelLodBox, _ini.Get("model_lod", "0"), "0");
             FullscreenBox.IsChecked = _ini.Get("fullscreen", "1") == "1";
@@ -640,16 +668,18 @@ public partial class MainWindow : Window
         {
             var iniPath = FindIniPath();
             if (string.IsNullOrWhiteSpace(iniPath))
-                throw new InvalidOperationException("lantern.ini was not found. Place this launcher in the Lantern Engine beta 4 folder.");
+                throw new InvalidOperationException("lantern.ini was not found. Place this launcher in the Lantern Engine beta 8 folder.");
             _ini = new IniFile(iniPath);
             _ini.Set("output_res", Selected(ResolutionBox, "1920x1080"));
             _ini.Set("upscaler", Selected(UpscalerBox, "fsr4"));
             _ini.Set("preset", Selected(PresetBox, "1"));
-            var frameGeneration = FrameGenerationCheckBox.IsChecked == true ? "fsr3" : "off";
+            var frameGeneration = Selected(FrameGenerationBox, "off");
             var activeUpscaler = Selected(UpscalerBox, "fsr4");
             if (frameGeneration != "off" && (activeUpscaler == "off" || activeUpscaler == "taa"))
                 throw new InvalidOperationException("Frame Generation requires an upscaler.");
             _ini.Set("frame_gen", frameGeneration);
+            _ini.Set("frame_gen_frames", Selected(GeneratedFramesBox, "1"));
+            _ini.Set("reflex", Selected(ReflexBox, "on"));
             _ini.Set("frame_gen_cap", HalfRefreshBox.IsChecked == true ? "1" : "0");
             _ini.Set("model_lod", Selected(ModelLodBox, "0"));
             _ini.Set("fullscreen", FullscreenBox.IsChecked == true ? "1" : "0");
