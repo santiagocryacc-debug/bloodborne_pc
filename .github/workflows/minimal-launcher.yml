@@ -7,6 +7,7 @@ on:
       - minimal-launcher-build
       - beta-9-8-integration
       - beta-9-37-integration
+      - beta-9-37-beta8-integration
     paths:
       - 'launcher/minimal/**'
       - '.github/workflows/minimal-launcher.yml'
