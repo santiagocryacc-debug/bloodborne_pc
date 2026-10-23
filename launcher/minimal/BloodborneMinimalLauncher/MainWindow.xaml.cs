@@ -218,6 +218,8 @@ public partial class MainWindow : Window
             ReflexBox.IsEnabled = Selected(FrameGenerationBox, "off") == "dlss";
         if (HalfRefreshBox is not null)
             HalfRefreshBox.IsEnabled = Selected(FrameGenerationBox, "off") != "off";
+        if (DynamicFrameGenBox is not null)
+            DynamicFrameGenBox.IsEnabled = Selected(FrameGenerationBox, "off") == "dlss";
     }
 
     private void LoadSettings()
@@ -349,7 +351,7 @@ public partial class MainWindow : Window
             if (string.IsNullOrWhiteSpace(path) || !File.Exists(path))
             {
                 _ini = null;
-                StatusText.Text = "lantern.ini not found. Place this launcher in the Lantern Engine beta 8 folder.";
+                StatusText.Text = "lantern.ini not found. Place this launcher in the Lantern Engine 0.9.37 folder.";
                 return;
             }
 
@@ -362,6 +364,7 @@ public partial class MainWindow : Window
             Select(FrameGenerationBox, _ini.Get("frame_gen", "off"), "off");
             Select(GeneratedFramesBox, _ini.Get("frame_gen_frames", "1"), "1");
             Select(ReflexBox, _ini.Get("reflex", "on"), "on");
+            DynamicFrameGenBox.IsChecked = _ini.Get("frame_gen_dynamic", "0") == "1";
             HalfRefreshBox.IsChecked = _ini.Get("frame_gen_cap", "1") == "1";
             Select(ModelLodBox, _ini.Get("model_lod", "0"), "0");
             FullscreenBox.IsChecked = _ini.Get("fullscreen", "1") == "1";
@@ -668,7 +671,7 @@ public partial class MainWindow : Window
         {
             var iniPath = FindIniPath();
             if (string.IsNullOrWhiteSpace(iniPath))
-                throw new InvalidOperationException("lantern.ini was not found. Place this launcher in the Lantern Engine beta 8 folder.");
+                throw new InvalidOperationException("lantern.ini was not found. Place this launcher in the Lantern Engine 0.9.37 folder.");
             _ini = new IniFile(iniPath);
             _ini.Set("output_res", Selected(ResolutionBox, "1920x1080"));
             _ini.Set("upscaler", Selected(UpscalerBox, "fsr4"));
@@ -680,6 +683,7 @@ public partial class MainWindow : Window
             _ini.Set("frame_gen", frameGeneration);
             _ini.Set("frame_gen_frames", Selected(GeneratedFramesBox, "1"));
             _ini.Set("reflex", Selected(ReflexBox, "on"));
+            _ini.Set("frame_gen_dynamic", DynamicFrameGenBox.IsChecked == true ? "1" : "0");
             _ini.Set("frame_gen_cap", HalfRefreshBox.IsChecked == true ? "1" : "0");
             _ini.Set("model_lod", Selected(ModelLodBox, "0"));
             _ini.Set("fullscreen", FullscreenBox.IsChecked == true ? "1" : "0");
