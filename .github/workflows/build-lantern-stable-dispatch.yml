@@ -4,6 +4,11 @@ name: Build Bloodborne Cinematic 0.9.37 stable (manual)
 # It always builds the isolated cinematic integration branch.
 on:
   workflow_dispatch:
+  push:
+    branches:
+      - windows
+    paths:
+      - '.github/workflows/build-lantern-stable-dispatch.yml'
 
 permissions:
   contents: read
