@@ -155,6 +155,11 @@
       <Grid Margin="0,0,0,10"><Grid.ColumnDefinitions><ColumnDefinition Width="*"/><ColumnDefinition Width="190"/></Grid.ColumnDefinitions><TextBlock Text="Upscaling Preset"/><ComboBox x:Name="PresetBox" Grid.Column="1" HorizontalAlignment="Stretch"/></Grid>
        <CheckBox x:Name="DlssAutoExposureBox" Content="DLSS Auto Exposure" HorizontalAlignment="Left" IsEnabled="False" ToolTip="DLSS estimates exposure for each frame. Can reduce ghosting in dark scenes."/>
        <CheckBox x:Name="DlssSharperTexturesBox" Content="DLSS Sharper Textures" HorizontalAlignment="Left" IsEnabled="False" ToolTip="One additional texture mip level with DLSS. Can add shimmer."/>
+       <TextBlock Text="FRAME GENERATION" Foreground="{StaticResource GoldBrush}" FontWeight="Bold" Margin="0,14,0,12"/>
+      <Grid Margin="0,0,0,10"><Grid.ColumnDefinitions><ColumnDefinition Width="*"/><ColumnDefinition Width="190"/></Grid.ColumnDefinitions><TextBlock Text="Frame Generation"/><ComboBox x:Name="FrameGenerationBox" Grid.Column="1" HorizontalAlignment="Stretch" SelectionChanged="FrameGenerationBox_SelectionChanged"/></Grid>
+      <Grid Margin="0,0,0,10"><Grid.ColumnDefinitions><ColumnDefinition Width="*"/><ColumnDefinition Width="190"/></Grid.ColumnDefinitions><TextBlock Text="Generated Frames"/><ComboBox x:Name="GeneratedFramesBox" Grid.Column="1" HorizontalAlignment="Stretch"/></Grid>
+      <Grid Margin="0,0,0,10"><Grid.ColumnDefinitions><ColumnDefinition Width="*"/><ColumnDefinition Width="190"/></Grid.ColumnDefinitions><TextBlock Text="NVIDIA Reflex"/><ComboBox x:Name="ReflexBox" Grid.Column="1" HorizontalAlignment="Stretch"/></Grid>
+      <CheckBox x:Name="DynamicFrameGenBox" Content="DLSS Dynamic Frame Generation" HorizontalAlignment="Left" IsEnabled="{Binding IsEnabled, ElementName=GeneratedFramesBox}"/>
        <TextBlock Text="GRAPHICS DETAIL" Foreground="{StaticResource GoldBrush}" FontWeight="Bold" Margin="0,14,0,12"/>
       <Grid Margin="0,0,0,10">
        <Grid.ColumnDefinitions><ColumnDefinition Width="*"/><ColumnDefinition Width="190"/></Grid.ColumnDefinitions>
@@ -166,11 +171,6 @@
       <Grid Margin="0,2,0,10"><Grid.ColumnDefinitions><ColumnDefinition Width="*"/><ColumnDefinition Width="42"/></Grid.ColumnDefinitions><Slider x:Name="SharpnessSlider" Minimum="0" Maximum="2" Value="0.5" TickFrequency="0.1" IsSnapToTickEnabled="False" VerticalAlignment="Center" ValueChanged="SharpnessSlider_ValueChanged"/><TextBlock x:Name="SharpnessValueText" Grid.Column="1" Text="0.50" Foreground="{StaticResource GoldBrush}" FontWeight="SemiBold" HorizontalAlignment="Right"/></Grid>
       <CheckBox x:Name="ObjectMotionBox" Content="Object Motion Vectors" HorizontalAlignment="Left" />
       <CheckBox x:Name="SharpUiBox" Content="Sharp UI" HorizontalAlignment="Left" IsChecked="True" />
-       <TextBlock Text="FRAME GENERATION" Foreground="{StaticResource GoldBrush}" FontWeight="Bold" Margin="0,14,0,12"/>
-      <Grid Margin="0,0,0,10"><Grid.ColumnDefinitions><ColumnDefinition Width="*"/><ColumnDefinition Width="190"/></Grid.ColumnDefinitions><TextBlock Text="Frame Generation"/><ComboBox x:Name="FrameGenerationBox" Grid.Column="1" HorizontalAlignment="Stretch" SelectionChanged="FrameGenerationBox_SelectionChanged"/></Grid>
-      <Grid Margin="0,0,0,10"><Grid.ColumnDefinitions><ColumnDefinition Width="*"/><ColumnDefinition Width="190"/></Grid.ColumnDefinitions><TextBlock Text="Generated Frames"/><ComboBox x:Name="GeneratedFramesBox" Grid.Column="1" HorizontalAlignment="Stretch"/></Grid>
-      <Grid Margin="0,0,0,10"><Grid.ColumnDefinitions><ColumnDefinition Width="*"/><ColumnDefinition Width="190"/></Grid.ColumnDefinitions><TextBlock Text="NVIDIA Reflex"/><ComboBox x:Name="ReflexBox" Grid.Column="1" HorizontalAlignment="Stretch"/></Grid>
-      <CheckBox x:Name="DynamicFrameGenBox" Content="DLSS Dynamic Frame Generation" HorizontalAlignment="Left" IsEnabled="{Binding IsEnabled, ElementName=GeneratedFramesBox}"/>
        <TextBlock Text="ENGINE PERFORMANCE" Foreground="{StaticResource GoldBrush}" FontWeight="Bold" Margin="0,14,0,12"/>
       <Grid Margin="0,8,0,10"><Grid.ColumnDefinitions><ColumnDefinition Width="*"/><ColumnDefinition Width="190"/></Grid.ColumnDefinitions><TextBlock Text="Two Stage GPU Pipeline"/><ComboBox x:Name="DrawPipeBox" Grid.Column="1" HorizontalAlignment="Stretch"/></Grid>
       <Grid Margin="0,0,0,10"><Grid.ColumnDefinitions><ColumnDefinition Width="*"/><ColumnDefinition Width="190"/></Grid.ColumnDefinitions><TextBlock Text="CPU Reads Of GPU Data"/><ComboBox x:Name="ReadbacksBox" Grid.Column="1" HorizontalAlignment="Stretch"/></Grid>
