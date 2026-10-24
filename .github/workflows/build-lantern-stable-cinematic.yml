@@ -1,0 +1,214 @@
+name: Bloodborne cinematic Lantern 0.9.37 stable complete test package
+
+on:
+  workflow_dispatch:
+  pull_request:
+    branches:
+      - beta-9-37-integration
+    paths:
+      - 'launcher/minimal/BloodborneMinimalLauncher/**'
+      - 'launcher/minimal/engine37stable/**'
+      - '.github/workflows/build-lantern-stable-cinematic.yml'
+  push:
+    branches:
+      - lantern-0-9-37-stable-integration
+    paths:
+      - 'launcher/minimal/BloodborneMinimalLauncher/**'
+      - 'launcher/minimal/engine37stable/**'
+      - '.github/workflows/build-lantern-stable-cinematic.yml'
+
+permissions:
+  contents: read
+
+jobs:
+  launcher:
+    runs-on: windows-latest
+    timeout-minutes: 25
+    steps:
+      - uses: actions/checkout@v4
+      - name: Set up .NET 8
+        uses: actions/setup-dotnet@v4
+        with:
+          dotnet-version: '8.0.x'
+      - name: Restore Bloodborne icon
+        shell: pwsh
+        run: |
+          $text = Get-Content launcher/minimal/BloodborneMinimalLauncher/Bloodborne.ico.b64 -Raw
+          [IO.File]::WriteAllBytes('launcher/minimal/BloodborneMinimalLauncher/Bloodborne.ico', [Convert]::FromBase64String($text.Trim()))
+      - name: Publish cinematic Windows x64 Launcher.exe
+        shell: pwsh
+        run: |
+          dotnet publish launcher/minimal/BloodborneMinimalLauncher/BloodborneMinimalLauncher.csproj -c Release -r win-x64 --self-contained true -p:PublishSingleFile=true -p:IncludeNativeLibrariesForSelfExtract=true -o cinematic-launcher
+          if ($LASTEXITCODE -ne 0) { throw 'Cinematic WPF build failed' }
+          if (-not (Test-Path 'cinematic-launcher/Launcher.exe')) { throw 'Missing Launcher.exe' }
+      - uses: actions/upload-artifact@v4
+        with:
+          name: CinematicLauncher-037stable-win-x64
+          path: cinematic-launcher/
+          if-no-files-found: error
+          retention-days: 14
+
+  engine:
+    runs-on: windows-latest
+    timeout-minutes: 115
+    defaults:
+      run:
+        shell: pwsh
+    steps:
+      - uses: actions/checkout@v4
+      - name: Clone exact official stable 0.9.37 source, including submodules
+        run: |
+          git clone --depth 1 --branch v0.9.37 --recurse-submodules https://github.com/Awakenchan/LanternEngine.git upstream
+          if ($LASTEXITCODE -ne 0) { throw 'Could not clone Lantern stable 0.9.37 source' }
+          $commit = (git -C upstream rev-parse HEAD).Trim()
+          if ($commit -ne 'd901fbd2ea4bea114b37c26a2a9278d1e97f7b46') { throw "Upstream commit mismatch: $commit" }
+      - name: Apply exact native PC Graphics resolution-row patch
+        run: |
+          python launcher/minimal/engine37stable/hide_ingame_output_resolution.py upstream/engine
+          if ($LASTEXITCODE -ne 0) { throw 'Native stable 0.9.37 menu patch did not apply cleanly' }
+          git -C upstream diff --stat -- engine/gpu/shim/engine/option_menu.cpp engine/tools/engine/menu_assets.cpp
+      - name: Install MSYS2 CLANG64 toolchain
+        uses: msys2/setup-msys2@v2
+        with:
+          msystem: CLANG64
+          update: true
+          install: >-
+            git
+            patch
+            curl
+            mingw-w64-clang-x86_64-clang
+            mingw-w64-clang-x86_64-lld
+            mingw-w64-clang-x86_64-libc++
+            mingw-w64-clang-x86_64-cmake
+            mingw-w64-clang-x86_64-ninja
+            mingw-w64-clang-x86_64-pkgconf
+            mingw-w64-clang-x86_64-python
+            mingw-w64-clang-x86_64-sdl3
+            mingw-w64-clang-x86_64-boost
+            mingw-w64-clang-x86_64-fmt
+            mingw-w64-clang-x86_64-glslang
+            mingw-w64-clang-x86_64-spirv-cross
+            mingw-w64-clang-x86_64-spirv-headers
+            mingw-w64-clang-x86_64-vulkan-headers
+            mingw-w64-clang-x86_64-vulkan-loader
+            mingw-w64-clang-x86_64-vulkan-memory-allocator
+            mingw-w64-clang-x86_64-xxhash
+            mingw-w64-clang-x86_64-zydis
+            mingw-w64-clang-x86_64-robin-map
+            mingw-w64-clang-x86_64-ffmpeg
+            mingw-w64-clang-x86_64-protobuf
+            mingw-w64-clang-x86_64-nlohmann-json
+            mingw-w64-clang-x86_64-openssl
+            mingw-w64-clang-x86_64-miniupnpc
+            mingw-w64-clang-x86_64-zlib
+            mingw-w64-clang-x86_64-expat
+      - name: Compile stable 0.9.37 native engine and menu assets
+        shell: msys2 {0}
+        run: |
+          set -euo pipefail
+          cd upstream/engine
+          export CC=clang
+          export CXX=clang++
+          export BB_PGO=off
+          export BB_JOBS=4
+          export CXXFLAGS="-include $(cygpath -m "$PWD/gpu/win_compat.h")"
+          bash build.sh
+          test -s out/bb-probe.exe
+          test -s out/bb-engine-assets.exe
+          test -s out/bb-start.exe
+      - name: Stage stable 0.9.37 native replacements only
+        run: |
+          New-Item -ItemType Directory -Force 'patched-engine/engine/out' | Out-Null
+          Copy-Item 'upstream/engine/out/bb-probe.exe' 'patched-engine/engine/out/'
+          Copy-Item 'upstream/engine/out/bb-engine-assets.exe' 'patched-engine/engine/out/'
+          @'
+          Lantern Engine v0.9.37 native patch
+          Replaces only engine/out/bb-probe.exe and engine/out/bb-engine-assets.exe
+          Install onto the EXACT official stable 0.9.37 release, never onto beta 4 or beta 9.8
+          Output Resolution is hidden from native System > PC Graphics
+          No game data or saves are included
+          '@ | Set-Content 'patched-engine/README.txt' -Encoding utf8
+      - uses: actions/upload-artifact@v4
+        with:
+          name: Lantern037Stable-HideOutputResolution-native
+          path: patched-engine/
+          if-no-files-found: error
+          retention-days: 14
+      - name: Upload engine diagnostics on failure
+        if: failure()
+        uses: actions/upload-artifact@v4
+        with:
+          name: Lantern037Stable-build-diagnostics
+          path: |
+            upstream/engine/out/gpu-build.log
+            upstream/engine/out/gpu/CMakeFiles/CMakeConfigureLog.yaml
+          if-no-files-found: ignore
+          retention-days: 7
+
+  package:
+    needs: [launcher, engine]
+    runs-on: windows-latest
+    timeout-minutes: 40
+    steps:
+      - name: Download official stable 0.9.37 package
+        shell: pwsh
+        run: |
+          $ErrorActionPreference = 'Stop'
+          $url = 'https://github.com/Awakenchan/LanternEngine/releases/download/v0.9.37/LanternEngine-v0.9.37-win64.zip'
+          Invoke-WebRequest -Uri $url -OutFile 'official-stable.zip'
+          Expand-Archive -Path 'official-stable.zip' -DestinationPath 'official-extracted'
+          $starter = Get-ChildItem official-extracted -Recurse -File -Filter bb-start.exe |
+            Where-Object { $_.FullName -match '[\\/]engine[\\/]out[\\/]bb-start\.exe$' } |
+            Select-Object -First 1
+          if ($null -eq $starter) { throw 'Official stable 0.9.37 package layout has changed; refusing to package' }
+          $root = $starter.Directory.Parent.Parent.FullName
+          New-Item -ItemType Directory -Force package | Out-Null
+          Copy-Item -Path (Join-Path $root '*') -Destination package -Recurse -Force
+          foreach ($name in @('bb-probe.exe','bb-engine-assets.exe')) {
+            if (-not (Test-Path (Join-Path 'package/engine/out' $name))) { throw "Official stable 0.9.37 missing $name" }
+          }
+      - uses: actions/download-artifact@v4
+        with:
+          name: Lantern037Stable-HideOutputResolution-native
+          path: patched-engine
+      - uses: actions/download-artifact@v4
+        with:
+          name: CinematicLauncher-037stable-win-x64
+          path: cinematic-launcher
+      - name: Overlay native stable 0.9.37 patch and cinematic Launcher.exe
+        shell: pwsh
+        run: |
+          $ErrorActionPreference = 'Stop'
+          foreach ($name in @('bb-probe.exe','bb-engine-assets.exe')) {
+            $from = Join-Path 'patched-engine/engine/out' $name
+            $to = Join-Path 'package/engine/out' $name
+            if (-not (Test-Path $from)) { throw "Missing stable 0.9.37 native patch: $name" }
+            Copy-Item $from $to -Force
+            if ((Get-FileHash $from).Hash -ne (Get-FileHash $to).Hash) { throw "Integrity check failed: $name" }
+          }
+          if (-not (Test-Path 'cinematic-launcher/Launcher.exe')) { throw 'Missing cinematic Launcher.exe' }
+          Copy-Item 'cinematic-launcher/Launcher.exe' 'package/Launcher.exe' -Force
+          if (-not (Test-Path 'package/engine/out/bb-start.exe')) { throw 'Missing bb-start.exe' }
+          @'
+          BLOODBORNE CINEMATIC - LANTERN ENGINE 0.9.37 STABLE 0.9.37 TEST
+          
+          Extract to a NEW empty folder, never onto the stable beta 9.8 or beta 4.
+          Keep your existing game files, saves, and backups untouched.
+          Launch via Launcher.exe; select your original game and saves folders.
+          GRAPHICS: Frame Generation offers Off, FSR 3.1, DLSS, generated frames
+          (2x-6x according to NVIDIA GPU/driver support) and NVIDIA Reflex.
+          DLSS Frame Generation requires RTX 40 or 50, Windows HAGS and VSync off.
+          The Insert/L3+R3 overlay remains disabled; native System menus remain.
+          System > PC Graphics no longer lists Output Resolution: use DISPLAY.
+          No FPS counter customization, shader catalog UI, or OptiScaler controls.
+          Do not mix native binaries or DLLs across engine beta releases.
+          Test stability, camera, DLSS modes and menu behavior in game.
+          '@ | Set-Content 'package/READ-ME-CINEMATIC-BETA8.txt' -Encoding utf8
+          Write-Host 'Verified stable 0.9.37 package with patched native engine and cinematic launcher'
+      - uses: actions/upload-artifact@v4
+        with:
+          name: BloodborneCinematic-Lantern-0.9.37-stable-FULL
+          path: package/
+          if-no-files-found: error
+          compression-level: 6
+          retention-days: 14
