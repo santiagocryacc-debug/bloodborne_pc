@@ -27,7 +27,9 @@ public partial class MainWindow : Window
         ("FSR 4", "fsr4"), ("FSR 4.1.1", "fsr411"), ("FSR 3", "fsr3"),
         ("DLSS", "dlss"), ("TAA", "taa"), ("Off", "off") };
     private static readonly (string Label, string Value)[] Presets = {
-        ("Native", "0"), ("Quality", "1"), ("Balanced", "2"), ("Performance", "3"), ("Ultra Performance", "4") };
+        ("Native", "0"), ("Ultra Quality", "5"), ("Quality", "1"), ("Balanced", "2"), ("Performance", "3"), ("Ultra Performance", "4") };
+    // Lantern stores output/render, so 1 / 0.85 gives an 85% scene.
+    private const string UltraQualityScale = "1.176471";
     private static readonly (string Label, string Value)[] FrameGenerationModes = {
         ("Off", "off"), ("FSR", "fsr3"), ("DLSS", "dlss") };
     // DLSS: 1 generated frame = 2x; RTX 50 may support up to 5 generated = 6x.
@@ -683,6 +685,8 @@ public partial class MainWindow : Window
             _ini.Set("output_res", Selected(ResolutionBox, "1920x1080"));
             _ini.Set("upscaler", Selected(UpscalerBox, "fsr4"));
             _ini.Set("preset", Selected(PresetBox, "1"));
+            if (Selected(PresetBox, "1") == "5")
+                _ini.Set("render_scale", UltraQualityScale);
             _ini.Set("dlss_auto_exposure", DlssAutoExposureBox.IsChecked == true ? "1" : "0");
             _ini.Set("dlss_mip_bias", DlssSharperTexturesBox.IsChecked == true ? "1" : "0");
             var frameGeneration = Selected(FrameGenerationBox, "off");
