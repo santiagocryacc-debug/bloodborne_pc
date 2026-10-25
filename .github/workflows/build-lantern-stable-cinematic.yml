@@ -5,6 +5,7 @@ on:
   pull_request:
     branches:
       - beta-9-37-integration
+      - lantern-0-9-37-stable-integration
     paths:
       - 'launcher/minimal/BloodborneMinimalLauncher/**'
       - 'launcher/minimal/engine37stable/**'
@@ -62,6 +63,12 @@ jobs:
           if ($LASTEXITCODE -ne 0) { throw 'Could not clone Lantern stable 0.9.37 source' }
           $commit = (git -C upstream rev-parse HEAD).Trim()
           if ($commit -ne 'd901fbd2ea4bea114b37c26a2a9278d1e97f7b46') { throw "Upstream commit mismatch: $commit" }
+      - name: Apply Ultra Quality 85 percent scale and DLSS mapping
+        run: |
+          python launcher/minimal/engine37stable/verify_ultra_quality_85.py upstream/engine
+          if ($LASTEXITCODE -ne 0) { throw 'Ultra Quality patch verification failed' }
+          python launcher/minimal/engine37stable/ultra_quality_85.py upstream/engine
+          if ($LASTEXITCODE -ne 0) { throw 'Ultra Quality 85 percent patch did not apply cleanly' }
       - name: Apply exact native PC Graphics resolution-row patch
         run: |
           python launcher/minimal/engine37stable/hide_ingame_output_resolution.py upstream/engine
@@ -102,6 +109,11 @@ jobs:
             mingw-w64-clang-x86_64-miniupnpc
             mingw-w64-clang-x86_64-zlib
             mingw-w64-clang-x86_64-expat
+      - name: Verify Ultra Quality scene sizes and DLSS mode with compiled C++
+        shell: msys2 {0}
+        run: |
+          set -euo pipefail
+          python launcher/minimal/engine37stable/verify_ultra_quality_85.py upstream/engine --cxx clang++
       - name: Compile stable 0.9.37 native engine and menu assets
         shell: msys2 {0}
         run: |
@@ -126,6 +138,7 @@ jobs:
           Replaces only engine/out/bb-probe.exe and engine/out/bb-engine-assets.exe
           Install onto the EXACT official stable 0.9.37 release, never onto beta 4 or beta 9.8
           Output Resolution is hidden from native System > PC Graphics
+          Ultra Quality 85 percent preserves Custom scale precision and uses DLSS Super Resolution
           No game data or saves are included
           '@ | Set-Content 'patched-engine/README.txt' -Encoding utf8
       - uses: actions/upload-artifact@v4
@@ -195,6 +208,7 @@ jobs:
           Extract to a NEW empty folder, never onto the stable beta 9.8 or beta 4.
           Keep your existing game files, saves, and backups untouched.
           Launch via Launcher.exe; select your original game and saves folders.
+          GRAPHICS: Ultra Quality (85%) uses preset=5 and render_scale=1.176471.
           GRAPHICS: Frame Generation offers Off, FSR 3.1, DLSS, generated frames
           (2x-6x according to NVIDIA GPU/driver support) and NVIDIA Reflex.
           DLSS Frame Generation requires RTX 40 or 50, Windows HAGS and VSync off.
