@@ -208,7 +208,7 @@ jobs:
           Extract to a NEW empty folder, never onto the stable beta 9.8 or beta 4.
           Keep your existing game files, saves, and backups untouched.
           Launch via Launcher.exe; select your original game and saves folders.
-          GRAPHICS: Ultra Quality (85%) uses preset=5 and render_scale=1.176471.
+          GRAPHICS: Ultra Quality uses preset=5 and render_scale=1.176471.
           GRAPHICS: Frame Generation offers Off, FSR 3.1, DLSS, generated frames
           (2x-6x according to NVIDIA GPU/driver support) and NVIDIA Reflex.
           DLSS Frame Generation requires RTX 40 or 50, Windows HAGS and VSync off.

@@ -1,6 +1,6 @@
-# Ultra Quality (85%) - Lantern Engine 0.9.37 estable
+# Ultra Quality - Lantern Engine 0.9.37 estable
 
-Agrega Ultra Quality (85%) entre Native y Quality en el launcher WPF.
+Agrega Ultra Quality entre Native y Quality en el launcher WPF.
 Conserva los valores Native=0, Quality=1, Balanced=2, Performance=3 y Ultra Performance=4.
 Usa el modo Custom: preset=5, render_scale=1.176471 (salida/render).
 La escala se escribe solamente cuando se guarda Ultra Quality.

@@ -27,7 +27,7 @@ public partial class MainWindow : Window
         ("FSR 4", "fsr4"), ("FSR 4.1.1", "fsr411"), ("FSR 3", "fsr3"),
         ("DLSS", "dlss"), ("TAA", "taa"), ("Off", "off") };
     private static readonly (string Label, string Value)[] Presets = {
-        ("Native", "0"), ("Ultra Quality (85%)", "5"), ("Quality", "1"), ("Balanced", "2"), ("Performance", "3"), ("Ultra Performance", "4") };
+        ("Native", "0"), ("Ultra Quality", "5"), ("Quality", "1"), ("Balanced", "2"), ("Performance", "3"), ("Ultra Performance", "4") };
     // Lantern stores output/render, so 1 / 0.85 gives an 85% scene.
     private const string UltraQualityScale = "1.176471";
     private static readonly (string Label, string Value)[] FrameGenerationModes = {
