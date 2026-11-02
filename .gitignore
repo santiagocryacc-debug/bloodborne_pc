@@ -23,4 +23,7 @@ perf.data
 /bloodborne_upscalers_*.md
 mods.json
 patches.json
+**/bin/
+**/obj/
+launcher/minimal/BloodborneMinimalLauncher/Bloodborne.ico
 !launcher/bloodborne.png
