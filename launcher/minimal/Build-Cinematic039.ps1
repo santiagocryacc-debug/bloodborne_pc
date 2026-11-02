@@ -52,6 +52,9 @@ $manifest = [ordered]@{
 }
 $manifest | ConvertTo-Json -Depth 6 | Set-Content -LiteralPath (Join-Path $outputRoot 'cinematic-engine.json') -Encoding utf8NoBOM
 Copy-Item -LiteralPath (Join-Path $PSScriptRoot 'UPDATE-039.md') -Destination (Join-Path $outputRoot 'LEEME-ACTUALIZACION.md')
+foreach ($document in @('CONSIGNA-FUTURO.md', 'THIRD-PARTY-SAVES.md', 'LICENSE-SAVES.txt')) {
+    Copy-Item -LiteralPath (Join-Path $PSScriptRoot $document) -Destination (Join-Path $outputRoot $document)
+}
 $lines = foreach ($file in Get-ChildItem -LiteralPath $outputRoot -Recurse -File | Sort-Object FullName) {
     ((Get-FileHash -LiteralPath $file.FullName -Algorithm SHA256).Hash.ToLowerInvariant()) + '  ' + [IO.Path]::GetRelativePath($outputRoot, $file.FullName).Replace('\','/')
 }

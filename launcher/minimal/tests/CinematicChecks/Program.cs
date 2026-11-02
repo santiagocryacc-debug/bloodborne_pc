@@ -150,6 +150,7 @@ internal static class Program
             var migrated = new MainWindow(settings, Path.Combine(newPort, "engine", "out", "bb-start.exe"));
             Check(File.ReadAllText(Path.Combine(newPort, "lantern.ini")) == File.ReadAllText(oldIni), "First start copies the previous configuration without changing it");
             migrated.Close();
+            SaveChecks.Run(root, app, settings, starter);
             app.Shutdown();
             Console.WriteLine($"Completed {_checks} checks; previews: {root}");
             return 0;

@@ -6,6 +6,7 @@ using System.Linq;
 using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Media.Imaging;
+using BloodborneMinimalLauncher.SaveData;
 
 namespace BloodborneMinimalLauncher;
 
@@ -14,6 +15,7 @@ public partial class MainWindow : Window
     private string _portDir = "";
     private string _gameDir = "";
     private string _savesDir = "";
+    private string _saveProfile = "Default";
     private string _artworkDir = "";
     private IniFile? _ini;
     private bool _launchInProgress;
@@ -138,51 +140,22 @@ public partial class MainWindow : Window
     {
         if (_launchInProgress || _backupInProgress)
             return;
-        // Always back up the user's requested source, independently of the active save profile.
-        var source = @"Y:\Games\Library\Standalone\Bloodborne\Install\Game Files\Saves\savedata\1\CUSA00207\SPRJ0005";
-        var backupRoot = @"Y:\Games\Library\Standalone\Bloodborne\Install\Game Files\Backups";
         try
         {
-            if (!Directory.Exists(source))
-                throw new DirectoryNotFoundException("Source folder not found: " + source);
-            if (Process.GetProcessesByName("bb-probe").Length > 0)
-                throw new InvalidOperationException("Close Bloodborne before creating a backup.");
-
-            var destination = Path.Combine(backupRoot, "SPRJ0005_" + DateTime.Now.ToString("yyyy-MM-dd_HH-mm-ss"));
-            for (var suffix = 1; Directory.Exists(destination); suffix++)
-                destination = Path.Combine(backupRoot, "SPRJ0005_" +
-                    DateTime.Now.ToString("yyyy-MM-dd_HH-mm-ss") + "_" + suffix);
-
             _backupInProgress = true;
             BackupButton.IsEnabled = false;
             PlayButton.IsEnabled = false;
             StatusText.Text = "Creating Backup";
-
-            var copied = await Task.Run(() =>
+            await Task.Run(() =>
             {
-                // Never modify, delete or move source files. Do not overwrite previous backups.
-                Directory.CreateDirectory(destination);
-                foreach (var folder in Directory.EnumerateDirectories(source, "*", SearchOption.AllDirectories))
-                {
-                    var relative = Path.GetRelativePath(source, folder);
-                    Directory.CreateDirectory(Path.Combine(destination, relative));
-                }
-                var count = 0;
-                foreach (var file in Directory.EnumerateFiles(source, "*", SearchOption.AllDirectories))
-                {
-                    var relative = Path.GetRelativePath(source, file);
-                    var output = Path.Combine(destination, relative);
-                    Directory.CreateDirectory(Path.GetDirectoryName(output)!);
-                    File.Copy(file, output, overwrite: false);
-                    count++;
-                }
-                return count;
+                var repository = new SaveRepository(SaveRepository.FixedRoot);
+                repository.Backup(repository.Profile("Default"));
             });
             StatusText.Text = "Backup Complete";
         }
         catch (Exception ex)
         {
-            StatusText.Text = "Backup Failed: " + ex.Message;
+            StatusText.Text = SaveUi.Error(ex);
         }
         finally
         {
@@ -190,6 +163,23 @@ public partial class MainWindow : Window
             BackupButton.IsEnabled = true;
             PlayButton.IsEnabled = !_launchInProgress;
         }
+    }
+
+    private SaveRepository SavesRepository() => new(string.IsNullOrWhiteSpace(_savesDir)
+        ? Path.Combine(_gameDir, "Saves") : _savesDir);
+
+    private void ManageSaves_Click(object sender, RoutedEventArgs e)
+    {
+        if (_launchInProgress || _backupInProgress) return;
+        try
+        {
+            if (string.IsNullOrWhiteSpace(_gameDir)) throw new InvalidOperationException("Select The Game Folder");
+            new SavesWindow(this, SavesRepository(), _saveProfile, _gameDir, profile =>
+            {
+                _saveProfile = profile; SaveSettings();
+            }).ShowDialog();
+        }
+        catch (Exception ex) { StatusText.Text = SaveUi.Error(ex); }
     }
 
     private void OpenDisplay_Click(object sender, RoutedEventArgs e) => SettingsTabs.SelectedIndex = 0;
@@ -248,6 +238,7 @@ public partial class MainWindow : Window
             _artworkDir = settings.Get("artwork_dir", _portDir);
             _gameDir = settings.Get("game_dir");
             _savesDir = settings.Get("saves_dir");
+            _saveProfile = settings.Get("save_profile", "Default");
             Select(DrawPipeBox, settings.Get("draw_pipe", ""), "");
             Select(ReadbacksBox, settings.Get("readbacks", ""), "");
             Select(FrameRateBox, settings.Get("fps_mode", "60"), "60");
@@ -273,6 +264,7 @@ public partial class MainWindow : Window
         settings.Set("artwork_dir", _artworkDir);
         settings.Set("game_dir", _gameDir);
         settings.Set("saves_dir", _savesDir);
+        settings.Set("save_profile", _saveProfile);
         settings.Set("draw_pipe", Selected(DrawPipeBox, ""));
         settings.Set("readbacks", Selected(ReadbacksBox, ""));
         settings.Set("fps_mode", Selected(FrameRateBox, "60"));
@@ -630,9 +622,10 @@ public partial class MainWindow : Window
             info.Environment["BB_HOT_PAGES"] = "2";
 
             // Never copy or move saves: point bbhost at the selected existing folder.
-            var chosenSaves = string.IsNullOrWhiteSpace(_savesDir)
-                ? Path.Combine(_gameDir, "Saves")
-                : _savesDir;
+            var repository = SavesRepository();
+            var profile = repository.Profile(_saveProfile);
+            repository.RecoverPending(profile);
+            var chosenSaves = profile.Root;
             if (!Directory.Exists(chosenSaves))
                 throw new DirectoryNotFoundException(
                     "Saves folder not found: " + chosenSaves +

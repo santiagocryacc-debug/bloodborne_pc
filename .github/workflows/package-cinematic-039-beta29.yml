@@ -9,6 +9,9 @@ on:
       - 'launcher/minimal/tests/CinematicChecks/**'
       - 'launcher/minimal/Build-Cinematic039.ps1'
       - 'launcher/minimal/UPDATE-039.md'
+      - 'launcher/minimal/CONSIGNA-FUTURO.md'
+      - 'launcher/minimal/THIRD-PARTY-SAVES.md'
+      - 'launcher/minimal/LICENSE-SAVES.txt'
       - '.github/workflows/package-cinematic-039-beta29.yml'
 
 permissions:
@@ -85,6 +88,8 @@ jobs:
         uses: actions/upload-artifact@v4
         with:
           name: Cinematic039Beta29-validation
-          path: validation/*.png
+          path: |
+            validation/*.png
+            validation/*.txt
           if-no-files-found: ignore
           retention-days: 14

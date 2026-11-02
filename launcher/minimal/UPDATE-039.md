@@ -1,40 +1,35 @@
-# Bloodborne Cinematic — Lantern 0.9.39 beta 29
+# Bloodborne Cinematic
 
-Esta actualización conserva el launcher cinematográfico y suma las nuevas opciones gráficas.
-Incluye FSR automático, XeSS, DLSS Less Wobble, el preset Custom con su escala de renderizado,
-sesgo de texturas, AMD Anti-Lag 2, iluminación, sombras y ray tracing experimental.
-También permite activar o desactivar por separado los componentes nuevos del renderer.
+Launcher cinematografico con Lantern v0.9.39-beta.29 y las opciones graficas nuevas.
+Incluye Save Manager y Save Editor. Reglas de interfaz en CONSIGNA-FUTURO.md.
 
-Graphics mantiene el orden Upscalers, Frame Generation, Graphics Detail y Engine Performance.
-Los controles de iluminación y los presets Original Look, Performance, Better Shadows y
-BB Remastered están en Effects. Apply Preset actualiza los controles; Save Settings los guarda.
-Los efectos nuevos empiezan desactivados si
-no hay una preferencia anterior. No se modifica el modelo DLSS K ni se añade su selector.
-Half Refresh Rate sigue oculto y desactivado al guardar. Output Resolution continúa oculto
-en el menú nativo; la resolución se cambia desde Display.
+## Partidas
 
-## Instalación
+- Saves abre el gestor. Profile permite seleccionar Default o un perfil creado con New Profile o Copy Profile. Use Profile activa la seleccion para el proximo arranque.
+- New Profile crea una carpeta vacia. Copy Profile duplica las partidas del perfil seleccionado sin tocar el original.
+- Edit Save abre atributos, Blood Echoes, Insight, inventario, objetos, armas, armaduras, jefes y lamparas. Save Changes guarda; Discard Changes descarta. Los atributos ajustan tambien el nivel del personaje.
+- Import acepta una carpeta SPRJ0005, una carpeta Saves o un arbol savedata de CUSA00207. No importa archivos SL2 de consola ni ZIP.
+- Backup y Restore usan la misma carpeta Game Files/Backups del proyecto. Las copias anteriores SPRJ0005_fecha aparecen en Default. Las copias nuevas se asocian al perfil correspondiente y se verifican con SHA256.
+- Cada edicion, importacion o restauracion conserva antes la partida actual. No hay borrado automatico de backups. Se bloquean los cambios mientras bb-start o bb-probe estan abiertos.
+- Los perfiles nuevos se guardan dentro de Saves/profiles. Default conserva la partida y la ruta existentes. El boton Backup del menu principal sigue copiando siempre la partida original fija, independientemente del perfil activo.
 
-1. Extraer el paquete completo en una carpeta nueva. No mezclarlo con la instalación 0.9.37.
-2. Conservar la instalación anterior. Para la imagen cinematográfica, copiar su carpeta Assets
-   a la carpeta nueva si no se encuentra automáticamente.
-3. Abrir Launcher.exe. En el mismo equipo conserva las rutas y preferencias del launcher.
-   Si no existe lantern.ini en la carpeta nueva, copia el de la instalación anterior conocida;
-   el archivo de origen no se modifica. Se conservan comentarios y claves desconocidas.
-4. Confirmar las carpetas del juego y de las partidas, revisar las opciones y usar Save Settings.
-5. Probar el arranque, cámara, Frame Generation y menús. Es una beta: una compilación y sus
-   verificaciones automáticas no sustituyen la prueba dentro del juego.
+## Instalacion
 
-El paquete no contiene juego, saves ni artwork. Abrir el launcher no copia partidas.
-El botón Backup conserva el origen y destino fijos del proyecto anterior.
-El launcher comprueba la identificación del paquete para evitar usar por accidente otro engine.
+Copiar Launcher.exe junto a engine/ en BB Port, con el launcher y el juego cerrados.
+Conservar Assets, lantern.ini, preferencias y mods existentes. El engine de este paquete es el mismo
+Lantern v0.9.39-beta.29 ya integrado; esta entrega agrega el editor y el gestor a nuestra interfaz.
+Para una instalacion nueva, usar el contenido completo de BB Port incluido en Bloodborne.zip.
+No se incluyen juego, partidas, artwork personal ni el MOD 4K.
 
-XeSS necesita libxess.dll en engine/xess. El ZIP oficial no incluye esa biblioteca y usa FSR 3.1
-como alternativa si falta. Los efectos de iluminación y ray tracing dependen del hardware;
-el engine comprueba las capacidades. Los cambios se aplican en el siguiente arranque.
+## Graficos Conservados
 
-Cooperativo, editor de partidas, creación de menús 4K y otras funciones del launcher oficial
-quedan para una actualización posterior de nuestra interfaz.
+Graphics mantiene Upscalers, Frame Generation, Graphics Detail y Engine Performance.
+Effects incluye Lighting y los presets. DLSS mantiene el modelo K sin selector.
+Custom sigue disponible con su relacion de renderizado. No se agrego un preset Ultra Quality separado.
+Half Refresh Rate sigue desactivado y Output Resolution sigue oculto en el menu nativo.
+XESS requiere libxess.dll en engine/xess; si falta, el engine usa FSR 3.1.
+Los cambios graficos se aplican en el proximo arranque. La validacion automatica no incluye una partida de juego completa.
 
 Upstream: https://github.com/Awakenchan/LanternEngine/releases/tag/v0.9.39-beta.29
 Commit: e6b943dd969d99561545315f3d801f10e4a6cf8d.
+Los modulos de lectura de saves y catalogo son GPL-3.0-or-later; ver THIRD-PARTY-SAVES.md y LICENSE-SAVES.txt.
