@@ -83,6 +83,7 @@ jobs:
           test -s out/bb-probe.exe
           test -s out/bb-engine-assets.exe
           test -s out/bb-start.exe
+          cygpath -m "$MINGW_PREFIX/bin" > out/compiler-runtime.path
       - name: Check patch isolation
         shell: pwsh
         run: |
@@ -94,7 +95,8 @@ jobs:
           New-Item -ItemType Directory -Force 'patched-engine/engine/out' | Out-Null
           Copy-Item 'upstream/engine/out/bb-probe.exe' 'patched-engine/engine/out/'
           Copy-Item 'upstream/engine/out/bb-engine-assets.exe' 'patched-engine/engine/out/'
-          python launcher/minimal/engine39beta29/collect_runtime.py upstream/engine/out patched-engine/engine/out C:/msys64/clang64/bin
+          $runtime = (Get-Content upstream/engine/out/compiler-runtime.path -Raw).Trim()
+          python launcher/minimal/engine39beta29/collect_runtime.py upstream/engine/out patched-engine/engine/out $runtime
           if ($LASTEXITCODE -ne 0) { throw 'Dependency collection failed' }
           $files = @(Get-ChildItem patched-engine/engine/out -File | ForEach-Object { @{ name=$_.Name; sha256=(Get-FileHash -LiteralPath $_.FullName).Hash.ToLowerInvariant() } })
           @{ tag='v0.9.39-beta.29'; upstreamCommit='e6b943dd969d99561545315f3d801f10e4a6cf8d'; sourceCommit=$env:GITHUB_SHA; files=$files } | ConvertTo-Json -Depth 5 | Set-Content patched-engine/native-build.json -Encoding utf8NoBOM
@@ -119,6 +121,7 @@ jobs:
           path: |
             upstream/engine/out/gpu-build.log
             upstream/engine/out/gpu/CMakeFiles/CMakeConfigureLog.yaml
+            patched-engine/
           if-no-files-found: ignore
           retention-days: 7
 
