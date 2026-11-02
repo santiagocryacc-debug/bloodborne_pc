@@ -28,7 +28,7 @@ jobs:
           fetch-depth: 0
       - name: Verify native build source matches this integration
         run: |
-          git diff --exit-code 336af7d5d072b4bfb9f49bedb0570d580a115408 HEAD -- launcher/minimal/engine39beta29
+          git diff --exit-code bc7c963970a74b5d6f10e8c54f59bc07b8e2fb5a HEAD -- launcher/minimal/engine39beta29
           if ($LASTEXITCODE -ne 0) { throw 'Native patch changed; rebuild it and update the pinned native run first' }
       - uses: actions/setup-dotnet@v4
         with:
@@ -51,7 +51,7 @@ jobs:
         run: |
           $ErrorActionPreference = 'Stop'
           $headers = @{ Authorization = "Bearer $env:GH_TOKEN"; Accept = 'application/vnd.github+json' }
-          $url = 'https://api.github.com/repos/santiagocryacc-debug/bloodborne_pc/actions/runs/41376736352'
+          $url = 'https://api.github.com/repos/santiagocryacc-debug/bloodborne_pc/actions/runs/41378676952'
           $deadline = [DateTime]::UtcNow.AddMinutes(75)
           do {
             $run = Invoke-RestMethod -Uri $url -Headers $headers
@@ -66,7 +66,7 @@ jobs:
         with:
           name: Lantern039Beta29-HideOutputResolution-native
           path: patched-engine
-          run-id: 41376736352
+          run-id: 41378676952
           github-token: ${{ github.token }}
       - name: Download the exact official release and assemble
         run: |
