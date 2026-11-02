@@ -1,0 +1,90 @@
+name: Bloodborne Cinematic 0.9.39 beta 29 full package
+
+on:
+  workflow_dispatch:
+  push:
+    branches: [lantern-0-9-39-beta29-integration]
+    paths:
+      - 'launcher/minimal/BloodborneMinimalLauncher/**'
+      - 'launcher/minimal/tests/CinematicChecks/**'
+      - 'launcher/minimal/Build-Cinematic039.ps1'
+      - 'launcher/minimal/UPDATE-039.md'
+      - '.github/workflows/package-cinematic-039-beta29.yml'
+
+permissions:
+  contents: read
+  actions: read
+
+jobs:
+  package:
+    runs-on: windows-latest
+    timeout-minutes: 100
+    defaults:
+      run:
+        shell: pwsh
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+      - name: Verify native build source matches this integration
+        run: |
+          git diff --exit-code 336af7d5d072b4bfb9f49bedb0570d580a115408 HEAD -- launcher/minimal/engine39beta29
+          if ($LASTEXITCODE -ne 0) { throw 'Native patch changed; rebuild it and update the pinned native run first' }
+      - uses: actions/setup-dotnet@v4
+        with:
+          dotnet-version: '8.0.x'
+      - name: Restore icon and compile cinematic launcher
+        run: |
+          $ErrorActionPreference = 'Stop'
+          $project = 'launcher/minimal/BloodborneMinimalLauncher'
+          $icon = (Get-Content "$project/Bloodborne.ico.b64" -Raw).Trim()
+          [IO.File]::WriteAllBytes((Join-Path (Get-Location) "$project/Bloodborne.ico"), [Convert]::FromBase64String($icon))
+          dotnet publish "$project/BloodborneMinimalLauncher.csproj" -c Release -r win-x64 --self-contained true -p:PublishSingleFile=true -p:IncludeNativeLibrariesForSelfExtract=true -p:EnableCompressionInSingleFile=true -o cinematic-launcher
+          if ($LASTEXITCODE -ne 0) { throw 'Cinematic launcher build failed' }
+      - name: Verify configuration and render previews
+        run: |
+          dotnet run --project launcher/minimal/tests/CinematicChecks/CinematicChecks.csproj -c Release -- validation
+          if ($LASTEXITCODE -ne 0) { throw 'Cinematic configuration checks failed' }
+      - name: Wait for the pinned native engine build
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          $ErrorActionPreference = 'Stop'
+          $headers = @{ Authorization = "Bearer $env:GH_TOKEN"; Accept = 'application/vnd.github+json' }
+          $url = 'https://api.github.com/repos/santiagocryacc-debug/bloodborne_pc/actions/runs/41376736352'
+          $deadline = [DateTime]::UtcNow.AddMinutes(75)
+          do {
+            $run = Invoke-RestMethod -Uri $url -Headers $headers
+            if ($run.status -eq 'completed') {
+              if ($run.conclusion -ne 'success') { throw "Native build finished with $($run.conclusion)" }
+              break
+            }
+            if ([DateTime]::UtcNow -gt $deadline) { throw 'Native build did not finish before the packaging deadline' }
+            Start-Sleep -Seconds 20
+          } while ($true)
+      - uses: actions/download-artifact@v4
+        with:
+          name: Lantern039Beta29-HideOutputResolution-native
+          path: patched-engine
+          run-id: 41376736352
+          github-token: ${{ github.token }}
+      - name: Download the exact official release and assemble
+        run: |
+          $ErrorActionPreference = 'Stop'
+          Invoke-WebRequest -Uri 'https://github.com/Awakenchan/LanternEngine/releases/download/v0.9.39-beta.29/LanternEngine-v0.9.39-beta.29-win64.zip' -OutFile official.zip
+          ./launcher/minimal/Build-Cinematic039.ps1 -OfficialArchive official.zip -NativeDirectory patched-engine -LauncherDirectory cinematic-launcher -WorkDirectory package-work -OutputDirectory package/BloodborneCinematic
+      - uses: actions/upload-artifact@v4
+        with:
+          name: BloodborneCinematic-Lantern-0.9.39-beta29-FULL
+          path: package/BloodborneCinematic/
+          if-no-files-found: error
+          compression-level: 6
+          retention-days: 30
+      - name: Upload validation report and previews
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: Cinematic039Beta29-validation
+          path: validation/*.png
+          if-no-files-found: ignore
+          retention-days: 14

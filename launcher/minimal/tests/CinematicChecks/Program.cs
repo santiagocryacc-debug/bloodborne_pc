@@ -79,6 +79,7 @@ internal static class Program
             var engine = Controls(window, "_engineControls");
             Check((string)((ComboBoxItem)Box("UpscalerBox").SelectedItem).Tag == "fsr", "Legacy FSR choice migrates in the UI");
             Check(new IniFile(path).Get("upscaler") == "fsr4", "Opening does not rewrite the engine configuration");
+            Check(engine.Values.Cast<CheckBox>().All(c => c.IsChecked == true), "New engine components use the upstream on defaults");
             Check(Box("UpscalerBox").Items.Cast<ComboBoxItem>().Any(i => (string)i.Tag == "xess"), "XeSS is selectable");
             Check(graphics["render_scale"].IsEnabled, "Custom render ratio is enabled for Custom");
             Select(Box("PresetBox"), "1");
@@ -117,6 +118,14 @@ internal static class Program
             try { window.SaveCurrentSettings(); } catch (InvalidOperationException) { rejected = true; }
             Check(rejected && File.ReadAllText(path) == before, "Invalid Frame Generation combination never writes the INI");
             Select(Box("UpscalerBox"), "dlss");
+            window.ApplyLightingPreset("remastered");
+            Check(File.ReadAllText(path) == before, "Applying a lighting preset does not save implicitly");
+            Check(((CheckBox)graphics["effect_modern_ssr"]).IsChecked == true && ((CheckBox)window.FindName("ScreenSpaceReflectionsBox")).IsChecked == true, "Remastered enables both reflection settings");
+            Check(((CheckBox)graphics["effect_ray_tracing"]).IsChecked == false && ((CheckBox)graphics["effect_gtao"]).IsChecked == false, "Built-in presets leave experimental lighting off");
+            ((CheckBox)graphics["effect_ray_tracing"]).IsChecked = true;
+            ((Slider)graphics["graphics_gi_strength"]).Value = 7.25;
+            window.SaveCurrentSettings();
+            Check(new IniFile(path).Get("graphics_gi_strength") == "7.25" && new IniFile(path).Get("dlss_preset") == "K", "Manual adjustments override the preset while preserving DLSS K");
             Render(window, Path.Combine(root, "graphics-top.png"), 1);
             Render(window, Path.Combine(root, "graphics-bottom.png"), 1, true);
             Render(window, Path.Combine(root, "effects-top.png"), 2);

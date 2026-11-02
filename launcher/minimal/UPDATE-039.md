@@ -6,7 +6,9 @@ sesgo de texturas, AMD Anti-Lag 2, iluminación, sombras y ray tracing experimen
 También permite activar o desactivar por separado los componentes nuevos del renderer.
 
 Graphics mantiene el orden Upscalers, Frame Generation, Graphics Detail y Engine Performance.
-Los controles de iluminación están en Effects. Los efectos nuevos empiezan desactivados si
+Los controles de iluminación y los presets Original Look, Performance, Better Shadows y
+BB Remastered están en Effects. Apply Preset actualiza los controles; Save Settings los guarda.
+Los efectos nuevos empiezan desactivados si
 no hay una preferencia anterior. No se modifica el modelo DLSS K ni se añade su selector.
 Half Refresh Rate sigue oculto y desactivado al guardar. Output Resolution continúa oculto
 en el menú nativo; la resolución se cambia desde Display.

@@ -197,6 +197,17 @@
       <CheckBox x:Name="ChromaticAberrationBox" Content="Chromatic Aberration" HorizontalAlignment="Left" />
       <CheckBox x:Name="DepthOfFieldBox" Content="Depth Of Field" HorizontalAlignment="Left" />
       <TextBlock Text="LIGHTING" Foreground="{StaticResource GoldBrush}" FontWeight="Bold" Margin="0,18,0,12"/>
+      <Grid Margin="0,0,0,8">
+       <Grid.ColumnDefinitions><ColumnDefinition Width="*"/><ColumnDefinition Width="190"/></Grid.ColumnDefinitions>
+       <TextBlock Text="Preset to Apply"/>
+       <ComboBox x:Name="LightingPresetBox" Grid.Column="1" SelectedIndex="0">
+        <ComboBoxItem Content="Original Look" Tag="original"/>
+        <ComboBoxItem Content="Performance" Tag="performance"/>
+        <ComboBoxItem Content="Better Shadows" Tag="shadows"/>
+        <ComboBoxItem Content="BB Remastered" Tag="remastered"/>
+       </ComboBox>
+      </Grid>
+      <Button Content="APPLY PRESET" Click="ApplyLightingPreset_Click" HorizontalAlignment="Right" Padding="12,6" Margin="0,0,0,12"/>
       <TextBlock Text="New effects are optional. Changes apply on the next game start." FontSize="11" Foreground="#D1AE78" TextWrapping="Wrap" Margin="0,0,0,12"/>
       <StackPanel x:Name="LightingOptionsPanel"/>
      </StackPanel>

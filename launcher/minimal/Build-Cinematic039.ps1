@@ -39,12 +39,16 @@ foreach ($file in Get-ChildItem -LiteralPath $nativeOut -File) {
     if ((Get-FileHash -LiteralPath $file.FullName).Hash -ne (Get-FileHash -LiteralPath (Join-Path $outputRoot "engine/out/$($file.Name)")).Hash) { throw 'Native copy integrity failure' }
 }
 Copy-Item -LiteralPath (Join-Path $LauncherDirectory 'Launcher.exe') -Destination (Join-Path $outputRoot 'Launcher.exe')
+$launcherFile = Get-Item -LiteralPath (Join-Path $outputRoot 'Launcher.exe')
+if ($launcherFile.VersionInfo.FileVersion -ne '0.9.39.29') { throw 'Unexpected cinematic launcher version' }
 $manifest = [ordered]@{
     tag = 'v0.9.39-beta.29'
     upstreamCommit = 'e6b943dd969d99561545315f3d801f10e4a6cf8d'
     officialArchiveSha256 = $officialHash
     nativeBuild = $nativeBuild
     nativeOutputResolutionHidden = $true
+    launcherSourceCommit = $env:GITHUB_SHA
+    launcherSha256 = (Get-FileHash -LiteralPath $launcherFile.FullName).Hash.ToLowerInvariant()
 }
 $manifest | ConvertTo-Json -Depth 6 | Set-Content -LiteralPath (Join-Path $outputRoot 'cinematic-engine.json') -Encoding utf8NoBOM
 Copy-Item -LiteralPath (Join-Path $PSScriptRoot 'UPDATE-039.md') -Destination (Join-Path $outputRoot 'LEEME-ACTUALIZACION.md')

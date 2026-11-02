@@ -22,6 +22,7 @@ public partial class MainWindow
         AddOptions(LightingOptionsPanel, GraphicsOptions.Lighting, _graphicsControls);
         AddOptions(NativeEngineOptionsPanel, GraphicsOptions.NativeEngine, _engineControls);
         AddOptions(NewFixesPanel, GraphicsOptions.Fixes, _engineControls);
+        LoadNewEngineOptions(new IniFile(""));
         EngineVersionText.Text = "LANTERN " + GraphicsOptions.Version.ToUpperInvariant();
         PresetBox.SelectionChanged += (_, _) => UpdateCustomRenderRatio();
         UpdateCustomRenderRatio();

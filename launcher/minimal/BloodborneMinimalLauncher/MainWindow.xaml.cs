@@ -89,7 +89,6 @@ public partial class MainWindow : Window
         Select(TextureFilteringBox, "16", "16");
         Select(BackgroundFrameRateBox, "30", "30");
         LoadSettings();
-        LoadNewEngineOptions(new IniFile(_settingsPath));
         LoadArtwork();
         RefreshIni();
         AutoDetectGameDirectory();
@@ -220,7 +219,106 @@ public partial class MainWindow : Window
     {
         var isDlssUpscaler = Selected(UpscalerBox, "off") == "dlss";
         if (DlssAutoExposureBox is not null)
-            DlssAutoExposureBox.IsEnab…1358 tokens truncated…lt.ini");
+            DlssAutoExposureBox.IsEnabled = isDlssUpscaler;
+        if (DlssSharperTexturesBox is not null)
+            DlssSharperTexturesBox.IsEnabled = isDlssUpscaler;
+        if (DlssJitterFadeBox is not null)
+            DlssJitterFadeBox.IsEnabled = isDlssUpscaler;
+        if (UpscalerHintText is not null)
+            UpscalerHintText.Text = Selected(UpscalerBox, "fsr") switch
+            {
+                "fsr" => "FSR selects the best supported version for your GPU.",
+                "fsr411" => "Experimental FSR 4.1.1 through fsr4vk; the engine checks GPU support.",
+                "xess" => "XeSS needs libxess.dll in engine/xess; otherwise the engine uses FSR 3.1.",
+                _ => ""
+            };
+    }
+
+    private void FrameGenerationBox_SelectionChanged(object sender, SelectionChangedEventArgs e)
+    {
+        if (GeneratedFramesBox is not null)
+            GeneratedFramesBox.IsEnabled = Selected(FrameGenerationBox, "off") == "dlss";
+        if (ReflexBox is not null)
+            ReflexBox.IsEnabled = Selected(FrameGenerationBox, "off") == "dlss";
+        if (DynamicFrameGenBox is not null)
+            DynamicFrameGenBox.IsEnabled = Selected(FrameGenerationBox, "off") == "dlss";
+    }
+
+    private void LoadSettings()
+    {
+        try
+        {
+            if (!File.Exists(_settingsPath)) return;
+            var settings = new IniFile(_settingsPath);
+            LoadNewEngineOptions(settings);
+            _portDir = settings.Get("port_dir");
+            _artworkDir = settings.Get("artwork_dir", _portDir);
+            _gameDir = settings.Get("game_dir");
+            _savesDir = settings.Get("saves_dir");
+            Select(DrawPipeBox, settings.Get("draw_pipe", ""), "");
+            Select(ReadbacksBox, settings.Get("readbacks", ""), "");
+            Select(FrameRateBox, settings.Get("fps_mode", "60"), "60");
+            Select(FrameCapBox, settings.Get("frame_cap", ""), "");
+            Select(PresentationBox, settings.Get("present_mode", "Mailbox"), "Mailbox");
+            SharpUiBox.IsChecked = settings.Get("sharp_ui", "1") == "1";
+            Select(TextureFilteringBox, settings.Get("texture_filtering", "16"), "16");
+            Select(BackgroundFrameRateBox, settings.Get("background_fps", "30"), "30");
+            RespawnDelayFixBox.IsChecked = settings.Get("respawn_delay_fix", "1") == "1";
+            WeaponSoundFixBox.IsChecked = settings.Get("weapon_sound_fix", "1") == "1";
+            IntelToneMapFixBox.IsChecked = settings.Get("intel_tonemap_fix", "0") == "1";
+            PcMemoryModelBox.IsChecked = settings.Get("pc_memory_model", "1") == "1";
+            NativeDrawCallsBox.IsChecked = settings.Get("native_draw_calls", "1") == "1";
+            NoMotionBlurSmearBox.IsChecked = settings.Get("no_motion_blur_smear", "0") == "1";
+        }
+        catch { }
+    }
+
+    private void SaveSettings()
+    {
+        var settings = new IniFile(_settingsPath);
+        settings.Set("port_dir", _portDir);
+        settings.Set("artwork_dir", _artworkDir);
+        settings.Set("game_dir", _gameDir);
+        settings.Set("saves_dir", _savesDir);
+        settings.Set("draw_pipe", Selected(DrawPipeBox, ""));
+        settings.Set("readbacks", Selected(ReadbacksBox, ""));
+        settings.Set("fps_mode", Selected(FrameRateBox, "60"));
+        settings.Set("frame_cap", Selected(FrameCapBox, ""));
+        settings.Set("present_mode", Selected(PresentationBox, "Mailbox"));
+        settings.Set("sharp_ui", SharpUiBox.IsChecked == true ? "1" : "0");
+        settings.Set("texture_filtering", Selected(TextureFilteringBox, "16"));
+        settings.Set("background_fps", Selected(BackgroundFrameRateBox, "30"));
+        settings.Set("respawn_delay_fix", RespawnDelayFixBox.IsChecked == true ? "1" : "0");
+        settings.Set("weapon_sound_fix", WeaponSoundFixBox.IsChecked == true ? "1" : "0");
+        settings.Set("intel_tonemap_fix", IntelToneMapFixBox.IsChecked == true ? "1" : "0");
+        settings.Set("pc_memory_model", PcMemoryModelBox.IsChecked == true ? "1" : "0");
+        settings.Set("native_draw_calls", NativeDrawCallsBox.IsChecked == true ? "1" : "0");
+        settings.Set("no_motion_blur_smear", NoMotionBlurSmearBox.IsChecked == true ? "1" : "0");
+        SaveNewEngineOptions(settings);
+        settings.Save();
+    }
+
+    // Lantern 0.9.37 beta 2+ uses lantern.ini. Always load the ini in
+    // the engine we're actually launching, never a separate old install.
+    private string FindIniPath()
+    {
+        var engineStart = LocateEngineStart();
+        if (engineStart is not null)
+        {
+            var engineDir = Path.GetDirectoryName(Path.GetDirectoryName(engineStart)!)!;
+            var packageDir = Path.GetDirectoryName(engineDir)!;
+            var previousPort = _portDir;
+            _portDir = packageDir;
+            return EnsureLanternIni(packageDir, engineDir, previousPort);
+        }
+        return "";
+    }
+
+    private static string EnsureLanternIni(string packageDir, string engineDir, string previousPort)
+    {
+        var target = Path.Combine(packageDir, "lantern.ini");
+        var old = Path.Combine(packageDir, "bbport.ini");
+        var shipped = Path.Combine(engineDir, "lantern.default.ini");
         var previous = string.IsNullOrWhiteSpace(previousPort) ? "" : Path.Combine(previousPort, "lantern.ini");
 
         // Migration copies settings rather than renaming or deleting the old file.
@@ -609,6 +707,7 @@ public partial class MainWindow : Window
         if (string.IsNullOrWhiteSpace(iniPath))
             throw new InvalidOperationException("lantern.ini was not found. Place this launcher in the Lantern Engine 0.9.39 beta 29 folder.");
         _ini = new IniFile(iniPath);
+        ApplyPendingLookValues(_ini);
         _ini.Set("output_res", Selected(ResolutionBox, "1920x1080"));
         _ini.Set("upscaler", Selected(UpscalerBox, "fsr"));
         _ini.Set("preset", Selected(PresetBox, "1"));
@@ -644,6 +743,7 @@ public partial class MainWindow : Window
         _ini.Set("present_mode", Selected(PresentationBox, "Mailbox"));
         SaveNewGraphicsOptions(_ini);
         _ini.Save();
+        _pendingLook = null;
         SaveSettings();
         StatusText.Text = "Settings Saved";
     }
