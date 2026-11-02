@@ -177,7 +177,11 @@ static byte[] Fixture()
         var legacyList = legacyReader.Backups(legacyReader.Profile("Default"));
         Check(legacyList.Count == 1 && legacyList[0].When == new DateTime(2026, 10, 21, 23, 52, 36), "Legacy backups use their filename date rather than incorrect folder timestamps");
         Check(repository.Backups(other).Count == 0, "Legacy default backups do not leak to another profile");
+        var trailing = new SaveRepository(saves + Path.DirectorySeparatorChar, backups + Path.DirectorySeparatorChar, () => false);
+        Check(trailing.Backups(trailing.Profile("Default")).Count == repository.Backups(profile).Count, "Trailing separators preserve backup ownership");
         var corrupt = File.ReadAllBytes(slotPath); File.WriteAllBytes(slotPath, new byte[32]);
+        var damagedBackup = repository.Backup(profile);
+        Check(new FileInfo(Path.Combine(damagedBackup, "userdata0001")).Length == 32, "Manual backup also protects a damaged save");
         repository.Import(profile, other.Root);
         Check(repository.Characters(profile).Count == 1 && Directory.GetFiles(backups, "userdata0001", SearchOption.AllDirectories).Any(p => new FileInfo(p).Length == 32), "Recovery retains a copy of a damaged current save");
 

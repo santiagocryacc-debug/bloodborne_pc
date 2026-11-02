@@ -37,8 +37,8 @@ public sealed class SaveRepository
 
     public SaveRepository(string root, string? backups = null, Func<bool>? running = null)
     {
-        _root = Path.GetFullPath(root);
-        _backups = Path.GetFullPath(backups ?? FixedBackups);
+        _root = Path.TrimEndingDirectorySeparator(Path.GetFullPath(root));
+        _backups = Path.TrimEndingDirectorySeparator(Path.GetFullPath(backups ?? FixedBackups));
         _running = running ?? GameRunning;
     }
 
@@ -128,7 +128,7 @@ public sealed class SaveRepository
         using var guard = Guard();
         Own(profile);
         RecoverCore(profile);
-        return BackupCore(profile);
+        return BackupUnvalidated(profile);
     }
 
     private string BackupCore(SaveProfile profile)
