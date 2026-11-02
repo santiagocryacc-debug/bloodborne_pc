@@ -23,7 +23,7 @@ public partial class MainWindow
         AddOptions(NativeEngineOptionsPanel, GraphicsOptions.NativeEngine, _engineControls);
         AddOptions(NewFixesPanel, GraphicsOptions.Fixes, _engineControls);
         LoadNewEngineOptions(new IniFile(""));
-        EngineVersionText.Text = "LANTERN " + GraphicsOptions.Version.ToUpperInvariant();
+        EngineVersionText.Text = "Lantern " + GraphicsOptions.Version.Replace(" beta ", " Beta ");
         PresetBox.SelectionChanged += (_, _) => UpdateCustomRenderRatio();
         UpdateCustomRenderRatio();
     }
@@ -50,12 +50,11 @@ public partial class MainWindow
             else
             {
                 var toggle = new CheckBox { Content = option.Label, Margin = new Thickness(0, 0, 0, 8),
-                    HorizontalAlignment = HAlign.Left, ToolTip = option.Hint };
+                    HorizontalAlignment = HAlign.Left };
                 controls.Add(option.Key, toggle);
                 panel.Children.Add(toggle);
                 continue;
             }
-            control.ToolTip = option.Hint;
             controls.Add(option.Key, control);
             var row = new Grid { Margin = new Thickness(0, 0, 0, 10) };
             row.ColumnDefinitions.Add(new ColumnDefinition());

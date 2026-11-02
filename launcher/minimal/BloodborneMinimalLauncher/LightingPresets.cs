@@ -61,7 +61,7 @@ public partial class MainWindow
                 case Slider slider: slider.Value = double.Parse(values[option.Key], CultureInfo.InvariantCulture); break;
             }
         }
-        StatusText.Text = "Preset applied to controls. Click SAVE SETTINGS to keep it.";
+        StatusText.Text = "Preset Applied";
     }
 
     private void ApplyLightingPreset_Click(object sender, RoutedEventArgs e) =>

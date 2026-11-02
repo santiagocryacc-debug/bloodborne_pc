@@ -25,8 +25,8 @@ public partial class MainWindow : Window
         ("1920 1080", "1920x1080"), ("2560 1440", "2560x1440"),
         ("3840 2160", "3840x2160") };
     private static readonly (string Label, string Value)[] Upscalers = {
-        ("FSR (Auto)", "fsr"), ("FSR 4.1.1", "fsr411"),
-        ("DLSS", "dlss"), ("XeSS", "xess"), ("TAA", "taa"), ("Off", "off") };
+        ("FSR", "fsr"), ("FSR 4.1.1", "fsr411"),
+        ("DLSS", "dlss"), ("XESS", "xess"), ("TAA", "taa"), ("Off", "off") };
     private static readonly (string Label, string Value)[] Presets = {
         ("Native", "0"), ("Quality", "1"), ("Balanced", "2"), ("Performance", "3"), ("Ultra Performance", "4"), ("Custom", "5") };
     private static readonly (string Label, string Value)[] FrameGenerationModes = {
@@ -34,7 +34,7 @@ public partial class MainWindow : Window
     // DLSS: 1 generated frame = 2x; RTX 50 may support up to 5 generated = 6x.
     // The engine checks and clamps unsupported GPU/driver combinations at runtime.
     private static readonly (string Label, string Value)[] GeneratedFrameModes = {
-        ("2x", "1"), ("3x", "2"), ("4x", "3"), ("5x", "4"), ("6x", "5") };
+        ("2X", "1"), ("3X", "2"), ("4X", "3"), ("5X", "4"), ("6X", "5") };
     private static readonly (string Label, string Value)[] ReflexModes = {
         ("On", "on"), ("On + Boost", "boost"), ("Off", "off") };
     private static readonly (string Label, string Value)[] FrameRates = {
@@ -156,7 +156,7 @@ public partial class MainWindow : Window
             _backupInProgress = true;
             BackupButton.IsEnabled = false;
             PlayButton.IsEnabled = false;
-            StatusText.Text = "Creating backup...";
+            StatusText.Text = "Creating Backup";
 
             var copied = await Task.Run(() =>
             {
@@ -224,14 +224,7 @@ public partial class MainWindow : Window
             DlssSharperTexturesBox.IsEnabled = isDlssUpscaler;
         if (DlssJitterFadeBox is not null)
             DlssJitterFadeBox.IsEnabled = isDlssUpscaler;
-        if (UpscalerHintText is not null)
-            UpscalerHintText.Text = Selected(UpscalerBox, "fsr") switch
-            {
-                "fsr" => "FSR selects the best supported version for your GPU.",
-                "fsr411" => "Experimental FSR 4.1.1 through fsr4vk; the engine checks GPU support.",
-                "xess" => "XeSS needs libxess.dll in engine/xess; otherwise the engine uses FSR 3.1.",
-                _ => ""
-            };
+
     }
 
     private void FrameGenerationBox_SelectionChanged(object sender, SelectionChangedEventArgs e)
@@ -412,7 +405,7 @@ public partial class MainWindow : Window
     private void UpdateGameDirectoryDisplay()
     {
         GameDirectoryText.Text = string.IsNullOrWhiteSpace(_gameDir)
-            ? "No game folder selected"
+            ? "No Game Folder Selected"
             : _gameDir;
     }
 
@@ -420,7 +413,7 @@ public partial class MainWindow : Window
     {
         using var dialog = new System.Windows.Forms.FolderBrowserDialog
         {
-            Description = "Select the game files directory",
+            Description = "Game Folder",
             UseDescriptionForTitle = true,
             SelectedPath = Directory.Exists(_gameDir) ? _gameDir : ""
         };
@@ -440,7 +433,7 @@ public partial class MainWindow : Window
         {
             _gameDir = candidate;
             UpdateGameDirectoryDisplay();
-            StatusText.Text = "Game folder selected. Click SAVE FOLDER to remember it.";
+            StatusText.Text = "Game Folder Selected";
         }
         catch (Exception ex)
         {
@@ -453,7 +446,7 @@ public partial class MainWindow : Window
     private void UpdateSavesDirectoryDisplay()
     {
         SavesDirectoryText.Text = string.IsNullOrWhiteSpace(_savesDir)
-            ? "Default: Game Files\\Saves"
+            ? "Game Files\\Saves"
             : _savesDir;
     }
 
@@ -461,7 +454,7 @@ public partial class MainWindow : Window
     {
         using var dialog = new System.Windows.Forms.FolderBrowserDialog
         {
-            Description = "Select the folder containing the saves you want to use",
+            Description = "Saves Folder",
             UseDescriptionForTitle = true,
             SelectedPath = Directory.Exists(_savesDir) ? _savesDir :
                 Directory.Exists(Path.Combine(_gameDir, "Saves")) ? Path.Combine(_gameDir, "Saves") : ""
@@ -480,7 +473,7 @@ public partial class MainWindow : Window
             _savesDir = dialog.SelectedPath;
             SaveSettings();
             UpdateSavesDirectoryDisplay();
-            StatusText.Text = "Saves folder selected.";
+            StatusText.Text = "Saves Folder Selected";
         }
         catch (Exception ex)
         {
@@ -649,7 +642,7 @@ public partial class MainWindow : Window
             // Do not invoke the original Bloodborne Launcher.exe.
             _launchInProgress = true;
             PlayButton.IsEnabled = false;
-            StatusText.Text = "Starting Bloodborne...";
+            StatusText.Text = "Starting Bloodborne";
             using var process = new Process { StartInfo = info };
             if (!process.Start())
                 throw new InvalidOperationException("bb-start.exe could not be started.");

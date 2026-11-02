@@ -101,17 +101,17 @@
     <Grid.RowDefinitions><RowDefinition Height="Auto"/><RowDefinition Height="*"/><RowDefinition Height="Auto"/></Grid.RowDefinitions>
     <StackPanel>
      <TextBlock Text="✥" FontSize="48" Foreground="#D1AE78" HorizontalAlignment="Center"/>
-     <TextBlock Text="BLOODBORNE" FontSize="28" FontWeight="Bold" Foreground="#F6EADB" HorizontalAlignment="Center" Margin="0,8,0,0"/>
+     <TextBlock Text="Bloodborne" FontSize="28" FontWeight="Bold" Foreground="#F6EADB" HorizontalAlignment="Center" Margin="0,8,0,0"/>
 
      <TextBlock x:Name="EngineVersionText" FontSize="10" Foreground="#D1AE78" HorizontalAlignment="Center" Margin="0,12,0,0"/>
      <Border Background="#9F743F" Height="1" Margin="0,25,0,25"/>
-     <Button x:Name="PlayButton" Content="PLAY  ›" Click="Play_Click" FontSize="27" FontWeight="Bold" Padding="15,20" Margin="0,0,0,24" Background="#791116" BorderBrush="#CFAD70" BorderThickness="2"/>
-     <Button Content="GRAPHICS" Click="OpenGraphics_Click" Style="{StaticResource GothicMenuButton}" Margin="0,0,0,5"/>
-     <Button Content="FOLDERS" Click="OpenSaves_Click" Style="{StaticResource GothicMenuButton}" Margin="0,0,0,5"/>
-     <Button Content="DISPLAY" Click="OpenDisplay_Click" Style="{StaticResource GothicMenuButton}" Margin="0,0,0,5"/>
-     <Button Content="EFFECTS" Click="OpenEffects_Click" Style="{StaticResource GothicMenuButton}" Margin="0,0,0,5"/>
-     <Button Content="FIXES" Click="OpenFixes_Click" Style="{StaticResource GothicMenuButton}" Margin="0,0,0,5"/>
-     <Button x:Name="BackupButton" Content="BACKUP" Click="Backup_Click" Style="{StaticResource GothicMenuButton}" Margin="0,0,0,5"/>
+     <Button x:Name="PlayButton" Content="Play" Click="Play_Click" FontSize="27" FontWeight="Bold" Padding="15,20" Margin="0,0,0,24" Background="#791116" BorderBrush="#CFAD70" BorderThickness="2"/>
+     <Button Content="Graphics" Click="OpenGraphics_Click" Style="{StaticResource GothicMenuButton}" Margin="0,0,0,5"/>
+     <Button Content="Folders" Click="OpenSaves_Click" Style="{StaticResource GothicMenuButton}" Margin="0,0,0,5"/>
+     <Button Content="Display" Click="OpenDisplay_Click" Style="{StaticResource GothicMenuButton}" Margin="0,0,0,5"/>
+     <Button Content="Effects" Click="OpenEffects_Click" Style="{StaticResource GothicMenuButton}" Margin="0,0,0,5"/>
+     <Button Content="Fixes" Click="OpenFixes_Click" Style="{StaticResource GothicMenuButton}" Margin="0,0,0,5"/>
+     <Button x:Name="BackupButton" Content="Backup" Click="Backup_Click" Style="{StaticResource GothicMenuButton}" Margin="0,0,0,5"/>
     </StackPanel>
 
    </Grid>
@@ -124,21 +124,21 @@
     <Border Grid.Row="0" BorderBrush="#A58554" BorderThickness="1" Background="#E70A0A0C" Padding="14">
      <Grid>
       <Grid.RowDefinitions><RowDefinition Height="Auto"/><RowDefinition Height="*"/></Grid.RowDefinitions>
-      <TextBlock Text="GAME SETTINGS" Foreground="#D8B66A" FontWeight="Bold" FontSize="22" Margin="3,4,0,16"/>
+      <TextBlock Text="Game Settings" Foreground="#D8B66A" FontWeight="Bold" FontSize="22" Margin="3,4,0,16"/>
       <TabControl x:Name="SettingsTabs" Grid.Row="1" Background="#C80B0C0E" BorderBrush="#795B35">
        <TabControl.ItemsPanel>
         <ItemsPanelTemplate><UniformGrid Rows="1" Columns="5"/></ItemsPanelTemplate>
        </TabControl.ItemsPanel>
-       <TabItem Header="DISPLAY"><StackPanel Margin="0">    <Border Background="#E51C1715" BorderBrush="#765A3B" BorderThickness="0" CornerRadius="0" Padding="16" Margin="0">
+       <TabItem Header="Display"><StackPanel Margin="0">    <Border Background="#E51C1715" BorderBrush="#765A3B" BorderThickness="0" CornerRadius="0" Padding="16" Margin="0">
      <StackPanel>
-      <TextBlock Text="DISPLAY" Foreground="{StaticResource GoldBrush}" FontWeight="Bold" Margin="0,0,0,14" />
+      <TextBlock Text="Display" Foreground="{StaticResource GoldBrush}" FontWeight="Bold" Margin="0,0,0,14" />
       <Grid Margin="0,0,0,10"><Grid.ColumnDefinitions><ColumnDefinition Width="*"/><ColumnDefinition Width="190"/></Grid.ColumnDefinitions><TextBlock Text="Resolution"/><ComboBox x:Name="ResolutionBox" Grid.Column="1" HorizontalAlignment="Stretch"/></Grid>
       <Grid Margin="0,0,0,10"><Grid.ColumnDefinitions><ColumnDefinition Width="*"/><ColumnDefinition Width="190"/></Grid.ColumnDefinitions><TextBlock Text="Presentation Mode"/><ComboBox x:Name="PresentationBox" Grid.Column="1" HorizontalAlignment="Stretch"/></Grid>
       <Grid Margin="0,0,0,10"><Grid.ColumnDefinitions><ColumnDefinition Width="*"/><ColumnDefinition Width="190"/></Grid.ColumnDefinitions><TextBlock Text="Frame Rate"/><ComboBox x:Name="FrameRateBox" Grid.Column="1" HorizontalAlignment="Stretch"/></Grid>
       <Grid Margin="0,0,0,10"><Grid.ColumnDefinitions><ColumnDefinition Width="*"/><ColumnDefinition Width="190"/></Grid.ColumnDefinitions><TextBlock Text="Frame Cap"/><ComboBox x:Name="FrameCapBox" Grid.Column="1" HorizontalAlignment="Stretch"/></Grid>
       <Grid Margin="0,0,0,10">
        <Grid.ColumnDefinitions><ColumnDefinition Width="*" /><ColumnDefinition Width="190" /></Grid.ColumnDefinitions>
-       <TextBlock Text="Frame Rate in the Background" TextWrapping="Wrap" Margin="0,0,8,0"/>
+       <TextBlock Text="Frame Rate In The Background" TextWrapping="Wrap" Margin="0,0,8,0"/>
        <ComboBox x:Name="BackgroundFrameRateBox" Grid.Column="1" HorizontalAlignment="Stretch"/>
       </Grid>
       <CheckBox x:Name="FullscreenBox" Content="Fullscreen" HorizontalAlignment="Left" />
@@ -148,24 +148,23 @@
       <Grid Margin="0,8,0,0"><Grid.ColumnDefinitions><ColumnDefinition Width="*"/><ColumnDefinition Width="190"/></Grid.ColumnDefinitions><TextBlock Text="Live Resolution Change"/><ComboBox x:Name="LiveResolutionBox" Grid.Column="1" HorizontalAlignment="Stretch"/></Grid>
      </StackPanel>
     </Border></StackPanel></TabItem>
-       <TabItem Header="GRAPHICS"><ScrollViewer VerticalScrollBarVisibility="Auto" HorizontalScrollBarVisibility="Disabled">    <Border Background="#E51C1715" BorderBrush="#765A3B" BorderThickness="0" CornerRadius="0" Padding="16" Margin="0">
+       <TabItem Header="Graphics"><ScrollViewer VerticalScrollBarVisibility="Auto" HorizontalScrollBarVisibility="Disabled">    <Border Background="#E51C1715" BorderBrush="#765A3B" BorderThickness="0" CornerRadius="0" Padding="16" Margin="0">
      <StackPanel>
-      <TextBlock Text="GRAPHICS" Foreground="{StaticResource GoldBrush}" FontWeight="Bold" Margin="0,0,0,16" />
-       <TextBlock Text="UPSCALERS" Foreground="{StaticResource GoldBrush}" FontWeight="Bold" Margin="0,4,0,12"/>
+      <TextBlock Text="Graphics" Foreground="{StaticResource GoldBrush}" FontWeight="Bold" Margin="0,0,0,16" />
+       <TextBlock Text="Upscalers" Foreground="{StaticResource GoldBrush}" FontWeight="Bold" Margin="0,4,0,12"/>
       <Grid Margin="0,0,0,10"><Grid.ColumnDefinitions><ColumnDefinition Width="*"/><ColumnDefinition Width="190"/></Grid.ColumnDefinitions><TextBlock Text="Upscaler"/><ComboBox x:Name="UpscalerBox" Grid.Column="1" HorizontalAlignment="Stretch" SelectionChanged="UpscalerBox_SelectionChanged"/></Grid>
       <Grid Margin="0,0,0,10"><Grid.ColumnDefinitions><ColumnDefinition Width="*"/><ColumnDefinition Width="190"/></Grid.ColumnDefinitions><TextBlock Text="Upscaling Preset"/><ComboBox x:Name="PresetBox" Grid.Column="1" HorizontalAlignment="Stretch"/></Grid>
-       <CheckBox x:Name="DlssAutoExposureBox" Content="DLSS Auto Exposure" HorizontalAlignment="Left" IsEnabled="False" ToolTip="DLSS estimates exposure for each frame. Can reduce ghosting in dark scenes."/>
-       <CheckBox x:Name="DlssSharperTexturesBox" Content="DLSS Sharper Textures" HorizontalAlignment="Left" IsEnabled="False" ToolTip="One additional texture mip level with DLSS. Can add shimmer."/>
-       <CheckBox x:Name="DlssJitterFadeBox" Content="DLSS: Less Wobble While Turning" HorizontalAlignment="Left" IsEnabled="False"/>
-       <CheckBox x:Name="UpscaleBeforePostBox" Content="Upscale Before Post-processing (Experimental)" HorizontalAlignment="Left" ToolTip="For outputs other than 1080p. Requires a game restart and more GPU time and memory."/>
+       <CheckBox x:Name="DlssAutoExposureBox" Content="DLSS Auto Exposure" HorizontalAlignment="Left" IsEnabled="False"/>
+       <CheckBox x:Name="DlssSharperTexturesBox" Content="DLSS Sharper Textures" HorizontalAlignment="Left" IsEnabled="False"/>
+       <CheckBox x:Name="DlssJitterFadeBox" Content="DLSS Less Wobble While Turning" HorizontalAlignment="Left" IsEnabled="False"/>
+       <CheckBox x:Name="UpscaleBeforePostBox" Content="Upscale Before Post Processing" HorizontalAlignment="Left"/>
        <StackPanel x:Name="UpscalingOptionsPanel" Margin="0,8,0,0"/>
-       <TextBlock x:Name="UpscalerHintText" FontSize="11" TextWrapping="Wrap" Foreground="#D1AE78" Margin="0,4,0,8"/>
-       <TextBlock Text="FRAME GENERATION" Foreground="{StaticResource GoldBrush}" FontWeight="Bold" Margin="0,14,0,12"/>
+       <TextBlock Text="Frame Generation" Foreground="{StaticResource GoldBrush}" FontWeight="Bold" Margin="0,14,0,12"/>
       <Grid Margin="0,0,0,10"><Grid.ColumnDefinitions><ColumnDefinition Width="*"/><ColumnDefinition Width="190"/></Grid.ColumnDefinitions><TextBlock Text="Frame Generation"/><ComboBox x:Name="FrameGenerationBox" Grid.Column="1" HorizontalAlignment="Stretch" SelectionChanged="FrameGenerationBox_SelectionChanged"/></Grid>
       <Grid Margin="0,0,0,10"><Grid.ColumnDefinitions><ColumnDefinition Width="*"/><ColumnDefinition Width="190"/></Grid.ColumnDefinitions><TextBlock Text="Generated Frames"/><ComboBox x:Name="GeneratedFramesBox" Grid.Column="1" HorizontalAlignment="Stretch"/></Grid>
       <Grid Margin="0,0,0,10"><Grid.ColumnDefinitions><ColumnDefinition Width="*"/><ColumnDefinition Width="190"/></Grid.ColumnDefinitions><TextBlock Text="NVIDIA Reflex"/><ComboBox x:Name="ReflexBox" Grid.Column="1" HorizontalAlignment="Stretch"/></Grid>
       <CheckBox x:Name="DynamicFrameGenBox" Content="DLSS Dynamic Frame Generation" HorizontalAlignment="Left" IsEnabled="{Binding IsEnabled, ElementName=GeneratedFramesBox}"/>
-       <TextBlock Text="GRAPHICS DETAIL" Foreground="{StaticResource GoldBrush}" FontWeight="Bold" Margin="0,14,0,12"/>
+       <TextBlock Text="Graphics Detail" Foreground="{StaticResource GoldBrush}" FontWeight="Bold" Margin="0,14,0,12"/>
       <Grid Margin="0,0,0,10">
        <Grid.ColumnDefinitions><ColumnDefinition Width="*"/><ColumnDefinition Width="190"/></Grid.ColumnDefinitions>
        <TextBlock Text="Texture Filtering"/>
@@ -176,18 +175,18 @@
       <Grid Margin="0,2,0,10"><Grid.ColumnDefinitions><ColumnDefinition Width="*"/><ColumnDefinition Width="42"/></Grid.ColumnDefinitions><Slider x:Name="SharpnessSlider" Minimum="0" Maximum="2" Value="0.5" TickFrequency="0.1" IsSnapToTickEnabled="False" VerticalAlignment="Center" ValueChanged="SharpnessSlider_ValueChanged"/><TextBlock x:Name="SharpnessValueText" Grid.Column="1" Text="0.50" Foreground="{StaticResource GoldBrush}" FontWeight="SemiBold" HorizontalAlignment="Right"/></Grid>
       <CheckBox x:Name="ObjectMotionBox" Content="Object Motion Vectors" HorizontalAlignment="Left" />
       <CheckBox x:Name="SharpUiBox" Content="Sharp UI" HorizontalAlignment="Left" IsChecked="True" />
-       <TextBlock Text="ENGINE PERFORMANCE" Foreground="{StaticResource GoldBrush}" FontWeight="Bold" Margin="0,14,0,12"/>
+       <TextBlock Text="Engine Performance" Foreground="{StaticResource GoldBrush}" FontWeight="Bold" Margin="0,14,0,12"/>
       <Grid Margin="0,8,0,10"><Grid.ColumnDefinitions><ColumnDefinition Width="*"/><ColumnDefinition Width="190"/></Grid.ColumnDefinitions><TextBlock Text="Two Stage GPU Pipeline"/><ComboBox x:Name="DrawPipeBox" Grid.Column="1" HorizontalAlignment="Stretch"/></Grid>
       <Grid Margin="0,0,0,10"><Grid.ColumnDefinitions><ColumnDefinition Width="*"/><ColumnDefinition Width="190"/></Grid.ColumnDefinitions><TextBlock Text="CPU Reads Of GPU Data"/><ComboBox x:Name="ReadbacksBox" Grid.Column="1" HorizontalAlignment="Stretch"/></Grid>
-      <CheckBox x:Name="PcMemoryModelBox" Content="PC Memory Model" HorizontalAlignment="Left" IsChecked="True" ToolTip="GPU reads game memory directly. Disable if textures or objects render incorrectly." />
-      <CheckBox x:Name="NativeDrawCallsBox" Content="Native Draw Calls" HorizontalAlignment="Left" IsChecked="True" ToolTip="Direct native graphics calls. Disable if the game displays missing or incorrect objects." />
-      <CheckBox x:Name="AmdAntiLagBox" Content="AMD Anti-Lag 2" HorizontalAlignment="Left" ToolTip="Only applies where the AMD driver supports Anti-Lag 2."/>
+      <CheckBox x:Name="PcMemoryModelBox" Content="PC Memory Model" HorizontalAlignment="Left" IsChecked="True" />
+      <CheckBox x:Name="NativeDrawCallsBox" Content="Native Draw Calls" HorizontalAlignment="Left" IsChecked="True" />
+      <CheckBox x:Name="AmdAntiLagBox" Content="AMD Anti Lag 2" HorizontalAlignment="Left"/>
       <StackPanel x:Name="NativeEngineOptionsPanel" Margin="0,10,0,0"/>
      </StackPanel>
     </Border></ScrollViewer></TabItem>
-       <TabItem Header="EFFECTS"><ScrollViewer VerticalScrollBarVisibility="Auto" HorizontalScrollBarVisibility="Disabled"><StackPanel Margin="0">    <Border Background="#E51C1715" BorderBrush="#765A3B" BorderThickness="0" CornerRadius="0" Padding="16" Margin="0">
+       <TabItem Header="Effects"><ScrollViewer VerticalScrollBarVisibility="Auto" HorizontalScrollBarVisibility="Disabled"><StackPanel Margin="0">    <Border Background="#E51C1715" BorderBrush="#765A3B" BorderThickness="0" CornerRadius="0" Padding="16" Margin="0">
      <StackPanel>
-      <TextBlock Text="GAME EFFECTS" Foreground="{StaticResource GoldBrush}" FontWeight="Bold" Margin="0,0,0,14" />
+      <TextBlock Text="Game Effects" Foreground="{StaticResource GoldBrush}" FontWeight="Bold" Margin="0,0,0,14" />
       <CheckBox x:Name="SsaoBox" Content="Ambient Occlusion" HorizontalAlignment="Left" />
       <CheckBox x:Name="DynamicShadowsBox" Content="Dynamic Light Shadow" HorizontalAlignment="Left" />
       <CheckBox x:Name="GameAaBox" Content="Game Own Anti Aliasing" HorizontalAlignment="Left" />
@@ -196,10 +195,10 @@
       <CheckBox x:Name="MotionBlurBox" Content="Motion Blur" HorizontalAlignment="Left" />
       <CheckBox x:Name="ChromaticAberrationBox" Content="Chromatic Aberration" HorizontalAlignment="Left" />
       <CheckBox x:Name="DepthOfFieldBox" Content="Depth Of Field" HorizontalAlignment="Left" />
-      <TextBlock Text="LIGHTING" Foreground="{StaticResource GoldBrush}" FontWeight="Bold" Margin="0,18,0,12"/>
+      <TextBlock Text="Lighting" Foreground="{StaticResource GoldBrush}" FontWeight="Bold" Margin="0,18,0,12"/>
       <Grid Margin="0,0,0,8">
        <Grid.ColumnDefinitions><ColumnDefinition Width="*"/><ColumnDefinition Width="190"/></Grid.ColumnDefinitions>
-       <TextBlock Text="Preset to Apply"/>
+       <TextBlock Text="Preset To Apply"/>
        <ComboBox x:Name="LightingPresetBox" Grid.Column="1" SelectedIndex="0">
         <ComboBoxItem Content="Original Look" Tag="original"/>
         <ComboBoxItem Content="Performance" Tag="performance"/>
@@ -207,30 +206,29 @@
         <ComboBoxItem Content="BB Remastered" Tag="remastered"/>
        </ComboBox>
       </Grid>
-      <Button Content="APPLY PRESET" Click="ApplyLightingPreset_Click" HorizontalAlignment="Right" Padding="12,6" Margin="0,0,0,12"/>
-      <TextBlock Text="New effects are optional. Changes apply on the next game start." FontSize="11" Foreground="#D1AE78" TextWrapping="Wrap" Margin="0,0,0,12"/>
+      <Button Content="Apply Preset" Click="ApplyLightingPreset_Click" HorizontalAlignment="Right" Padding="12,6" Margin="0,0,0,12"/>
       <StackPanel x:Name="LightingOptionsPanel"/>
      </StackPanel>
     </Border></StackPanel></ScrollViewer></TabItem>
-       <TabItem Header="FOLDERS"><StackPanel Margin="0">    <Border Background="#E51C1715" BorderBrush="#765A3B" BorderThickness="0" CornerRadius="0" Padding="16" Margin="0">
+       <TabItem Header="Folders"><StackPanel Margin="0">    <Border Background="#E51C1715" BorderBrush="#765A3B" BorderThickness="0" CornerRadius="0" Padding="16" Margin="0">
      <StackPanel>
-      <TextBlock Text="GAME FOLDER" Foreground="{StaticResource GoldBrush}" FontWeight="Bold" Margin="0,0,0,10" />
-      <TextBlock x:Name="GameDirectoryText" Text="No game folder selected" TextWrapping="Wrap" Margin="0,0,0,14" />
-      <Button Content="BROWSE GAME FOLDER" Click="BrowseGameDirectory_Click" Padding="8,6" HorizontalAlignment="Stretch" Margin="0,0,0,8" />
+      <TextBlock Text="Game Folder" Foreground="{StaticResource GoldBrush}" FontWeight="Bold" Margin="0,0,0,10" />
+      <TextBlock x:Name="GameDirectoryText" Text="No Game Folder Selected" TextWrapping="Wrap" Margin="0,0,0,14" />
+      <Button Content="Browse Game Folder" Click="BrowseGameDirectory_Click" Padding="8,6" HorizontalAlignment="Stretch" Margin="0,0,0,8" />
 
      </StackPanel>
     </Border>    <Border Background="#E51C1715" BorderBrush="#765A3B" BorderThickness="0" CornerRadius="0" Padding="16" Margin="0">
      <StackPanel>
-      <TextBlock Text="SAVES FOLDER" Foreground="{StaticResource GoldBrush}" FontWeight="Bold" Margin="0,0,0,10" />
-      <TextBlock x:Name="SavesDirectoryText" Text="No saves folder selected" TextWrapping="Wrap" Margin="0,0,0,14" />
-      <Button Content="BROWSE SAVES FOLDER" Click="BrowseSavesFolder_Click" Padding="8,6" HorizontalAlignment="Stretch" Margin="0" />
+      <TextBlock Text="Saves Folder" Foreground="{StaticResource GoldBrush}" FontWeight="Bold" Margin="0,0,0,10" />
+      <TextBlock x:Name="SavesDirectoryText" Text="No Saves Folder Selected" TextWrapping="Wrap" Margin="0,0,0,14" />
+      <Button Content="Browse Saves Folder" Click="BrowseSavesFolder_Click" Padding="8,6" HorizontalAlignment="Stretch" Margin="0" />
      </StackPanel>
     </Border></StackPanel></TabItem>
-       <TabItem Header="FIXES" BorderThickness="0,0,0,1">
+       <TabItem Header="Fixes" BorderThickness="0,0,0,1">
         <StackPanel Margin="0">
          <Border Background="#E51C1715" BorderBrush="#765A3B" BorderThickness="0" Padding="16" Margin="0">
           <StackPanel>
-           <TextBlock Text="FIXES" Foreground="{StaticResource GoldBrush}" FontWeight="Bold" Margin="0,0,0,14"/>
+           <TextBlock Text="Fixes" Foreground="{StaticResource GoldBrush}" FontWeight="Bold" Margin="0,0,0,14"/>
            <CheckBox x:Name="RespawnDelayFixBox" Content="No Minimum Loading Time After Death" TextElement.FontSize="12" IsChecked="True" HorizontalAlignment="Left"/>
            <CheckBox x:Name="WeaponSoundFixBox" Content="Weapon Sound Save Fix" IsChecked="True" HorizontalAlignment="Left"/>
            <CheckBox x:Name="IntelToneMapFixBox" Content="Intel Black Tone Map Fix" IsChecked="False" HorizontalAlignment="Left"/>
@@ -244,7 +242,7 @@
     </Border>
     <StackPanel Grid.Row="1" Margin="0,12,0,0">
      <TextBlock x:Name="StatusText" Text="" Foreground="#D8B66A" TextWrapping="Wrap" Margin="0,0,0,8"/>
-     <Button Content="SAVE SETTINGS" Click="Save_Click" Background="#50141A" BorderBrush="#B89560" FontSize="15" Padding="10,12" Margin="0"/>
+     <Button Content="Save Settings" Click="Save_Click" Background="#50141A" BorderBrush="#B89560" FontSize="15" Padding="10,12" Margin="0"/>
     </StackPanel>
    </Grid>
   </Border>
