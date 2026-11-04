@@ -53,6 +53,55 @@ internal static class Program
         png.Save(stream);
     }
 
+    private static void UltraQualityChecks(string root)
+    {
+        var folder = Path.Combine(root, "ultra-quality");
+        var engine = Path.Combine(folder, "engine", "out"); Directory.CreateDirectory(engine);
+        var starter = Path.Combine(engine, "bb-start.exe"); File.WriteAllText(starter, "fixture");
+        File.WriteAllText(Path.Combine(folder, "cinematic-engine.json"), JsonSerializer.Serialize(new { tag = EngineRelease.Tag, upstreamCommit = GraphicsOptions.UpstreamCommit }));
+        var iniPath = Path.Combine(folder, "lantern.ini");
+        File.WriteAllText(iniPath, "upscaler=dlss\npreset=1\nrender_scale=1.75\ndlss_preset=K\nframe_gen=off\n");
+        var settings = Path.Combine(folder, "preferences.ini");
+        var window = new MainWindow(settings, starter);
+        var presets = (ComboBox)window.FindName("PresetBox");
+        var upscalers = (ComboBox)window.FindName("UpscalerBox");
+        var ultra = presets.Items.Cast<ComboBoxItem>().Single(i => (string)i.Tag == "ultra_quality");
+        Check((string)ultra.Content == "Ultra Quality" && ultra.IsEnabled && ultra.Visibility == Visibility.Visible && ultra.ToolTip == null, "DLSS offers plain Ultra Quality without hover text");
+        Select(presets, "ultra_quality");
+        Check(!Controls(window, "_graphicsControls")["render_scale"].IsEnabled, "Ultra Quality uses its fixed ratio while Custom remains separate");
+        window.SaveCurrentSettings();
+        var saved = new IniFile(iniPath);
+        Check(saved.Get("preset") == "5" && saved.Get("cinematic_preset") == "ultra_quality", "Ultra Quality maps to the engine-supported Custom mode");
+        var ratio = double.Parse(saved.Get("render_scale"), CultureInfo.InvariantCulture);
+        Check(Math.Abs(1 / ratio - 0.85) < 0.00000001 && saved.Get("dlss_preset") == "K", "Ultra Quality saves 85 percent without rounding or changing DLSS K");
+        var before = File.ReadAllText(iniPath); window.Close();
+        window = new MainWindow(settings, starter);
+        Check((string)((ComboBoxItem)((ComboBox)window.FindName("PresetBox")).SelectedItem).Tag == "ultra_quality" && File.ReadAllText(iniPath) == before, "Ultra Quality reloads without rewriting the configuration");
+        window.SaveCurrentSettings();
+        Check(Math.Abs(1 / double.Parse(new IniFile(iniPath).Get("render_scale"), CultureInfo.InvariantCulture) - 0.85) < 0.00000001, "Resaving Ultra Quality keeps the exact fixed scale");
+        window.Close();
+        saved = new IniFile(iniPath); saved.Set("render_scale", "1.18"); saved.Save();
+        window = new MainWindow(settings, starter);
+        presets = (ComboBox)window.FindName("PresetBox"); upscalers = (ComboBox)window.FindName("UpscalerBox");
+        Check((string)((ComboBoxItem)presets.SelectedItem).Tag == "ultra_quality", "Native two-decimal saves still reload as Ultra Quality");
+        var info = new ProcessStartInfo(); MainWindow.ApplyUltraQualityOverride(info, new IniFile(iniPath));
+        Check(info.Environment["BB_UPSCALER"] == "dlss" && info.Environment["BB_PRESET"] == "5" && Math.Abs(1 / double.Parse(info.Environment["BB_RENDER_SCALE"]!, CultureInfo.InvariantCulture) - 0.85) < 0.00000001, "Launching Ultra Quality restores 85 percent after native rounding");
+        Select(upscalers, "fsr");
+        ultra = presets.Items.Cast<ComboBoxItem>().Single(i => (string)i.Tag == "ultra_quality");
+        Check((string)((ComboBoxItem)presets.SelectedItem).Tag == "1" && !ultra.IsEnabled && ultra.Visibility == Visibility.Collapsed, "Switching away from DLSS safely leaves Ultra Quality");
+        Select(upscalers, "dlss"); Select(presets, "5");
+        ((Slider)Controls(window, "_graphicsControls")["render_scale"]).Value = 1.75;
+        window.SaveCurrentSettings(); window.Close();
+        window = new MainWindow(settings, starter);
+        Check((string)((ComboBoxItem)((ComboBox)window.FindName("PresetBox")).SelectedItem).Tag == "5" && new IniFile(iniPath).Get("render_scale") == "1.75", "Custom remains independent and reloads its chosen ratio");
+        var customLaunch = new ProcessStartInfo(); customLaunch.Environment.Remove("BB_RENDER_SCALE");
+        MainWindow.ApplyUltraQualityOverride(customLaunch, new IniFile(iniPath));
+        Check(!customLaunch.Environment.ContainsKey("BB_RENDER_SCALE"), "Custom launches receive no Ultra Quality override");
+        Select((ComboBox)window.FindName("PresetBox"), "ultra_quality");
+        Render(window, Path.Combine(root, "ultra-quality.png"), 1);
+        window.Close();
+    }
+
     [STAThread]
     private static int Main(string[] args)
     {
@@ -150,6 +199,7 @@ internal static class Program
             var migrated = new MainWindow(settings, Path.Combine(newPort, "engine", "out", "bb-start.exe"));
             Check(File.ReadAllText(Path.Combine(newPort, "lantern.ini")) == File.ReadAllText(oldIni), "First start copies the previous configuration without changing it");
             migrated.Close();
+            UltraQualityChecks(root);
             SaveChecks.Run(root, app, settings, starter);
             app.Shutdown();
             Console.WriteLine($"Completed {_checks} checks; previews: {root}");

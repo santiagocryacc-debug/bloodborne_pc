@@ -30,3 +30,7 @@ Las definiciones de las paginas, los handlers, controles PC, opciones graficas y
 No se deshabilita ningun efecto ni opcion al ocultar el acceso visual. Se conservan las otras paginas nativas.
 La comprobacion de codigo verifica que las asignaciones g_offered y los bindings no se alteran.
 No se modifican partidas, MOD 4K, artwork ni preferencias.
+
+## Ultra Quality
+
+Se recupera Ultra Quality para DLSS con resolucion interna de aproximadamente 85 por ciento por eje. Usa preset=5 y render_scale=1/0.85; no agrega indices de preset que el engine no admite. Custom permanece disponible. cinematic_preset distingue la etiqueta del launcher sin cambiar el modelo DLSS K.

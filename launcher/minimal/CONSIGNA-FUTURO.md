@@ -19,3 +19,5 @@ El AGENTS.md de BloodborneMinimalLauncher aplica estas reglas al codigo del laun
 Actualizacion de alcance: dejar unicamente Edit Save para los personajes de la partida activa. No volver a agregar el gestor de perfiles, importacion ni restauracion de saves viejas. Conservar siempre el boton Backup original del menu principal, con su origen y destino fijos. La copia de seguridad interna previa a editar conserva la proteccion de datos.
 
 Menus ingame: ocultar visualmente PC Controls, Key Bindings, PC Lighting, PC Lighting Detail y PC Looks, ademas de Output Resolution. Conservar todos sus settings, handlers y funciones por detras. No usar interruptores globales que deshabiliten efectos o controles para ocultar entradas.
+
+Conservar Ultra Quality en DLSS: 85 por ciento de resolucion por eje, con preset nativo 5 y render_scale=1/0.85. Custom sigue separado y configurable. No redondear la escala fija de Ultra Quality a dos decimales.

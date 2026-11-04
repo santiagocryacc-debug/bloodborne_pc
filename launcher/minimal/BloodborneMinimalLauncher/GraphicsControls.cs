@@ -126,6 +126,7 @@ public partial class MainWindow
         ini.Set("dlss_jitter_fade", DlssJitterFadeBox.IsChecked == true ? "1" : "0");
         ini.Set("upscale_before_post", UpscaleBeforePostBox.IsChecked == true ? "1" : "0");
         ini.Set("anti_lag", AmdAntiLagBox.IsChecked == true ? "1" : "0");
+        SaveUpscalingPreset(ini);
     }
 
     internal void ApplyNewEngineOptions(ProcessStartInfo info)

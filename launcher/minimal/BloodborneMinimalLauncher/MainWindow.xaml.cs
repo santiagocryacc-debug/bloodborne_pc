@@ -30,7 +30,7 @@ public partial class MainWindow : Window
         ("FSR", "fsr"), ("FSR 4.1.1", "fsr411"),
         ("DLSS", "dlss"), ("XESS", "xess"), ("TAA", "taa"), ("Off", "off") };
     private static readonly (string Label, string Value)[] Presets = {
-        ("Native", "0"), ("Quality", "1"), ("Balanced", "2"), ("Performance", "3"), ("Ultra Performance", "4"), ("Custom", "5") };
+        ("Native", "0"), ("Ultra Quality", "ultra_quality"), ("Quality", "1"), ("Balanced", "2"), ("Performance", "3"), ("Ultra Performance", "4"), ("Custom", "5") };
     private static readonly (string Label, string Value)[] FrameGenerationModes = {
         ("Off", "off"), ("FSR", "fsr3"), ("DLSS", "dlss") };
     // DLSS: 1 generated frame = 2x; RTX 50 may support up to 5 generated = 6x.
@@ -73,6 +73,7 @@ public partial class MainWindow : Window
         Fill(ResolutionBox, Resolutions);
         Fill(UpscalerBox, Upscalers);
         Fill(PresetBox, Presets);
+        UpdateUltraQualityAvailability();
         Fill(FrameGenerationBox, FrameGenerationModes);
         Fill(GeneratedFramesBox, GeneratedFrameModes);
         Fill(ReflexBox, ReflexModes);
@@ -220,6 +221,7 @@ public partial class MainWindow : Window
             DlssSharperTexturesBox.IsEnabled = isDlssUpscaler;
         if (DlssJitterFadeBox is not null)
             DlssJitterFadeBox.IsEnabled = isDlssUpscaler;
+        UpdateUltraQualityAvailability();
 
     }
 
@@ -367,7 +369,7 @@ public partial class MainWindow : Window
             Select(PresentationBox, _ini.Get("present_mode", "Mailbox"), "Mailbox");
             Select(UpscalerBox, GraphicsOptions.NormalizeUpscaler(_ini.Get("upscaler", "fsr")), "fsr");
             LoadNewGraphicsOptions(_ini);
-            Select(PresetBox, _ini.Get("preset", "1"), "1");
+            LoadUpscalingPreset(_ini);
             DlssAutoExposureBox.IsChecked = _ini.Get("dlss_auto_exposure", "0") == "1";
             DlssSharperTexturesBox.IsChecked = _ini.Get("dlss_mip_bias", "1") == "1";
             Select(FrameGenerationBox, _ini.Get("frame_gen", "off"), "off");
@@ -566,6 +568,7 @@ public partial class MainWindow : Window
             if (File.Exists(selectedIni))
             {
                 info.Environment["BB_CONFIG"] = selectedIni;
+                ApplyUltraQualityOverride(info, new IniFile(selectedIni));
                 info.Environment["BB_DATA_DIR"] = Path.GetDirectoryName(selectedIni)!;
             }
             info.Environment["BB_PREBUILT"] = "1";
