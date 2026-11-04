@@ -58,7 +58,9 @@ def collect(source: Path, destination: Path, runtime: Path) -> None:
     if not runtime.is_dir():
         raise RuntimeError(f'Compiler runtime folder not found: {runtime}')
     system = Path(os.environ['SystemRoot']) / 'System32'
-    queue = [destination / 'bb-probe.exe', destination / 'bb-engine-assets.exe']
+    queue = list(destination.glob('*.exe'))
+    if not queue:
+        raise RuntimeError('No native executables were staged')
     seen = set()
     while queue:
         path = queue.pop()

@@ -37,6 +37,18 @@ class PatchChecks(unittest.TestCase):
         # Every new lighting/look row is byte-for-byte the original definition.
         begin, end = 'Setting g_lighting[]', 'constexpr int kGraphicsPick'
         self.assertEqual(original.split(begin)[1].split(end)[0].strip(), menu.split(begin)[1].split('struct Section')[0].strip())
+        self.assertIn('if (g_offered[s] && !HiddenSystemPage(s))', menu)
+        hidden = menu.split('constexpr bool HiddenSystemPage')[1].split('void* GUEST SystemList')[0]
+        for section in ('kControls', 'kKeys', 'kLighting', 'kDetail', 'kLooks'):
+            self.assertIn('section == ' + section, hidden)
+        for section in ('kGraphics', 'kEffects', 'kEnhance', 'kColour', 'kCamera'):
+            self.assertNotIn('section == ' + section, hidden)
+        # Offering controls and lighting still follows the same backend switches.
+        for line in original.splitlines():
+            if 'g_offered[' in line and '=' in line and 'OptionRows::' not in line:
+                self.assertIn(line, menu)
+        self.assertIn('g_offered[kControls] = g_offered[kKeys] = settings.pc_controls;', menu)
+        self.assertIn('g_offered[kLighting] = g_offered[kDetail] = g_offered[kLooks] = Graphics::Enabled();', menu)
         for section in ('PCEnhance', 'PCEffects', 'PCColour', 'PCLighting', 'PCDetail', 'PCLooks'):
             self.assertIn(section, menu)
 

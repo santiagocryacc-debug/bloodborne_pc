@@ -1,9 +1,9 @@
 #!/usr/bin/env python3
-"""Hide only the in-game Output Resolution row in Lantern Engine v0.9.39-beta.29 stable.
+"""Hide selected in-game PC pages and the Output Resolution row in Lantern Engine v0.9.39-beta.29 stable.
 
 Runs against the engine/ directory of the official release source.
 Exact-match, all-or-nothing staging; refuses to touch unexpected future versions.
-This does not modify DISPLAY, native System menus, game data or saves.
+Only the requested System commands and Resolution row are hidden. Backend settings, handlers, page assets and game data are retained.
 """
 from pathlib import Path
 import argparse
@@ -20,6 +20,10 @@ RULES = [
     ("open section extra caption handling", "    } else if (d && S == kGraphics) {\n        KeepDefaultsCaption(d);\n    }\n", "    }\n"),
     ("graphics bound value", "    g_graphics[4].number = &s.output_res;\n    g_graphics[5].amount = &s.graphics_fog;\n", "    g_graphics[4].amount = &s.graphics_fog;\n"),
     ("unused caption update", "    UpdateDefaultsCaption(list, focused);\n", ""),
+]
+# Keep g_offered and all handlers/settings intact; filter only commands added to System.
+RULES += [
+    ("System page command visibility", "void* GUEST SystemList(void* out, void* builder, void* functor) {\n    for (int s = 0; s < kSectionCount; ++s)\n        if (g_offered[s]) OptionRows::AddCommand(builder, g_sections[s].row, kOpeners[s]);", "constexpr bool HiddenSystemPage(int section) {\n    return section == kControls || section == kKeys || section == kLighting ||\n           section == kDetail || section == kLooks;\n}\n\nvoid* GUEST SystemList(void* out, void* builder, void* functor) {\n    for (int s = 0; s < kSectionCount; ++s)\n        if (g_offered[s] && !HiddenSystemPage(s)) OptionRows::AddCommand(builder, g_sections[s].row, kOpeners[s]);"),
 ]
 GEN_BEFORE = "{\"PCGraphics\", 117020, 6, true}"
 GEN_AFTER = "{\"PCGraphics\", 117020, 5, true}"
@@ -51,7 +55,7 @@ def apply(root: Path) -> None:
     # Write both only after all checks pass.
     paths[0].write_text(native, encoding="utf-8")
     paths[1].write_text(gen, encoding="utf-8")
-    print("0.9.39 beta 29 native Output Resolution row removed; remaining System menu preserved")
+    print("0.9.39 beta 29 Output Resolution and requested PC pages hidden; backend functions preserved")
 
 if __name__ == "__main__":
     p = argparse.ArgumentParser(description=__doc__)
