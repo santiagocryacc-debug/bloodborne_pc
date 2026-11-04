@@ -17,7 +17,7 @@ $starters = @(Get-ChildItem -LiteralPath (Join-Path $stageRoot 'official') -Recu
 if ($starters.Count -ne 1) { throw 'Unexpected official package layout' }
 $packageRoot = $starters[0].Directory.Parent.Parent.FullName
 $nativeOut = Join-Path ([IO.Path]::GetFullPath($NativeDirectory)) 'engine/out'
-foreach ($name in @('bb-probe.exe','bb-engine-assets.exe')) {
+foreach ($name in @('bb-probe.exe','bb-engine-assets.exe','bb-shader-lab.exe')) {
     if (-not (Test-Path -LiteralPath (Join-Path $nativeOut $name))) { throw "Missing patched native executable: $name" }
 }
 if (-not (Test-Path -LiteralPath (Join-Path $LauncherDirectory 'Launcher.exe'))) { throw 'Missing cinematic Launcher.exe' }
@@ -38,6 +38,11 @@ foreach ($file in Get-ChildItem -LiteralPath $nativeOut -File) {
     Copy-Item -LiteralPath $file.FullName -Destination (Join-Path $outputRoot 'engine/out') -Force
     if ((Get-FileHash -LiteralPath $file.FullName).Hash -ne (Get-FileHash -LiteralPath (Join-Path $outputRoot "engine/out/$($file.Name)")).Hash) { throw 'Native copy integrity failure' }
 }
+python (Join-Path $PSScriptRoot 'runtime-fixes/audit_pe_runtime.py') (Join-Path $outputRoot 'engine/out')
+if ($LASTEXITCODE -ne 0) { throw 'Packaged PE runtime compatibility check failed' }
+# Exercise the actual helper with Windows error dialogs disabled and a bounded timeout.
+python (Join-Path $PSScriptRoot 'runtime-fixes/smoke_shader_helper.py') (Join-Path $outputRoot 'engine/out/bb-shader-lab.exe')
+if ($LASTEXITCODE -ne 0) { throw 'Packaged shader helper failed its cache smoke check' }
 Copy-Item -LiteralPath (Join-Path $LauncherDirectory 'Launcher.exe') -Destination (Join-Path $outputRoot 'Launcher.exe')
 $launcherFile = Get-Item -LiteralPath (Join-Path $outputRoot 'Launcher.exe')
 if ($launcherFile.VersionInfo.FileVersion -ne '0.9.39.29') { throw 'Unexpected cinematic launcher version' }
@@ -47,6 +52,8 @@ $manifest = [ordered]@{
     officialArchiveSha256 = $officialHash
     nativeBuild = $nativeBuild
     nativeOutputResolutionHidden = $true
+    shaderLabMatchedRuntime = $true
+    hiddenSystemPages = @('PCControls', 'PCKeys', 'PCLighting', 'PCDetail', 'PCLooks')
     launcherSourceCommit = $env:GITHUB_SHA
     launcherSha256 = (Get-FileHash -LiteralPath $launcherFile.FullName).Hash.ToLowerInvariant()
 }

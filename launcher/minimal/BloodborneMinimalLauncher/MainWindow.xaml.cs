@@ -168,16 +168,22 @@ public partial class MainWindow : Window
     private SaveRepository SavesRepository() => new(string.IsNullOrWhiteSpace(_savesDir)
         ? Path.Combine(_gameDir, "Saves") : _savesDir);
 
-    private void ManageSaves_Click(object sender, RoutedEventArgs e)
+    private void EditCurrentSave_Click(object sender, RoutedEventArgs e)
     {
         if (_launchInProgress || _backupInProgress) return;
         try
         {
             if (string.IsNullOrWhiteSpace(_gameDir)) throw new InvalidOperationException("Select The Game Folder");
-            new SavesWindow(this, SavesRepository(), _saveProfile, _gameDir, profile =>
-            {
-                _saveProfile = profile; SaveSettings();
-            }).ShowDialog();
+            if (SaveRepository.GameRunning()) throw new InvalidOperationException("Close Bloodborne First");
+            var repository = SavesRepository();
+            var profile = repository.Profile(_saveProfile);
+            repository.RecoverPending(profile);
+            var characters = repository.Characters(profile);
+            if (characters.Count == 0) throw new InvalidOperationException("No Character Found");
+            if (characters.Count == 1)
+                new SaveEditorWindow(this, repository, profile, characters[0], _gameDir).ShowDialog();
+            else
+                new CurrentSaveWindow(this, repository, profile, _gameDir).ShowDialog();
         }
         catch (Exception ex) { StatusText.Text = SaveUi.Error(ex); }
     }

@@ -111,7 +111,7 @@
      <Button Content="Display" Click="OpenDisplay_Click" Style="{StaticResource GothicMenuButton}" Margin="0,0,0,5"/>
      <Button Content="Effects" Click="OpenEffects_Click" Style="{StaticResource GothicMenuButton}" Margin="0,0,0,5"/>
      <Button Content="Fixes" Click="OpenFixes_Click" Style="{StaticResource GothicMenuButton}" Margin="0,0,0,5"/>
-     <Button Content="Saves" Click="ManageSaves_Click" Style="{StaticResource GothicMenuButton}" Margin="0,0,0,5"/>
+     <Button Content="Edit Save" Click="EditCurrentSave_Click" Style="{StaticResource GothicMenuButton}" Margin="0,0,0,5"/>
      <Button x:Name="BackupButton" Content="Backup" Click="Backup_Click" Style="{StaticResource GothicMenuButton}" Margin="0,0,0,5"/>
     </StackPanel>
 

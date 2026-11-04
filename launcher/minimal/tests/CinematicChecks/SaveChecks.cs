@@ -186,8 +186,12 @@ static byte[] Fixture()
         Check(repository.Characters(profile).Count == 1 && Directory.GetFiles(backups, "userdata0001", SearchOption.AllDirectories).Any(p => new FileInfo(p).Length == 32), "Recovery retains a copy of a damaged current save");
 
         var owner = new MainWindow(settings, starter);
-        var manager = new SavesWindow(owner, repository, "Default", "", _ => { });
-        Render(manager, Path.Combine(root, "save-manager.png"));
+        var manager = new CurrentSaveWindow(owner, repository, profile, "");
+        Render(manager, Path.Combine(root, "current-save-picker.png"));
+        var pickerButtons = Descendants((DependencyObject)manager.Content).OfType<Button>().Select(b => b.Content?.ToString()).ToArray();
+        Check(pickerButtons.SequenceEqual(new[] { "Edit Save" }), "Current save picker exposes only editing without backups, imports or profiles");
+        var mainButtons = Descendants((DependencyObject)owner.Content).OfType<Button>().Select(b => b.Content?.ToString()).ToArray();
+        Check(mainButtons.Contains("Edit Save") && mainButtons.Count(b => b == "Backup") == 1 && !mainButtons.Contains("Saves"), "Main navigation retains the original Backup alongside Edit Save without the new save manager");
         var editor = new SaveEditorWindow(owner, repository, profile, repository.Characters(profile).Single(), "");
         Render(editor, Path.Combine(root, "save-editor-stats.png"));
         var tabs = Descendants((DependencyObject)editor.Content).OfType<TabControl>().First();

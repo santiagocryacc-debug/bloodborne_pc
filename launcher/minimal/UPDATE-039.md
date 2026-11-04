@@ -1,35 +1,32 @@
 # Bloodborne Cinematic
 
-Launcher cinematografico con Lantern v0.9.39-beta.29 y las opciones graficas nuevas.
-Incluye Save Manager y Save Editor. Reglas de interfaz en CONSIGNA-FUTURO.md.
+Esta revision conserva todos los graficos de Lantern v0.9.39-beta.29 y deja solo Edit Save para editar los personajes de la carpeta de partidas activa.
+Se quitaron Save Manager, creacion y cambio de perfiles, importacion y restauracion. Se conserva el boton Backup original del menu principal con su origen y destino fijos.
+Si hay un solo personaje, el editor se abre directamente. Si hay varios, se elige uno de la misma partida activa.
+Se conservan los atributos, ecos, insight, inventario, objetos, equipo, jefes y lamparas del editor.
+Se mantiene la copia interna previa a una edicion, el bloqueo con el juego abierto y la verificacion de cambios externos.
+Los directorios historicos de backups no se borran ni se ofrecen para recuperar partidas.
 
-## Partidas
+Entregas separadas: Launcher-Con-Editor.exe y Launcher-Solo-Graphics.exe.
+La segunda es el binario exacto anterior a la integracion de saves, con los graficos nuevos.
+Cerrar el launcher, renombrar la version elegida como Launcher.exe y copiarla a BB Port.
+Conservar engine, Assets, lantern.ini, mods, partidas y preferencias.
 
-- Saves abre el gestor. Profile permite seleccionar Default o un perfil creado con New Profile o Copy Profile. Use Profile activa la seleccion para el proximo arranque.
-- New Profile crea una carpeta vacia. Copy Profile duplica las partidas del perfil seleccionado sin tocar el original.
-- Edit Save abre atributos, Blood Echoes, Insight, inventario, objetos, armas, armaduras, jefes y lamparas. Save Changes guarda; Discard Changes descarta. Los atributos ajustan tambien el nivel del personaje.
-- Import acepta una carpeta SPRJ0005, una carpeta Saves o un arbol savedata de CUSA00207. No importa archivos SL2 de consola ni ZIP.
-- Backup y Restore usan la misma carpeta Game Files/Backups del proyecto. Las copias anteriores SPRJ0005_fecha aparecen en Default. Las copias nuevas se asocian al perfil correspondiente y se verifican con SHA256.
-- Cada edicion, importacion o restauracion conserva antes la partida actual. No hay borrado automatico de backups. Se bloquean los cambios mientras bb-start o bb-probe estan abiertos.
-- Los perfiles nuevos se guardan dentro de Saves/profiles. Default conserva la partida y la ruta existentes. El boton Backup del menu principal sigue copiando siempre la partida original fija, independientemente del perfil activo.
+Leer CONSIGNA-FUTURO.md y BloodborneMinimalLauncher/AGENTS.md antes de tocar la interfaz.
+121 comprobaciones locales aprobadas: 28 de graficos y 93 de partidas y navegacion.
+No se realizo una prueba completa dentro del juego.
 
-## Instalacion
+## Engine Y Menus
 
-Copiar Launcher.exe junto a engine/ en BB Port, con el launcher y el juego cerrados.
-Conservar Assets, lantern.ini, preferencias y mods existentes. El engine de este paquete es el mismo
-Lantern v0.9.39-beta.29 ya integrado; esta entrega agrega el editor y el gestor a nuestra interfaz.
-Para una instalacion nueva, usar el contenido completo de BB Port incluido en Bloodborne.zip.
-No se incluyen juego, partidas, artwork personal ni el MOD 4K.
+La entrega del 2026-11-04 recompila juntos bb-probe, bb-engine-assets y bb-shader-lab con sus DLL correspondientes.
+Esto elimina la mezcla de Protobuf que provocaba Entry Point Not Found en el helper de shaders.
+La correccion provisional con bbproto_old.dll queda documentada en runtime-fixes para instalaciones anteriores;
+el paquete completo nuevo usa directamente el helper recompilado, con su runtime compatible.
+La entrega comprueba imports y exports de todas las DLL internas y ejecuta --recompile-cache sobre una carpeta vacia.
 
-## Graficos Conservados
-
-Graphics mantiene Upscalers, Frame Generation, Graphics Detail y Engine Performance.
-Effects incluye Lighting y los presets. DLSS mantiene el modelo K sin selector.
-Custom sigue disponible con su relacion de renderizado. No se agrego un preset Ultra Quality separado.
-Half Refresh Rate sigue desactivado y Output Resolution sigue oculto en el menu nativo.
-XESS requiere libxess.dll en engine/xess; si falta, el engine usa FSR 3.1.
-Los cambios graficos se aplican en el proximo arranque. La validacion automatica no incluye una partida de juego completa.
-
-Upstream: https://github.com/Awakenchan/LanternEngine/releases/tag/v0.9.39-beta.29
-Commit: e6b943dd969d99561545315f3d801f10e4a6cf8d.
-Los modulos de lectura de saves y catalogo son GPL-3.0-or-later; ver THIRD-PARTY-SAVES.md y LICENSE-SAVES.txt.
+Se ocultan solo los comandos de System que abren PC Controls, Key Bindings, PC Lighting,
+PC Lighting Detail y PC Looks. Output Resolution permanece oculto como antes.
+Las definiciones de las paginas, los handlers, controles PC, opciones graficas y configuracion permanecen activas.
+No se deshabilita ningun efecto ni opcion al ocultar el acceso visual. Se conservan las otras paginas nativas.
+La comprobacion de codigo verifica que las asignaciones g_offered y los bindings no se alteran.
+No se modifican partidas, MOD 4K, artwork ni preferencias.

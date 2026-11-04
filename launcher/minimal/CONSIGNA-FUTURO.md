@@ -15,3 +15,7 @@ Estas decisiones son requisitos del usuario para todos los cambios futuros.
 - No incluir partidas reales, archivos del juego, configuracion personal ni credenciales en ZIP de fuentes o GitHub.
 
 El AGENTS.md de BloodborneMinimalLauncher aplica estas reglas al codigo del launcher.
+
+Actualizacion de alcance: dejar unicamente Edit Save para los personajes de la partida activa. No volver a agregar el gestor de perfiles, importacion ni restauracion de saves viejas. Conservar siempre el boton Backup original del menu principal, con su origen y destino fijos. La copia de seguridad interna previa a editar conserva la proteccion de datos.
+
+Menus ingame: ocultar visualmente PC Controls, Key Bindings, PC Lighting, PC Lighting Detail y PC Looks, ademas de Output Resolution. Conservar todos sus settings, handlers y funciones por detras. No usar interruptores globales que deshabiliten efectos o controles para ocultar entradas.

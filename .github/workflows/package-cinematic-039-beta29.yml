@@ -8,6 +8,7 @@ on:
       - 'launcher/minimal/BloodborneMinimalLauncher/**'
       - 'launcher/minimal/tests/CinematicChecks/**'
       - 'launcher/minimal/Build-Cinematic039.ps1'
+      - 'launcher/minimal/runtime-fixes/**'
       - 'launcher/minimal/UPDATE-039.md'
       - 'launcher/minimal/CONSIGNA-FUTURO.md'
       - 'launcher/minimal/THIRD-PARTY-SAVES.md'
@@ -31,7 +32,7 @@ jobs:
           fetch-depth: 0
       - name: Verify native build source matches this integration
         run: |
-          git diff --exit-code bc7c963970a74b5d6f10e8c54f59bc07b8e2fb5a HEAD -- launcher/minimal/engine39beta29
+          git diff --exit-code 0e2913b892b906ca4eb9fba4aee186c2e50a43f5 HEAD -- launcher/minimal/engine39beta29
           if ($LASTEXITCODE -ne 0) { throw 'Native patch changed; rebuild it and update the pinned native run first' }
       - uses: actions/setup-dotnet@v4
         with:
@@ -54,7 +55,7 @@ jobs:
         run: |
           $ErrorActionPreference = 'Stop'
           $headers = @{ Authorization = "Bearer $env:GH_TOKEN"; Accept = 'application/vnd.github+json' }
-          $url = 'https://api.github.com/repos/santiagocryacc-debug/bloodborne_pc/actions/runs/41378676952'
+          $url = 'https://api.github.com/repos/santiagocryacc-debug/bloodborne_pc/actions/runs/41767329041'
           $deadline = [DateTime]::UtcNow.AddMinutes(75)
           do {
             $run = Invoke-RestMethod -Uri $url -Headers $headers
@@ -69,12 +70,14 @@ jobs:
         with:
           name: Lantern039Beta29-HideOutputResolution-native
           path: patched-engine
-          run-id: 41378676952
+          run-id: 41767329041
           github-token: ${{ github.token }}
       - name: Download the exact official release and assemble
         run: |
           $ErrorActionPreference = 'Stop'
           Invoke-WebRequest -Uri 'https://github.com/Awakenchan/LanternEngine/releases/download/v0.9.39-beta.29/LanternEngine-v0.9.39-beta.29-win64.zip' -OutFile official.zip
+          python -m pip install pefile==2024.8.26
+          if ($LASTEXITCODE -ne 0) { throw 'PE verification dependency failed' }
           ./launcher/minimal/Build-Cinematic039.ps1 -OfficialArchive official.zip -NativeDirectory patched-engine -LauncherDirectory cinematic-launcher -WorkDirectory package-work -OutputDirectory package/BloodborneCinematic
       - uses: actions/upload-artifact@v4
         with:

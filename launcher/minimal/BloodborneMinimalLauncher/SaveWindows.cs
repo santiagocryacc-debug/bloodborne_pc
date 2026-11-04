@@ -81,98 +81,32 @@ internal static class SaveUi
     };
 }
 
-internal sealed class SavesWindow : Window
+// Only characters in the active save directory are offered here. No archives or imports.
+internal sealed class CurrentSaveWindow : Window
 {
-    private readonly SaveRepository _repository;
-    private readonly string _gameDir;
-    private readonly Action<string> _activate;
-    private readonly ComboBox _profiles = new() { Width = 250, Margin = new Thickness(8, 0, 16, 0) };
-    private readonly TextBox _newName = new() { Width = 230, Margin = new Thickness(0, 0, 12, 6) };
-    private readonly ListBox _characters = new();
-    private readonly ListBox _backups = new();
-    private readonly TextBlock _status = SaveUi.Text("Ready");
-    private readonly TextBlock _active = SaveUi.Text("");
-    private readonly Grid _actions = new();
-    private SaveProfile Selected => (SaveProfile?)_profiles.SelectedItem ?? throw new InvalidOperationException("Select A Profile");
-
-    internal SavesWindow(Window owner, SaveRepository repository, string active, string gameDir, Action<string> activate)
+    internal CurrentSaveWindow(Window owner, SaveRepository repository, SaveProfile profile, string gameDir)
     {
-        _repository = repository; _gameDir = gameDir; _activate = activate;
-        SaveUi.Setup(this, owner, "Save Manager", 1020, 730);
-        var root = new DockPanel { Margin = new Thickness(24) };
-        var top = new StackPanel(); DockPanel.SetDock(top, Dock.Top);
-        top.Children.Add(SaveUi.Text("Save Manager", true));
-        top.Children.Add(SaveUi.Row(SaveUi.Text("Profile"), _profiles, SaveUi.Button("Use Profile", () => Run(() =>
-        { _repository.RecoverPending(Selected); _activate(Selected.Name); _active.Text = "Active Profile: " + Selected.Name; }, "Profile Selected"))));
-        _active.Text = "Active Profile: " + active; top.Children.Add(_active);
-        top.Children.Add(SaveUi.Row(SaveUi.Text("Profile Name"), _newName, SaveUi.Button("New Profile", () => Create(false)), SaveUi.Button("Copy Profile", () => Create(true))));
-        root.Children.Add(top);
-        var bottom = SaveUi.Row(_status); DockPanel.SetDock(bottom, Dock.Bottom); root.Children.Add(bottom);
-        var grid = new Grid { Margin = new Thickness(0, 12, 0, 4) };
-        grid.ColumnDefinitions.Add(new ColumnDefinition()); grid.ColumnDefinitions.Add(new ColumnDefinition());
-        grid.RowDefinitions.Add(new RowDefinition { Height = GridLength.Auto });
-        grid.RowDefinitions.Add(new RowDefinition());
-        grid.RowDefinitions.Add(new RowDefinition { Height = GridLength.Auto });
-        grid.Children.Add(SaveUi.Text("Characters", true));
-        var title = SaveUi.Text("Backups", true); Grid.SetColumn(title, 1); grid.Children.Add(title);
-        _characters.Margin = new Thickness(0, 0, 16, 10); Grid.SetRow(_characters, 1); grid.Children.Add(_characters);
-        _backups.Margin = new Thickness(0, 0, 0, 10); Grid.SetColumn(_backups, 1); Grid.SetRow(_backups, 1); grid.Children.Add(_backups);
-        var leftButtons = SaveUi.Row(SaveUi.Button("Edit Save", Edit), SaveUi.Button("Import", Import));
-        Grid.SetRow(leftButtons, 2); grid.Children.Add(leftButtons);
-        var rightButtons = SaveUi.Row(SaveUi.Button("Backup", () => Run(() => _repository.Backup(Selected), "Backup Complete")),
-            SaveUi.Button("Restore", Restore), SaveUi.Button("Refresh", Refresh));
-        Grid.SetRow(rightButtons, 2); Grid.SetColumn(rightButtons, 1); grid.Children.Add(rightButtons);
-        _actions.Children.Add(grid); root.Children.Add(_actions); Content = root;
-        _profiles.SelectionChanged += (_, _) => Refresh();
-        ReloadProfiles(active);
-    }
-    private void ReloadProfiles(string selected)
-    {
-        _profiles.ItemsSource = _repository.Profiles();
-        _profiles.SelectedItem = _profiles.Items.Cast<SaveProfile>().FirstOrDefault(p => p.Name == selected) ?? _profiles.Items[0];
-    }
-    private void Refresh()
-    {
-        if (_profiles.SelectedItem == null) return;
-        try
+        SaveUi.Setup(this, owner, "Save Editor", 660, 300);
+        var root = new StackPanel { Margin = new Thickness(24) };
+        root.Children.Add(SaveUi.Text("Character", true));
+        var characters = new ComboBox { ItemsSource = repository.Characters(profile), SelectedIndex = 0, Margin = new Thickness(0, 8, 0, 20) };
+        root.Children.Add(characters);
+        var status = SaveUi.Text("Ready");
+        root.Children.Add(SaveUi.Button("Edit Save", () =>
         {
-            _backups.ItemsSource = _repository.Backups(Selected);
-            _backups.SelectedIndex = _backups.Items.Count > 0 ? 0 : -1;
-            _characters.ItemsSource = _repository.Characters(Selected);
-            _characters.SelectedIndex = _characters.Items.Count > 0 ? 0 : -1;
-            _backups.ItemsSource = _repository.Backups(Selected);
-            _backups.SelectedIndex = _backups.Items.Count > 0 ? 0 : -1;
-            _status.Text = "Ready";
-        }
-        catch (Exception e) { _characters.ItemsSource = null; _status.Text = SaveUi.Error(e); }
-    }
-    private void Run(Action action, string success)
-    {
-        try { action(); Refresh(); _status.Text = success; }
-        catch (Exception e) { _status.Text = SaveUi.Error(e); }
-    }
-    private void Create(bool copy) => Run(() =>
-    { var name = _newName.Text.Trim(); _repository.CreateProfile(name, copy ? Selected : null); ReloadProfiles(name); _newName.Clear(); }, "Profile Created");
-    private void Import()
-    {
-        using var dialog = new System.Windows.Forms.FolderBrowserDialog { Description = "Import Save", UseDescriptionForTitle = true };
-        if (dialog.ShowDialog() != System.Windows.Forms.DialogResult.OK) return;
-        Run(() => _repository.Import(Selected, dialog.SelectedPath), "Save Imported");
-    }
-    private void Restore()
-    {
-        if (_backups.SelectedItem is not SaveBackup backup) { _status.Text = "Select A Backup"; return; }
-        Run(() => _repository.Restore(Selected, backup), "Save Restored");
-    }
-    private void Edit()
-    {
-        if (_characters.SelectedItem is not SaveCharacter character) { _status.Text = "Select A Character"; return; }
-        try
-        {
-            if (SaveRepository.GameRunning()) throw new InvalidOperationException("Close Bloodborne First");
-            new SaveEditorWindow(this, _repository, Selected, character, _gameDir).ShowDialog(); Refresh();
-        }
-        catch (Exception e) { _status.Text = SaveUi.Error(e); }
+            try
+            {
+                if (SaveRepository.GameRunning()) throw new InvalidOperationException("Close Bloodborne First");
+                if (characters.SelectedItem is not SaveCharacter character) throw new InvalidOperationException("Select A Character");
+                new SaveEditorWindow(this, repository, profile, character, gameDir).ShowDialog();
+                var slot = character.Slot;
+                characters.ItemsSource = repository.Characters(profile);
+                characters.SelectedItem = characters.Items.Cast<SaveCharacter>().FirstOrDefault(c => c.Slot == slot);
+                status.Text = "Ready";
+            }
+            catch (Exception e) { status.Text = SaveUi.Error(e); }
+        }));
+        root.Children.Add(status); Content = root;
     }
 }
 
