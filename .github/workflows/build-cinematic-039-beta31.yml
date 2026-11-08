@@ -2,8 +2,8 @@ name: Bloodborne Cinematic Lantern 0.9.39 beta 31
 
 on:
   workflow_dispatch:
-  push:
-    branches: [lantern-0-9-39-beta31-integration]
+  pull_request:
+    branches: [lantern-0-9-39-beta29-integration]
 
 permissions:
   contents: read
