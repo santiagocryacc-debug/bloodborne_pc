@@ -122,7 +122,11 @@ internal static class Program
             var app = new App { ShutdownMode = ShutdownMode.OnExplicitShutdown };
             app.InitializeComponent();
             CultureInfo.CurrentCulture = CultureInfo.GetCultureInfo("es-AR");
+            var rememberedGame = Directory.CreateDirectory(Path.Combine(root, "Remembered Game")).FullName;
+            File.WriteAllText(Path.Combine(engineOut, "game_dir.txt"), rememberedGame);
             var window = new MainWindow(settings, starter);
+            Check(new IniFile(settings).Get("game_dir") == rememberedGame, "Launcher finds the game folder remembered by Lantern");
+            Check(window.FindName("EngineVersionText") is null, "Launcher has no engine version subtitle");
             ComboBox Box(string name) => (ComboBox)window.FindName(name);
             var graphics = Controls(window, "_graphicsControls");
             var engine = Controls(window, "_engineControls");

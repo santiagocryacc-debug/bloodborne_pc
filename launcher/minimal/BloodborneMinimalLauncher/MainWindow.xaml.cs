@@ -545,7 +545,7 @@ public partial class MainWindow : Window
             if (!Directory.Exists(_gameDir))
                 _gameDir = ReadRememberedGameDirectory(engineStart) ?? _gameDir;
             if (!Directory.Exists(_gameDir))
-                throw new DirectoryNotFoundException("Game Folder Not Found. Select The Folder In Settings.");
+                throw new DirectoryNotFoundException("Game Folder Not Found. Select A Game Folder.");
 
             UpdateGameDirectoryDisplay();
 
