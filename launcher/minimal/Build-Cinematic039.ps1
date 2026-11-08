@@ -51,6 +51,7 @@ New-Item -ItemType Directory -Path $smokeRoot | Out-Null
 $env:BB_CONFIG = Join-Path $smokeRoot 'lantern.ini'
 $env:BB_DATA_DIR = $smokeRoot
 $env:BB_USER_DIR = Join-Path $smokeRoot 'saves'
+$env:BB_GPU_USER_DIR = Join-Path $smokeRoot 'user'
 $startExe = Join-Path $outputRoot 'engine/out/bb-start.exe'
 $startOutput = & $startExe --game-dir $smokeRoot 2>&1
 if ($LASTEXITCODE -ne 1 -or ($startOutput -join "`n") -notlike '*No eboot.bin in*') {
@@ -80,3 +81,5 @@ $lines = foreach ($file in Get-ChildItem -LiteralPath $outputRoot -Recurse -File
 }
 $lines | Set-Content -LiteralPath (Join-Path $outputRoot 'SHA256SUMS.txt') -Encoding utf8NoBOM
 Write-Output "Verified package: $outputRoot"
+# The starter intentionally returns 1 for the empty test fixture.
+exit 0

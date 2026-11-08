@@ -7,135 +7,10 @@ on:
 
 permissions:
   contents: read
+  actions: read
 
 jobs:
-  engine:
-    runs-on: windows-latest
-    timeout-minutes: 115
-    defaults:
-      run:
-        shell: pwsh
-    steps:
-      - uses: actions/checkout@v4
-      - name: Clone exact official 0.9.39 beta 31 source, including submodules
-        run: |
-          git -c core.longpaths=true clone --depth 1 --branch v0.9.39-beta.31 --recurse-submodules https://github.com/Awakenchan/LanternEngine.git upstream
-          if ($LASTEXITCODE -ne 0) { throw 'Could not clone Lantern 0.9.39 beta 31 source' }
-          $commit = (git -C upstream rev-parse HEAD).Trim()
-          if ($commit -ne '008208bea1895647f185303f71b02a53ea915a5d') { throw "Upstream commit mismatch: $commit" }
-      - name: Verify and apply the existing Cinematic menu patch
-        run: |
-          python launcher/minimal/engine39beta29/test_patch.py upstream -v
-          if ($LASTEXITCODE -ne 0) { throw 'Native patch checks failed' }
-          python launcher/minimal/engine39beta29/hide_ingame_output_resolution.py upstream/engine
-          if ($LASTEXITCODE -ne 0) { throw 'Native 0.9.39 beta 31 menu patch did not apply cleanly' }
-          git -C upstream diff --stat -- engine/gpu/shim/engine/option_menu.cpp engine/tools/engine/menu_assets.cpp
-      - name: Install MSYS2 CLANG64 toolchain
-        uses: msys2/setup-msys2@v2
-        with:
-          msystem: CLANG64
-          update: true
-          install: >-
-            git
-            patch
-            curl
-            mingw-w64-clang-x86_64-clang
-            mingw-w64-clang-x86_64-lld
-            mingw-w64-clang-x86_64-libc++
-            mingw-w64-clang-x86_64-cmake
-            mingw-w64-clang-x86_64-ninja
-            mingw-w64-clang-x86_64-pkgconf
-            mingw-w64-clang-x86_64-python
-            mingw-w64-clang-x86_64-sdl3
-            mingw-w64-clang-x86_64-opus
-            mingw-w64-clang-x86_64-boost
-            mingw-w64-clang-x86_64-fmt
-            mingw-w64-clang-x86_64-glslang
-            mingw-w64-clang-x86_64-spirv-cross
-            mingw-w64-clang-x86_64-spirv-headers
-            mingw-w64-clang-x86_64-vulkan-headers
-            mingw-w64-clang-x86_64-vulkan-loader
-            mingw-w64-clang-x86_64-vulkan-memory-allocator
-            mingw-w64-clang-x86_64-xxhash
-            mingw-w64-clang-x86_64-zydis
-            mingw-w64-clang-x86_64-robin-map
-            mingw-w64-clang-x86_64-ffmpeg
-            mingw-w64-clang-x86_64-protobuf
-            mingw-w64-clang-x86_64-nlohmann-json
-            mingw-w64-clang-x86_64-openssl
-            mingw-w64-clang-x86_64-miniupnpc
-            mingw-w64-clang-x86_64-zlib
-            mingw-w64-clang-x86_64-expat
-      - name: Compile 0.9.39 beta 31 native engine and menu assets
-        shell: msys2 {0}
-        run: |
-          set -euo pipefail
-          cd upstream/engine
-          export CC=clang
-          export CXX=clang++
-          export BB_PGO=off
-          export BB_JOBS=4
-          export CXXFLAGS="-include $(cygpath -m "$PWD/gpu/win_compat.h")"
-          bash build.sh
-          test -s out/bb-probe.exe
-          test -s out/bb-engine-assets.exe
-          test -s out/bb-start.exe
-          test -s out/bb-shader-lab.exe
-          cygpath -m "$MINGW_PREFIX/bin" > out/compiler-runtime.path
-      - name: Check patch isolation
-        shell: pwsh
-        run: |
-          $changed = @(git -C upstream diff --name-only)
-          if ($changed.Count -ne 2 -or 'engine/gpu/shim/engine/option_menu.cpp' -notin $changed -or 'engine/tools/engine/menu_assets.cpp' -notin $changed) { throw 'Unexpected native changes' }
-      - name: Stage 0.9.39 beta 31 native replacements only
-        run: |
-          $ErrorActionPreference = 'Stop'
-          New-Item -ItemType Directory -Force 'patched-engine/engine/out' | Out-Null
-          Copy-Item 'upstream/engine/out/bb-probe.exe' 'patched-engine/engine/out/'
-          Copy-Item 'upstream/engine/out/bb-engine-assets.exe' 'patched-engine/engine/out/'
-          Copy-Item 'upstream/engine/out/bb-shader-lab.exe' 'patched-engine/engine/out/'
-          $runtime = (Get-Content upstream/engine/out/compiler-runtime.path -Raw).Trim()
-          python launcher/minimal/engine39beta29/collect_runtime.py upstream/engine/out patched-engine/engine/out $runtime
-          if ($LASTEXITCODE -ne 0) { throw 'Dependency collection failed' }
-          $files = @(Get-ChildItem patched-engine/engine/out -File | ForEach-Object { @{ name=$_.Name; sha256=(Get-FileHash -LiteralPath $_.FullName).Hash.ToLowerInvariant() } })
-          @{ tag='v0.9.39-beta.31'; upstreamCommit='008208bea1895647f185303f71b02a53ea915a5d'; sourceCommit=$env:GITHUB_SHA; files=$files } | ConvertTo-Json -Depth 5 | Set-Content patched-engine/native-build.json -Encoding utf8NoBOM
-          @'
-          Lantern Engine v0.9.39-beta.31 native patch
-          Patched native engine, menu assets and shader lab compiled together with matching runtime DLLs
-          Install onto the EXACT official 0.9.39 beta 31 release
-          Output Resolution is hidden from native System > PC Graphics
-          No game data or saves are included
-          '@ | Set-Content 'patched-engine/README.txt' -Encoding utf8
-      - uses: actions/upload-artifact@v4
-        with:
-          name: Lantern039Beta31-HideOutputResolution-native
-          path: patched-engine/
-          if-no-files-found: error
-          retention-days: 14
-      - name: Upload engine diagnostics on failure
-        if: failure()
-        uses: actions/upload-artifact@v4
-        with:
-          name: Lantern039Beta31-build-diagnostics
-          path: upstream/engine/out/gpu-build.log
-          if-no-files-found: ignore
-          retention-days: 7
-      - name: Upload engine diagnostics on failure
-        if: failure()
-        uses: actions/upload-artifact@v4
-        with:
-          name: Lantern039Beta31-build-diagnostics
-          path: |
-            upstream/engine/out/gpu-build.log
-            upstream/engine/out/gpu/CMakeFiles/CMakeConfigureLog.yaml
-            patched-engine/
-          if-no-files-found: ignore
-          retention-days: 7
-
-
-
   package:
-    needs: engine
     runs-on: windows-latest
     timeout-minutes: 100
     defaults:
@@ -143,6 +18,12 @@ jobs:
         shell: pwsh
     steps:
       - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+      - name: Verify that the native patch inputs match the approved build
+        run: |
+          git diff --exit-code 53b1b42ede517cb22a8793b19d120a51ee029af4 HEAD -- launcher/minimal/engine39beta29
+          if ($LASTEXITCODE -ne 0) { throw 'Native inputs changed. Rebuild the native engine and update the pinned run.' }
       - uses: actions/setup-dotnet@v4
         with:
           dotnet-version: '8.0.x'
@@ -158,10 +39,18 @@ jobs:
         run: |
           dotnet run --project launcher/minimal/tests/CinematicChecks/CinematicChecks.csproj -c Release -- validation
           if ($LASTEXITCODE -ne 0) { throw 'Cinematic configuration checks failed' }
+      - uses: actions/upload-artifact@v4
+        with:
+          name: Cinematic039Beta31-Launcher
+          path: cinematic-launcher/Launcher.exe
+          if-no-files-found: error
+          retention-days: 30
       - uses: actions/download-artifact@v4
         with:
           name: Lantern039Beta31-HideOutputResolution-native
           path: patched-engine
+          run-id: 42429521640
+          github-token: ${{ github.token }}
       - name: Download the exact official release and assemble
         run: |
           $ErrorActionPreference = 'Stop'
