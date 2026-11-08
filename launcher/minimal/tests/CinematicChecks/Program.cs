@@ -58,7 +58,7 @@ internal static class Program
         var folder = Path.Combine(root, "ultra-quality");
         var engine = Path.Combine(folder, "engine", "out"); Directory.CreateDirectory(engine);
         var starter = Path.Combine(engine, "bb-start.exe"); File.WriteAllText(starter, "fixture");
-        File.WriteAllText(Path.Combine(folder, "cinematic-engine.json"), JsonSerializer.Serialize(new { tag = EngineRelease.Tag, upstreamCommit = GraphicsOptions.UpstreamCommit }));
+        File.WriteAllText(Path.Combine(folder, "cinematic-engine.json"), JsonSerializer.Serialize(new { tag = EngineRelease.Tag, upstreamCommit = EngineRelease.UpstreamCommit }));
         var iniPath = Path.Combine(folder, "lantern.ini");
         File.WriteAllText(iniPath, "upscaler=dlss\npreset=1\nrender_scale=1.75\ndlss_preset=K\nframe_gen=off\n");
         var settings = Path.Combine(folder, "preferences.ini");
@@ -114,7 +114,7 @@ internal static class Program
             Directory.CreateDirectory(engineOut);
             var starter = Path.Combine(engineOut, "bb-start.exe");
             File.WriteAllText(starter, "test fixture only");
-            File.WriteAllText(Path.Combine(package, "cinematic-engine.json"), JsonSerializer.Serialize(new { tag = EngineRelease.Tag, upstreamCommit = GraphicsOptions.UpstreamCommit }));
+            File.WriteAllText(Path.Combine(package, "cinematic-engine.json"), JsonSerializer.Serialize(new { tag = EngineRelease.Tag, upstreamCommit = EngineRelease.UpstreamCommit }));
             var path = Path.Combine(package, "lantern.ini");
             File.WriteAllText(path, "# Existing configuration\nupscaler=fsr4\npreset=5\nrender_scale=1.75\ndlss_preset=K\ncustom_future_key=keep-me\nframe_gen_cap=1\n");
             var settings = Path.Combine(root, "settings.ini");
@@ -122,7 +122,11 @@ internal static class Program
             var app = new App { ShutdownMode = ShutdownMode.OnExplicitShutdown };
             app.InitializeComponent();
             CultureInfo.CurrentCulture = CultureInfo.GetCultureInfo("es-AR");
+            var rememberedGame = Directory.CreateDirectory(Path.Combine(root, "Remembered Game")).FullName;
+            File.WriteAllText(Path.Combine(engineOut, "game_dir.txt"), rememberedGame);
             var window = new MainWindow(settings, starter);
+            Check(new IniFile(settings).Get("game_dir") == rememberedGame, "Launcher finds the game folder remembered by Lantern");
+            Check(window.FindName("EngineVersionText") is null, "Launcher has no engine version subtitle");
             ComboBox Box(string name) => (ComboBox)window.FindName(name);
             var graphics = Controls(window, "_graphicsControls");
             var engine = Controls(window, "_engineControls");
@@ -159,8 +163,10 @@ internal static class Program
             Check(new IniFile(settings).Get("LANTERN_LIFTER") == "0", "Native renderer choices persist separately");
             var info = new ProcessStartInfo();
             info.Environment["LANTERN_JOB_SLOTS"] = "0";
+            ((CheckBox)engine["LANTERN_GX_DRAWS"]).IsChecked = false;
             window.ApplyNewEngineOptions(info);
             Check(info.Environment["LANTERN_LIFTER"] == "0" && info.Environment["LANTERN_JOB_SLOTS"] == "1", "Engine switches override inherited values in the child only");
+            Check(info.Environment["LANTERN_GX_DRAWS"] == "0" && info.Environment["LANTERN_GX_NATIVE"] == "0", "The native draw toggle disables both rendering paths");
             var before = File.ReadAllText(path);
             Select(Box("UpscalerBox"), "off");
             var rejected = false;
@@ -186,7 +192,11 @@ internal static class Program
             Check(((CheckBox)Controls(reopened, "_graphicsControls")["effect_ray_tracing"]).IsChecked == true, "Lighting settings reload after reopening");
             Check(((CheckBox)Controls(reopened, "_engineControls")["LANTERN_LIFTER"]).IsChecked == false, "Native renderer settings reload after reopening");
             reopened.Close();
-            Check(EngineRelease.IsCompatible(package), "Pinned package marker is recognized");
+            Check(EngineRelease.IsCompatible(package), "Cinematic beta 31 package is recognized");
+            File.WriteAllText(Path.Combine(package, "cinematic-engine.json"), "{\"tag\":\"v0.9.39-beta.31\",\"upstreamCommit\":\"e6b943dd969d99561545315f3d801f10e4a6cf8d\"}");
+            Check(!EngineRelease.IsCompatible(package), "A beta 31 marker with the wrong commit is rejected");
+            File.WriteAllText(Path.Combine(package, "cinematic-engine.json"), "{\"tag\":\"v0.9.39-beta.29\",\"upstreamCommit\":\"e6b943dd969d99561545315f3d801f10e4a6cf8d\"}");
+            Check(EngineRelease.IsCompatible(package), "Cinematic beta 29 remains compatible");
             File.WriteAllText(Path.Combine(package, "cinematic-engine.json"), "{\"tag\":\"v0.9.37\",\"upstreamCommit\":\"old\"}");
             Check(!EngineRelease.IsCompatible(package), "An old engine package is rejected");
             var oldPort = Path.Combine(root, "old-port");

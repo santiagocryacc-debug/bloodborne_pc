@@ -359,7 +359,7 @@ public partial class MainWindow : Window
             if (string.IsNullOrWhiteSpace(path) || !File.Exists(path))
             {
                 _ini = null;
-                StatusText.Text = "lantern.ini not found. Place this launcher in the Lantern Engine 0.9.39 beta 29 folder.";
+                StatusText.Text = "lantern.ini not found. Place this launcher in a compatible Bloodborne Cinematic folder.";
                 return;
             }
 
@@ -504,25 +504,34 @@ public partial class MainWindow : Window
 
     private void AutoDetectGameDirectory()
     {
-        // Prefer the engine-provided path, even when this distribution stores eboot.bin in a subfolder.
+        if (Directory.Exists(_gameDir))
+            return;
         var engineStart = LocateEngineStart();
         if (engineStart is null)
             return;
-        var pathFile = Path.Combine(Path.GetDirectoryName(engineStart)!, "game_dir");
-        if (!File.Exists(pathFile))
+        var candidate = ReadRememberedGameDirectory(engineStart);
+        if (candidate is null)
             return;
-        try
+        _gameDir = candidate;
+        UpdateGameDirectoryDisplay();
+        SaveSettings();
+    }
+
+    private static string? ReadRememberedGameDirectory(string engineStart)
+    {
+        var engineOut = Path.GetDirectoryName(engineStart)!;
+        foreach (var name in new[] { "game_dir.txt", "game_dir" })
         {
-            var candidate = File.ReadAllText(pathFile).Trim().Trim('"');
-            if (Directory.Exists(candidate))
+            try
             {
-                _gameDir = candidate;
-                UpdateGameDirectoryDisplay();
-                SaveSettings();
+                var candidate = File.ReadAllText(Path.Combine(engineOut, name)).Trim().Trim('"').Trim();
+                if (Directory.Exists(candidate))
+                    return candidate;
             }
+            catch (IOException) { }
+            catch (UnauthorizedAccessException) { }
         }
-        catch (IOException) { }
-        catch (UnauthorizedAccessException) { }
+        return null;
     }
 
     private async void Play_Click(object sender, RoutedEventArgs e)
@@ -532,23 +541,11 @@ public partial class MainWindow : Window
         try
         {
             var engineStart = LocateEngineStart()
-                ?? throw new FileNotFoundException("engine/out/bb-start.exe was not found beside the port.");
-            // Resolve again at launch time: the engine's game_dir is the source of truth.
-            var gamePathFile = Path.Combine(Path.GetDirectoryName(engineStart)!, "game_dir");
-            if (File.Exists(gamePathFile))
-            {
-                var fromEngine = File.ReadAllText(gamePathFile)
-                    .Trim().TrimStart('\uFEFF').Trim('"').Trim();
-                if (Directory.Exists(fromEngine))
-                    _gameDir = fromEngine;
-            }
-
-            if (string.IsNullOrWhiteSpace(_gameDir) || !Directory.Exists(_gameDir))
-                throw new InvalidOperationException(
-                    "Game directory not accessible. Engine file: " + gamePathFile +
-                    "\nFile exists: " + File.Exists(gamePathFile) +
-                    "\nSaved directory: " + (_gameDir.Length == 0 ? "(empty)" : _gameDir) +
-                    "\nCheck that drive Y: is available, or select the folder manually.");
+                ?? throw new FileNotFoundException("Compatible Cinematic Engine Not Found.");
+            if (!Directory.Exists(_gameDir))
+                _gameDir = ReadRememberedGameDirectory(engineStart) ?? _gameDir;
+            if (!Directory.Exists(_gameDir))
+                throw new DirectoryNotFoundException("Game Folder Not Found. Select A Game Folder.");
 
             UpdateGameDirectoryDisplay();
 
@@ -700,7 +697,7 @@ public partial class MainWindow : Window
     {
         var iniPath = FindIniPath();
         if (string.IsNullOrWhiteSpace(iniPath))
-            throw new InvalidOperationException("lantern.ini was not found. Place this launcher in the Lantern Engine 0.9.39 beta 29 folder.");
+            throw new InvalidOperationException("lantern.ini was not found. Place this launcher in a compatible Bloodborne Cinematic folder.");
         _ini = new IniFile(iniPath);
         ApplyPendingLookValues(_ini);
         _ini.Set("output_res", Selected(ResolutionBox, "1920x1080"));

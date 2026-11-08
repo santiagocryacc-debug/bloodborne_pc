@@ -1,0 +1,83 @@
+name: Bloodborne Cinematic Lantern 0.9.39 beta 31
+
+on:
+  workflow_dispatch:
+  pull_request:
+    branches: [lantern-0-9-39-beta29-integration]
+
+permissions:
+  contents: read
+  actions: read
+
+jobs:
+  package:
+    runs-on: windows-latest
+    timeout-minutes: 100
+    defaults:
+      run:
+        shell: pwsh
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+      - name: Verify that the native patch inputs match the approved build
+        run: |
+          git diff --exit-code 53b1b42ede517cb22a8793b19d120a51ee029af4 HEAD -- launcher/minimal/engine39beta29
+          if ($LASTEXITCODE -ne 0) { throw 'Native inputs changed. Rebuild the native engine and update the pinned run.' }
+      - uses: actions/setup-dotnet@v4
+        with:
+          dotnet-version: '8.0.x'
+      - name: Restore icon and compile cinematic launcher
+        run: |
+          $ErrorActionPreference = 'Stop'
+          $project = 'launcher/minimal/BloodborneMinimalLauncher'
+          $icon = (Get-Content "$project/Bloodborne.ico.b64" -Raw).Trim()
+          [IO.File]::WriteAllBytes((Join-Path (Get-Location) "$project/Bloodborne.ico"), [Convert]::FromBase64String($icon))
+          dotnet publish "$project/BloodborneMinimalLauncher.csproj" -c Release -r win-x64 --self-contained true -p:PublishSingleFile=true -p:IncludeNativeLibrariesForSelfExtract=true -p:EnableCompressionInSingleFile=true -o cinematic-launcher
+          if ($LASTEXITCODE -ne 0) { throw 'Cinematic launcher build failed' }
+      - name: Verify configuration and render previews
+        run: |
+          dotnet run --project launcher/minimal/tests/CinematicChecks/CinematicChecks.csproj -c Release -- validation
+          if ($LASTEXITCODE -ne 0) { throw 'Cinematic configuration checks failed' }
+      - uses: actions/upload-artifact@v4
+        with:
+          name: Cinematic039Beta31-Launcher
+          path: cinematic-launcher/Launcher.exe
+          if-no-files-found: error
+          retention-days: 30
+      - uses: actions/download-artifact@v4
+        with:
+          name: Lantern039Beta31-HideOutputResolution-native
+          path: patched-engine
+          run-id: 42429521640
+          github-token: ${{ github.token }}
+      - name: Download the exact official release and assemble
+        run: |
+          $ErrorActionPreference = 'Stop'
+          $tag = 'v0.9.39-beta.31'
+          $assetName = "LanternEngine-$tag-win64.zip"
+          $release = Invoke-RestMethod -Uri "https://api.github.com/repos/Awakenchan/LanternEngine/releases/tags/$tag"
+          $asset = @($release.assets | Where-Object name -CEQ $assetName)
+          if ($asset.Count -ne 1 -or $asset[0].digest -cnotmatch '^sha256:[a-f0-9]{64}$') { throw 'Official release asset or SHA256 digest is missing' }
+          $officialHash = $asset[0].digest.Substring(7)
+          Invoke-WebRequest -Uri "https://github.com/Awakenchan/LanternEngine/releases/download/$tag/$assetName" -OutFile official.zip
+          python -m pip install pefile==2024.8.26
+          if ($LASTEXITCODE -ne 0) { throw 'PE verification dependency failed' }
+          ./launcher/minimal/Build-Cinematic039.ps1 -OfficialArchive official.zip -OfficialSha256 $officialHash -NativeDirectory patched-engine -LauncherDirectory cinematic-launcher -WorkDirectory package-work -OutputDirectory package/BloodborneCinematic
+      - uses: actions/upload-artifact@v4
+        with:
+          name: BloodborneCinematic-Lantern-0.9.39-beta31-FULL
+          path: package/BloodborneCinematic/
+          if-no-files-found: error
+          compression-level: 6
+          retention-days: 30
+      - name: Upload validation report and previews
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: Cinematic039Beta31-validation
+          path: |
+            validation/*.png
+            validation/*.txt
+          if-no-files-found: ignore
+          retention-days: 14

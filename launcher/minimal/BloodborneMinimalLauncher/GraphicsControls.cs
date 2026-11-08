@@ -23,7 +23,6 @@ public partial class MainWindow
         AddOptions(NativeEngineOptionsPanel, GraphicsOptions.NativeEngine, _engineControls);
         AddOptions(NewFixesPanel, GraphicsOptions.Fixes, _engineControls);
         LoadNewEngineOptions(new IniFile(""));
-        EngineVersionText.Text = "Lantern " + GraphicsOptions.Version.Replace(" beta ", " Beta ");
         PresetBox.SelectionChanged += (_, _) => UpdateCustomRenderRatio();
         UpdateCustomRenderRatio();
     }
@@ -117,7 +116,6 @@ public partial class MainWindow
         LoadOptions(ini, GraphicsOptions.Lighting.Concat(GraphicsOptions.Upscaling), _graphicsControls);
         DlssJitterFadeBox.IsChecked = ini.Get("dlss_jitter_fade", "0") == "1";
         UpscaleBeforePostBox.IsChecked = ini.Get("upscale_before_post", "0") == "1";
-        AmdAntiLagBox.IsChecked = ini.Get("anti_lag", "1") == "1";
     }
 
     private void SaveNewGraphicsOptions(IniFile ini)
@@ -125,12 +123,13 @@ public partial class MainWindow
         foreach (var (key, control) in _graphicsControls) ini.Set(key, OptionValue(control));
         ini.Set("dlss_jitter_fade", DlssJitterFadeBox.IsChecked == true ? "1" : "0");
         ini.Set("upscale_before_post", UpscaleBeforePostBox.IsChecked == true ? "1" : "0");
-        ini.Set("anti_lag", AmdAntiLagBox.IsChecked == true ? "1" : "0");
         SaveUpscalingPreset(ini);
     }
 
     internal void ApplyNewEngineOptions(ProcessStartInfo info)
     {
         foreach (var (key, control) in _engineControls) info.Environment[key] = OptionValue(control);
+        // Beta 31 has a separate path for draws sourced directly from game objects.
+        info.Environment["LANTERN_GX_NATIVE"] = info.Environment["LANTERN_GX_DRAWS"];
     }
 }
