@@ -1,22 +1,19 @@
 # Bloodborne Cinematic
 
-Esta revision conserva todos los graficos de Lantern v0.9.39-beta.29 y deja solo Edit Save para editar los personajes de la carpeta de partidas activa.
+Esta revision conserva todos los graficos de Lantern v0.9.39-beta.31 y deja solo Edit Save para editar los personajes de la carpeta de partidas activa.
 Se quitaron Save Manager, creacion y cambio de perfiles, importacion y restauracion. Se conserva el boton Backup original del menu principal con su origen y destino fijos.
 Si hay un solo personaje, el editor se abre directamente. Si hay varios, se elige uno de la misma partida activa.
 Se conservan los atributos, ecos, insight, inventario, objetos, equipo, jefes y lamparas del editor.
 Se mantiene la copia interna previa a una edicion, el bloqueo con el juego abierto y la verificacion de cambios externos.
 Los directorios historicos de backups no se borran ni se ofrecen para recuperar partidas.
 
-Entregas separadas: Launcher-Con-Editor.exe y Launcher-Solo-Graphics.exe.
-La segunda es el binario exacto anterior a la integracion de saves, con los graficos nuevos.
-Cerrar el launcher, renombrar la version elegida como Launcher.exe y copiarla a BB Port.
 Conservar engine, Assets, lantern.ini, mods, partidas y preferencias.
 
 Leer CONSIGNA-FUTURO.md y BloodborneMinimalLauncher/AGENTS.md antes de tocar la interfaz.
-121 comprobaciones locales aprobadas: 28 de graficos y 93 de partidas y navegacion.
-No se realizo una prueba completa dentro del juego.
 
 ## Engine Y Menus
+
+La beta 31 requiere su propio motor y runtime. El Launcher.exe tambien funciona con el paquete Cinematic beta 29. El control Native Renderer Draws permite volver a la ruta anterior del renderizador de la beta 31.
 
 La entrega del 2026-11-04 recompila juntos bb-probe, bb-engine-assets y bb-shader-lab con sus DLL correspondientes.
 Esto elimina la mezcla de Protobuf que provocaba Entry Point Not Found en el helper de shaders.

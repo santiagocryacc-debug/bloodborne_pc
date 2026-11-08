@@ -3,14 +3,12 @@ using System.Collections.Generic;
 
 namespace BloodborneMinimalLauncher;
 
-// Keys, defaults and bounds from the pinned v0.9.39-beta.29 engine settings.
+// Keys, defaults and bounds from the supported Lantern engine settings.
 internal sealed record GraphicOption(string Key, string Label, string Default,
     double? Min = null, double? Max = null, (string Label, string Value)[]? Choices = null);
 
 internal static class GraphicsOptions
 {
-    internal const string Version = "0.9.39 beta 29";
-    internal const string UpstreamCommit = "e6b943dd969d99561545315f3d801f10e4a6cf8d";
 
     internal static string NormalizeUpscaler(string value) => value is "fsr3" or "fsr4" ? "fsr" : value;
 
